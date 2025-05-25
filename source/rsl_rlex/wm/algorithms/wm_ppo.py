@@ -98,6 +98,8 @@ class WMPPO(PPO):
             #generator = self.storage.mini_batch_generator(self.num_mini_batches, self.num_learning_epochs)
             raise 'don\'t support recurrent'
 
+        hid_masks = None
+
         # iterate over batches
         for (
             obs_batch,
@@ -120,19 +122,17 @@ class WMPPO(PPO):
             # original batch size
             continuous = self.actor_critic.continuous_observations(obs_batch)
             discrete = self.actor_critic.discrete_observations(obs_batch)
-            continuous_batch, discrete_batch = self.actor_critic.reconstruction(obs_batch, masks=masks_batch, hidden_states=hid_states_batch[0])
+            continuous_batch, discrete_batch = self.actor_critic.reconstruction(obs_batch, masks=masks_batch, hidden_states=hid_states_batch[2])
 
-            continuous_loss = F.mse_loss(continuous, continuous_batch)
-            discrete_loss = F.binary_cross_entropy(discrete, discrete_batch)
+            #
+            reconstruct = torch.cat((continuous_batch.detach(), discrete_batch.detach()), dim = -1)
+            valid = reconstruct.shape[1]
+
+            continuous_loss = F.mse_loss(continuous[:, :valid], continuous_batch)
+            discrete_loss = F.binary_cross_entropy(discrete[:, :valid], discrete_batch)
             reconstruct_loss = continuous_loss + discrete_loss * 0.3
 
-            continuous_batch = continuous_batch.detach()
-            discrete_batch = discrete_batch.detach()
-
-            reconstruct = torch.cat((continuous_batch, discrete_batch), dim = -1)
-            #######################
-
-            original_batch_size = reconstruct.shape[0]
+            original_batch_size = reconstruct.shape[1]
 
             # check if we should normalize advantages per mini batch
             if self.normalize_advantage_per_mini_batch:
@@ -160,7 +160,19 @@ class WMPPO(PPO):
             # Recompute actions log prob and entropy for current batch of transitions
             # Note: we need to do this because we updated the actor_critic with the new parameters
             # -- actor
-            self.actor_critic.act(reconstruct, masks=masks_batch, hidden_states=hid_states_batch[0])
+            hid_states = hid_states_batch[0]
+            if isinstance(hid_states, (list, tuple)):
+                result = []
+                for _hid in hid_states:
+                    result.append(_hid[:, :valid])
+                hid_states = result
+            else:
+                hid_states = hid_states[:, :valid]
+
+            if hid_masks is None:
+                hid_masks = torch.ones(*reconstruct.shape[:2], dtype=torch.bool, device = reconstruct.device)
+
+            self.actor_critic.act(reconstruct, masks=hid_masks, hidden_states=hid_states)
             actions_log_prob_batch = self.actor_critic.get_actions_log_prob(actions_batch)
             # -- critic
             value_batch = self.actor_critic.evaluate(
