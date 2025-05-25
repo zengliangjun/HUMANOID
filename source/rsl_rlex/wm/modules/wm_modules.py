@@ -146,7 +146,7 @@ class WMActorCritic(ActorCritic):
         if isinstance(observations, dict):
             rc_observations = self.reconstruction(observations)
             rc_observations = torch.cat(rc_observations, dim = -1)
-        elif isinstance(observations, [list, tuple]):
+        elif isinstance(observations, (list, tuple)):
             rc_observations = torch.cat(observations, dim = -1)
         elif isinstance(observations, torch.Tensor):
             rc_observations = observations
