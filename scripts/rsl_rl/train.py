@@ -10,6 +10,11 @@
 import argparse
 import sys
 
+import os.path as osp
+_root = osp.join(osp.dirname(__file__), "../../source/")
+import sys
+sys.path.append(_root)
+
 from isaaclab.app import AppLauncher
 
 # local imports
@@ -46,13 +51,9 @@ simulation_app = app_launcher.app
 
 import gymnasium as gym
 import os
-import os.path as osp
 import torch
 from datetime import datetime
 
-_root = osp.join(osp.dirname(__file__), "../../source/")
-import sys
-sys.path.append(_root)
 
 from rsl_rl.runners import OnPolicyRunner
 
