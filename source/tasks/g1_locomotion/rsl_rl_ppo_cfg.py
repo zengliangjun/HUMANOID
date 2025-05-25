@@ -34,6 +34,16 @@ class G1RoughCfg(RslRlOnPolicyRunnerCfg):
         max_grad_norm=1.0,
     )
 
+
+@configclass
+class G1LstmRoughCfg(G1RoughCfg):
+
+    def __post_init__(self):
+        self.policy.class_name='ActorCriticRecurrent'
+        self.policy.rnn_type="lstm"
+
+
+
 @configclass
 class G1RoughNoSCanCfg(G1RoughCfg):
     def __post_init__(self):

@@ -23,6 +23,16 @@ gym.register(
     },
 )
 
+gym.register(
+    id="G1LstmRough-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{g1_orgenv.__name__}:G1RoughEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1LstmRoughCfg",
+    },
+)
+
 from . import g1_no_scan
 
 gym.register(
