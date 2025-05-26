@@ -47,10 +47,11 @@ joint_velocity_penalty = spot_rewards.joint_velocity_penalty
 joint_pos_limits = isaaclab_rewards.joint_pos_limits
 joint_pos_limits_penalty_ratio = humanoid_rewards.joint_pos_limits_penalty_ratio
 
-joint_pos_target_l2 = cartpole_rewards.joint_vel_limits
+joint_pos_target_l2 = cartpole_rewards.joint_pos_target_l2
 
 joint_deviation_l1 = isaaclab_rewards.joint_deviation_l1
 
+joint_acc_l2 = isaaclab_rewards.joint_acc_l2
 joint_acceleration_penalty = spot_rewards.joint_acceleration_penalty
 joint_position_penalty = spot_rewards.joint_position_penalty
 '''
