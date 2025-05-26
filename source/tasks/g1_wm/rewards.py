@@ -99,7 +99,7 @@ class RewardsCfg:
                 joint_names=[
                 ".*_hip_yaw_joint",
                 ".*_hip_roll_joint",
-                             ])},
+                ])},
     )
 
     penalize_other = RewardTermCfg(
@@ -109,33 +109,29 @@ class RewardsCfg:
             "asset_cfg": SceneEntityCfg(
                 "robot",
                 joint_names=[
-                    "torso_joint",
                     ".*_ankle_roll_joint",
-
                     ".*_shoulder_pitch_joint",
                     ".*_shoulder_roll_joint",
                     ".*_shoulder_yaw_joint",
-                    ".*_elbow_pitch_joint",
-                    ".*_elbow_roll_joint",
+                    ".*_elbow_joint",
+                    ".*_wrist_pitch_joint",
+                    ".*_wrist_roll_joint",
+                    ".*_wrist_yaw_joint",
+                    "waist_pitch_joint"
                 ],
             )
         },
     )
 
-    penalize_fingers = RewardTermCfg(
+    penalize_waist = RewardTermCfg(
         func=mdp.joint_deviation_l1,
-        weight=-0.05,
+        weight=-0.3,
         params={
             "asset_cfg": SceneEntityCfg(
                 "robot",
                 joint_names=[
-                    ".*_five_joint",
-                    ".*_three_joint",
-                    ".*_six_joint",
-                    ".*_four_joint",
-                    ".*_zero_joint",
-                    ".*_one_joint",
-                    ".*_two_joint",
+                    "waist_yaw_joint",
+                    "waist_roll_joint"
                 ],
             )
         },
@@ -170,13 +166,17 @@ class RewardsCfg:
             "sensor_cfg":
             SceneEntityCfg("contact_forces",
                 body_names=[
-                    "torso_link",
+                    'torso_link',
                     ".*_hip_yaw_link",
                     ".*_hip_roll_link",
+                    ".*_hip_pitch_link",
+                    ".*_knee_link",
                     ".*_shoulder_pitch_link",
                     ".*_shoulder_roll_link",
                     ".*_shoulder_yaw_link",
-                    ".*_elbow_pitch_link",
-                    ".*_elbow_roll_link",
+                    ".*_elbow_link",
+                    ".*_wrist_pitch_link",
+                    ".*_wrist_roll_link",
+                    ".*_wrist_yaw_link",
                 ]),
             "threshold": 1.0})

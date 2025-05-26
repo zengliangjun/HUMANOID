@@ -1,4 +1,4 @@
-from isaaclabex.assets.robots import unitree
+from isaaclabex.assets.robots import unitree_g129
 from isaaclabex.scenes import scenes_cfg
 from isaaclabex.envs import rl_env_exts_cfg
 from isaaclab.utils import configclass
@@ -21,7 +21,7 @@ class G1RoughEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
 
     def __post_init__(self):
         # ROBOT
-        self.scene.robot = unitree.G1_MINIMAL_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = unitree_g129.UNITREE_GO129_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/torso_link"
         self.events.base_external_force_torque = None
 
@@ -53,6 +53,9 @@ class G1RoughEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
 
 @configclass
 class G1NoWMEnvCfg(G1RoughEnvCfg):
+    # reward positive flag
+    #reward_positive_flag = True
+
     def __post_init__(self):
         super(G1NoWMEnvCfg, self).__post_init__()
         self.observations.policy.concatenate_terms = True
