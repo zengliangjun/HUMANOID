@@ -24,6 +24,13 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         '''
         self.average_episode_length = torch.tensor(0, device=self.device, dtype=torch.long)
 
+    def step(self, action: torch.Tensor) -> VecEnvStepReturn:
+        super(ManagerBasedRLEnv_Extends, self).step(action)
+
+        # positive reward
+        if self.cfg.reward_positive_flag:
+            torch.clamp_min_(self.reward_buf, 0)
+        return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras
 
     def _reset_idx(self, env_ids: Sequence[int]):
         '''

@@ -16,3 +16,8 @@ class ManagerBasedRLExtendsCfg(ManagerBasedRLEnvCfg):
     # NOTE it is used after reset
     '''
     num_compute_average_epl: int = 10000
+
+    '''
+    # reward positive flag
+    '''
+    reward_positive_flag: bool = False
