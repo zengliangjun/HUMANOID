@@ -94,10 +94,7 @@ UNITREE_GO129_CFG = ArticulationCfg(
             effort_limit=20,
             joint_names_expr=[".*_ankle_pitch_joint", ".*_ankle_roll_joint"],
             stiffness=20.0,
-            damping={
-                ".*_ankle_pitch_joint": 0.2,
-                ".*_ankle_roll_joint": 0.1,
-            },
+            damping=2,
             armature=0.003597,
         ),
         "arms": IdealPDActuatorCfg(
