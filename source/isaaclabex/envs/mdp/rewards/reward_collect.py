@@ -4,7 +4,7 @@ from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoi
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
 
-from . import base, joint, feet_contact
+from . import base, joint, feet_contact, feet
 '''
 episodic
 '''
@@ -70,11 +70,18 @@ foot_slip_penalty = spot_rewards.foot_slip_penalty
 penalty_feet_stumble = feet_contact.penalty_feet_stumble
 
 foot_clearance_reward = spot_rewards.foot_clearance_reward
+penalize_foot_clearance = feet.penalize_foot_clearance
 
 reward_feet_forces_z = feet_contact.reward_feet_forces_z
 
 GaitReward = spot_rewards.GaitReward
+"""
+Contact sensor.
+"""
+undesired_contacts = isaaclab_rewards.undesired_contacts
+contact_forces = isaaclab_rewards.contact_forces
 
+rew_contact_with_phase = feet.rew_contact_with_phase
 """
 Action penalties.
 """
@@ -84,11 +91,6 @@ action_smoothness_penalty = spot_rewards.action_smoothness_penalty
 
 
 action_l2 = isaaclab_rewards.action_l2
-"""
-Contact sensor.
-"""
-undesired_contacts = isaaclab_rewards.undesired_contacts
-contact_forces = isaaclab_rewards.contact_forces
 
 """
 Velocity-tracking rewards.
