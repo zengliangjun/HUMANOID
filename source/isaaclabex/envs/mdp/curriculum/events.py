@@ -9,8 +9,6 @@ if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
     from isaaclab.managers import EventTermCfg
 
-from isaaclab.managers import EventTermCfg
-
 @configclass
 class EventCurriculumStepItem:
     #start_steps: int = MISSING

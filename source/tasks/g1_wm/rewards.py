@@ -8,7 +8,7 @@ class RewardsCfg:
     # -- task
     rew_tracking_linear = RewardTermCfg(
         func=reward_collect.track_lin_vel_xy_exp,
-        weight=1.0,
+        weight=5.0,
         params={"std": 0.25,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
@@ -78,7 +78,7 @@ class RewardsCfg:
 
     penalize_pitch = RewardTermCfg(
         func=reward_collect.joint_deviation_l1,
-        weight=-.05,
+        weight=-.025,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[".*_hip_pitch_joint",
@@ -100,7 +100,7 @@ class RewardsCfg:
 
     penalize_other = RewardTermCfg(
         func=reward_collect.joint_deviation_l1,
-        weight=-0.2,
+        weight=-0.01,
         params={
             "asset_cfg": SceneEntityCfg(
                 "robot",
@@ -112,8 +112,7 @@ class RewardsCfg:
                     ".*_elbow_joint",
                     ".*_wrist_pitch_joint",
                     ".*_wrist_roll_joint",
-                    ".*_wrist_yaw_joint",
-                    "waist_pitch_joint"
+                    ".*_wrist_yaw_joint"
                 ],
             )
         },
@@ -127,7 +126,8 @@ class RewardsCfg:
                 "robot",
                 joint_names=[
                     "waist_yaw_joint",
-                    "waist_roll_joint"
+                    "waist_roll_joint",
+                    "waist_pitch_joint"
                 ],
             )
         },

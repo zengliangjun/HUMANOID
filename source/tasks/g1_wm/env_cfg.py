@@ -70,3 +70,29 @@ class G1NoWMEnvCfg(G1RoughEnvCfg):
         self.observations.policy.payload.noise = Unoise(n_min=-0.2, n_max=0.2)
         self.observations.policy.stiffness.noise = Unoise(n_min=-0.2, n_max=0.2)
         self.observations.policy.damping.noise = Unoise(n_min=-0.2, n_max=0.2)
+
+@configclass
+class G1NoWMEnvCfg_PLAY(G1NoWMEnvCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+
+        # make a smaller scene for play
+        self.scene.num_envs = 50
+        self.scene.env_spacing = 2.5
+        self.episode_length_s = 40.0
+        # spawn the robot randomly in the grid (instead of their terrain levels)
+        self.scene.terrain.max_init_terrain_level = None
+        # reduce the number of terrains to save memory
+        if self.scene.terrain.terrain_generator is not None:
+            self.scene.terrain.terrain_generator.size=(6.0, 6.0)
+            self.scene.terrain.terrain_generator.num_rows = 6
+            self.scene.terrain.terrain_generator.num_cols = 6
+            self.scene.terrain.terrain_generator.curriculum = False
+
+        # disable randomization for play
+        self.observations.policy.enable_corruption = False
+        # remove random pushing
+        self.events = None
+        self.curriculum = None
+
