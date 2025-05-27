@@ -189,9 +189,42 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
 
     time_out = TerminationTermCfg(func=mdp.time_out, time_out=True)
-    body_contact = TerminationTermCfg(
+    height = TerminationTermCfg(
+        func=mdp.root_height_below_minimum,
+        params={"minimum_height": 0.6})
+
+    contact = TerminationTermCfg(
         func=mdp.illegal_contact,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=["torso_link"]), "threshold": 1.0},
+        params={"sensor_cfg": SceneEntityCfg("contact_forces",
+                            body_names=[
+                                'pelvis',
+                                'imu_in_pelvis',
+                                'left_hip_pitch_link',
+                                'left_hip_roll_link',
+                                'left_hip_yaw_link',
+                                'left_knee_link',
+                                'pelvis_contour_link',
+                                'right_hip_pitch_link',
+                                'right_hip_roll_link',
+                                'right_hip_yaw_link',
+                                'right_knee_link',
+                                'torso_link',
+                                'd435_link',
+                                'head_link',
+                                'imu_in_torso',
+                                'left_shoulder_pitch_link',
+                                'left_shoulder_roll_link',
+                                'left_shoulder_yaw_link',
+                                'left_elbow_link',
+                                'left_wrist_roll_rubber_hand',
+                                'logo_link',
+                                'mid360_link',
+                                'right_shoulder_pitch_link',
+                                'right_shoulder_roll_link',
+                                'right_shoulder_yaw_link',
+                                'right_elbow_link',
+                                'right_wrist_roll_rubber_hand'
+                                        ]), "threshold": 1.0},
     )
     out_of_terrain = TerminationTermCfg(
         func=mdp.terrain_out_of_bounds,
