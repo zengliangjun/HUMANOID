@@ -2,7 +2,7 @@ from isaaclabex.assets.robots import unitree_g112
 from isaaclabex.scenes import scenes_cfg
 from isaaclabex.envs import rl_env_exts_cfg
 from isaaclab.utils import configclass
-from .  import mdps, rewards
+from .  import mdps, rewards, curriculum
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
 @configclass
@@ -17,6 +17,7 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     rewards = rewards.RewardsCfg()
     terminations = mdps.TerminationsCfg()
     events = mdps.EventCfg()
+    curriculum = curriculum.CurriculumCfg()
 
     def __post_init__(self):
         # ROBOT
@@ -51,5 +52,29 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
         else:
             if self.scene.terrain.terrain_generator is not None:
                 self.scene.terrain.terrain_generator.curriculum = False
+
+
+@configclass
+class G1FlatEnvCfg_PLAY(G1FlatEnvCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+
+        # make a smaller scene for play
+        self.scene.num_envs = 50
+        self.scene.env_spacing = 2.5
+        self.episode_length_s = 40.0
+        # spawn the robot randomly in the grid (instead of their terrain levels)
+        self.scene.terrain.max_init_terrain_level = None
+        # reduce the number of terrains to save memory
+        if self.scene.terrain.terrain_generator is not None:
+            self.scene.terrain.terrain_generator.size=(6.0, 6.0)
+            self.scene.terrain.terrain_generator.num_rows = 6
+            self.scene.terrain.terrain_generator.num_cols = 6
+            self.scene.terrain.terrain_generator.curriculum = False
+
+        # disable randomization for play
+        self.observations.policy.enable_corruption = False
+        # remove random pushing
 
 
