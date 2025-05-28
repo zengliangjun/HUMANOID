@@ -1,7 +1,6 @@
 from __future__ import annotations
 import torch
 from collections.abc import Sequence
-from isaaclab.managers import RewardTermCfg
 from isaaclab.utils import configclass
 from typing import TYPE_CHECKING
 from dataclasses import MISSING

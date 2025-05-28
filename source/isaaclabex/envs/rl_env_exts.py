@@ -12,6 +12,7 @@ from isaaclab.envs import ManagerBasedRLEnv
 
 from isaaclab.envs.common import VecEnvStepReturn
 from isaaclabex.envs.rl_env_exts_cfg import ManagerBasedRLExtendsCfg
+from isaaclabex.envs.managers.constraint_manager import ConstraintManager
 from collections.abc import Sequence
 
 class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
@@ -23,6 +24,12 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         for reward penalty curriculum
         '''
         self.average_episode_length = torch.tensor(0, device=self.device, dtype=torch.long)
+        self.max_iterations_steps = cfg.num_transitions_per_env * cfg.max_iterations
+
+    def load_managers(self):
+        super(ManagerBasedRLEnv_Extends, self).load_managers()
+        self.termination_manager = ConstraintManager(self.cfg.terminations, self)
+
 
     def step(self, action: torch.Tensor) -> VecEnvStepReturn:
         super(ManagerBasedRLEnv_Extends, self).step(action)

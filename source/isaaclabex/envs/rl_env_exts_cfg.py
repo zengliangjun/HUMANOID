@@ -21,3 +21,10 @@ class ManagerBasedRLExtendsCfg(ManagerBasedRLEnvCfg):
     # reward positive flag
     '''
     reward_positive_flag: bool = False
+
+
+    '''
+    copy from agent cfg
+    '''
+    num_transitions_per_env: int = 24
+    max_iterations: int = 5000
