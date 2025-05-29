@@ -51,7 +51,7 @@ class ObservationsCfg:
         joint_pos = ObservationTermCfg(func=mdp.joint_pos_rel, noise=Unoise(n_min=-0.01, n_max=0.01))
         joint_vel = ObservationTermCfg(func=mdp.joint_vel_rel, noise=Unoise(n_min=-0.5, n_max=0.5))
         actions = ObservationTermCfg(func=mdp.last_action)
-        commands = ObservationTermCfg(func=ext_obs.phase_commands, params={"command_name": "phase_command"})
+        phase = ObservationTermCfg(func=ext_obs.phase_commands, params={"command_name": "phase_command"})
 
         def __post_init__(self):
             self.enable_corruption = True

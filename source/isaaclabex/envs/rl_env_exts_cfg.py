@@ -26,5 +26,5 @@ class ManagerBasedRLExtendsCfg(ManagerBasedRLEnvCfg):
     '''
     copy from agent cfg
     '''
-    num_transitions_per_env: int = 24
+    num_steps_per_env: int = 24
     max_iterations: int = 5000

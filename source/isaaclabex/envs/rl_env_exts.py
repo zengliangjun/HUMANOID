@@ -24,7 +24,7 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         for reward penalty curriculum
         '''
         self.average_episode_length = torch.tensor(0, device=self.device, dtype=torch.long)
-        self.max_iterations_steps = cfg.num_transitions_per_env * cfg.max_iterations
+        self.max_iterations_steps = cfg.num_steps_per_env * cfg.max_iterations
 
     def load_managers(self):
         super(ManagerBasedRLEnv_Extends, self).load_managers()
