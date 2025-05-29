@@ -13,7 +13,7 @@ gym.register(
 )
 
 gym.register(
-    id="G112Rough-Play-v0",
+    id="G112Flat-Play-v0",
     entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
     disable_env_checker=True,
     kwargs={

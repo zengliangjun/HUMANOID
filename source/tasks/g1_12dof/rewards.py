@@ -19,7 +19,7 @@ class RewardsCfg:
     )
     rew_tracking_z = RewardTermCfg(
         func=reward_collect.track_ang_vel_z_exp,
-        weight=1.0,
+        weight=.5,
         params={"std": 0.25,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
@@ -69,6 +69,10 @@ class RewardsCfg:
         func=reward_collect.joint_pos_limits,
         weight=-5.0, params={"asset_cfg": SceneEntityCfg("robot")}
     )
+    penalize_torques = RewardTermCfg(
+        func=reward_collect.joint_torques_l2,
+        weight=-0.00001, params={"asset_cfg": SceneEntityCfg("robot")}
+    )
     penalize_hip = RewardTermCfg(
         func=reward_collect.joint_deviation_l1,
         weight=-1.0,
@@ -94,6 +98,7 @@ class RewardsCfg:
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
+            'target_height': 0.08 + 0.055
         },
     )
 

@@ -45,11 +45,11 @@ class ObservationsCfg:
     @configclass
     class PolicyCfg(ObservationGroupCfg):
         """Observations for policy group."""
-        ang_vel = ObservationTermCfg(func=mdp.base_ang_vel, noise=Unoise(n_min=-0.2, n_max=0.2))
+        ang_vel = ObservationTermCfg(func=mdp.base_ang_vel, scale = 0.25, noise=Unoise(n_min=-0.2, n_max=0.2))
         gravity = ObservationTermCfg(func=mdp.projected_gravity, noise=Unoise(n_min=-0.05, n_max=0.05))
-        commands = ObservationTermCfg(func=mdp.generated_commands, params={"command_name": "base_velocity"})
+        commands = ObservationTermCfg(func=mdp.generated_commands, scale = 0.25, params={"command_name": "base_velocity"})
         joint_pos = ObservationTermCfg(func=mdp.joint_pos_rel, noise=Unoise(n_min=-0.01, n_max=0.01))
-        joint_vel = ObservationTermCfg(func=mdp.joint_vel_rel, noise=Unoise(n_min=-0.5, n_max=0.5))
+        joint_vel = ObservationTermCfg(func=mdp.joint_vel_rel, scale = 0.05, noise=Unoise(n_min=-0.5, n_max=0.5))
         actions = ObservationTermCfg(func=mdp.last_action)
         phase = ObservationTermCfg(func=ext_obs.phase_commands, params={"command_name": "phase_command"})
 
@@ -61,7 +61,8 @@ class ObservationsCfg:
     class CriticCfg(PolicyCfg):
 
         ## proprioceptive
-        lin_vel = ObservationTermCfg(func=mdp.base_lin_vel, noise=Unoise(n_min=-0.1, n_max=0.1))
+        lin_vel = ObservationTermCfg(func=mdp.base_lin_vel, scale = 2.0, noise=Unoise(n_min=-0.1, n_max=0.1))
+        '''
         contact_forces = ObservationTermCfg(
             func=privileged.feet_contact_forces,
             params={
@@ -93,6 +94,7 @@ class ObservationsCfg:
                 "threshold": 1.0,
             },
         )
+        '''
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -107,6 +109,7 @@ class ObservationsCfg:
 class EventCfg:
     """Configuration for events."""
     # startup
+    '''
     startup_material = EventTermCfg(
         func=mdp.randomize_rigid_body_material,
         mode="startup",
@@ -118,6 +121,7 @@ class EventCfg:
             "num_buckets": 64,
         },
     )
+    '''
     # reset
     reset_base = EventTermCfg(
         func=mdp.reset_root_state_uniform,
@@ -191,7 +195,7 @@ class TerminationsCfg:
     time_out = TerminationTermCfg(func=mdp.time_out, time_out=True)
     height = TerminationTermCfg(
         func=mdp.root_height_below_minimum,
-        params={"minimum_height": 0.6})
+        params={"minimum_height": 0.4})
 
     contact = TerminationTermCfg(
         func=mdp.illegal_contact,
