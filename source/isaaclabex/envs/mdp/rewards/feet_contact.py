@@ -22,6 +22,21 @@ def reward_feet_forces_z(env: ManagerBasedRLEnv,
     _reward = torch.max(_reward, dim = 1)[0]
     return _reward
 
+def penalize_feet_forces(env: ManagerBasedRLEnv,
+   sensor_cfg: SceneEntityCfg, threshold: float = 500, max_over_penalize_forces: float = 400) -> torch.Tensor:
+
+    """
+    Calculates the reward for keeping contact forces within a specified range. Penalizes
+    high contact forces on the feet.
+    forces above threshold value are penalized
+    """
+
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    forces = torch.norm(contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids], dim=-1)
+    _reward = torch.clamp(forces - threshold, min = 0, max = max_over_penalize_forces)
+    _reward = torch.sum(_reward, dim = -1)
+    return _reward
+
 def penalty_feet_stumble(env: ManagerBasedRLEnv,
    sensor_cfg: SceneEntityCfg):
     '''

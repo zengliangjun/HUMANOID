@@ -20,16 +20,21 @@ def penalize_foot_clearance(
     pos_error = torch.square(asset.data.body_pos_w[:, asset_cfg.body_ids, 2] - target_height) * ~ contacts
     return torch.sum(pos_error, dim=-1)
 
-def rew_contact_with_phase(
-    env: ManagerBasedRLEnv,
+def penalize_feet_slide(env,
     sensor_cfg: SceneEntityCfg,
-    command_name: str):
+    contacts_threshold: float = 5,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """Penalize feet sliding.
 
-    contact_sensor: ContactSensor = env.scene[sensor_cfg.name]
-    contacts = contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :].norm(dim=-1).max(dim=1)[0] > 1.0
+    This function penalizes the agent for sliding its feet on the ground. The reward is computed as the
+    norm of the linear velocity of the feet multiplied by a binary contact sensor. This ensures that the
+    agent is penalized only when the feet are in contact with the ground.
+    """
+    # Penalize feet sliding
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    contacts = contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :].norm(dim=-1).max(dim=1)[0] > contacts_threshold
+    asset = env.scene[asset_cfg.name]
 
-    leg_phase = env.command_manager.get_command(command_name)
-    is_stance = leg_phase < 0.55
-
-    reward = ~(contacts ^ is_stance)
-    return torch.sum(reward, dim=-1)
+    body_vel = asset.data.body_lin_vel_w[:, asset_cfg.body_ids, :2]
+    reward = torch.sum(body_vel.norm(dim=-1) * contacts, dim=1)
+    return reward
