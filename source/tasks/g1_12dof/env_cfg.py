@@ -2,21 +2,21 @@ from isaaclabex.assets.robots import unitree_g112
 from isaaclabex.scenes import scenes_cfg
 from isaaclabex.envs import rl_env_exts_cfg
 from isaaclab.utils import configclass
-from .  import mdps, rewards, curriculum
-from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+from .mdps  import mdps, curriculum, obs, rewards, events
+
 
 @configclass
 class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     # Scene settings
     scene = scenes_cfg.BaseSceneCfg(num_envs=4096, env_spacing=2.5)
     # Basic settings
-    observations: mdps.ObservationsCfg = mdps.ObservationsCfg()
+    observations: obs.ObservationsCfg = obs.ObservationsCfg()
     actions =  mdps.ActionsCfg()
     commands = mdps.CommandsCfg()
     # MDP settings
     rewards = rewards.RewardsCfg()
     terminations = mdps.TerminationsCfg()
-    events = mdps.EventCfg()
+    events = events.EventCfg()
     curriculum = curriculum.CurriculumCfg()
 
     def __post_init__(self):

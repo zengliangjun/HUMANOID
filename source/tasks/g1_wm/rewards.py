@@ -6,15 +6,15 @@ from isaaclabex.envs.mdp.rewards import reward_collect
 @configclass
 class RewardsCfg:
     # -- task
-    rew_tracking_linear = RewardTermCfg(
-        func=reward_collect.track_lin_vel_xy_exp,
+    reward_lin_xy_exp = RewardTermCfg(
+        func=reward_collect.reward_lin_xy_exp,
         weight=5.0,
         params={"std": 0.25,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
-    rew_tracking_z = RewardTermCfg(
-        func=reward_collect.track_ang_vel_z_exp,
+    reward_ang_z_exp = RewardTermCfg(
+        func=reward_collect.reward_ang_z_exp,
         weight=1.0,
         params={"std": 0.25,
                 "command_name": "base_velocity",
@@ -23,7 +23,7 @@ class RewardsCfg:
 
     # feet
     rew_air_time = RewardTermCfg(
-        func=reward_collect.feet_air_time,
+        func=reward_collect.reward_air_time,
         weight=0.2,
         params={"command_name": "base_velocity",
                 "threshold": 0.4,
@@ -31,7 +31,7 @@ class RewardsCfg:
     )
 
     rew_feet_forces_z = RewardTermCfg(
-            func=reward_collect.reward_feet_forces_z,
+            func=reward_collect.reward_forces_z,
             weight=5e-3,
             params={
                 "threshold": 500,
@@ -41,43 +41,43 @@ class RewardsCfg:
 
     # episodic
     penalize_terminated = RewardTermCfg(
-        func=reward_collect.is_terminated,
+        func=reward_collect.penalize_eps_terminated,
         weight=-200,
     )
     # base
     penalize_linear_xy = RewardTermCfg(
-        func=reward_collect.ang_vel_xy_l2,
+        func=reward_collect.penalize_ang_xy_l2,
         weight=-0.05,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
     penalize_linear_z = RewardTermCfg(
-        func=reward_collect.lin_vel_z_l2,
+        func=reward_collect.penalize_lin_z_l2,
         weight=-1,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
     penalize_orientation = RewardTermCfg(
-        func=reward_collect.flat_orientation_l2,
+        func=reward_collect.penalize_ori_l2,
         weight=-2.0, params={"asset_cfg": SceneEntityCfg("robot")}
     )
 
     # joint
     penalize_energy = RewardTermCfg(
-        func=reward_collect.energy_cost,
+        func=reward_collect.penalize_energy,
         weight=-0.001,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
     penalize_joint_acc = RewardTermCfg(
-        func=reward_collect.joint_acc_l2,
+        func=reward_collect.penalize_jacc_l2,
         weight=-2.5e-7,
         params={"asset_cfg": SceneEntityCfg("robot")}
     )
     penalize_pos_limits = RewardTermCfg(
-        func=reward_collect.joint_pos_limits,
+        func=reward_collect.penalize_jpos_limits_l1,
         weight=-2.0, params={"asset_cfg": SceneEntityCfg("robot")}
     )
 
     penalize_pitch = RewardTermCfg(
-        func=reward_collect.joint_deviation_l1,
+        func=reward_collect.penalize_jpos_deviation_l1,
         weight=-.025,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
@@ -88,7 +88,7 @@ class RewardsCfg:
     )
 
     penalize_hip = RewardTermCfg(
-        func=reward_collect.joint_deviation_l1,
+        func=reward_collect.penalize_jpos_deviation_l1,
         weight=-.1,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
@@ -99,7 +99,7 @@ class RewardsCfg:
     )
 
     penalize_other = RewardTermCfg(
-        func=reward_collect.joint_deviation_l1,
+        func=reward_collect.penalize_jpos_deviation_l1,
         weight=-0.01,
         params={
             "asset_cfg": SceneEntityCfg(
@@ -119,7 +119,7 @@ class RewardsCfg:
     )
 
     penalize_waist = RewardTermCfg(
-        func=reward_collect.joint_deviation_l1,
+        func=reward_collect.penalize_jpos_deviation_l1,
         weight=-0.3,
         params={
             "asset_cfg": SceneEntityCfg(
@@ -134,14 +134,14 @@ class RewardsCfg:
     )
 
     penalize_feet_stumble = RewardTermCfg(
-            func=reward_collect.penalty_feet_stumble,
+            func=reward_collect.penalty_stumble,
             weight=5e-3,
             params={
                 "sensor_cfg": SceneEntityCfg("contact_forces", body_names=[".*_ankle_roll_link"])},
     )
 
     penalize_foot_slide = RewardTermCfg(
-        func=reward_collect.feet_slide,
+        func=reward_collect.penalize_slide,
         weight=-0.5,
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
@@ -150,17 +150,17 @@ class RewardsCfg:
     )
 
     penalize_feet_airborne = RewardTermCfg(
-        func=reward_collect.penalty_feet_airborne,
+        func=reward_collect.penalize_airborne,
         weight=-.1,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link")}
     )
     # action
     penalize_action_rate = RewardTermCfg(
-        func=reward_collect.action_rate_l2, weight=-0.01)
+        func=reward_collect.penalize_action_rate_l2, weight=-0.01)
 
     # contacts
     penalize_undesired_contacts = RewardTermCfg(
-        func=reward_collect.undesired_contacts,
+        func=reward_collect.penalize_undesired_contacts,
         weight=-.1,
         params={
             "sensor_cfg":

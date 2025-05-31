@@ -109,26 +109,9 @@ def reward_track_vel_hard(env: ManagerBasedRLEnv,
 
     return (lin_vel_error_exp + ang_vel_error_exp) / 2. - linear_error
 
-def reward_orientation(env: ManagerBasedRLEnv,
-    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
-    """
-    Calculates the reward for maintaining a flat base orientation. It penalizes deviation
-    from the desired base orientation using the base euler angles and the projected gravity vector.
-    """
-    # extract the used quantities (to enable type-hinting)
-    asset: Articulation = env.scene[asset_cfg.name]
-
-    quat = asset.data.root_quat_w
-    roll, pitch, yaw = math.euler_xyz_from_quat(quat)
-    # make the quaternion real-part positive if configured
-    rp = torch.stack((roll, pitch), dim=-1)
-
-    euler_mismatch = torch.exp(-(torch.abs(roll) + torch.abs(pitch)) * 10)
-    gravity_mismatch = torch.exp(-torch.norm(asset.data.projected_gravity_b[:, :2], dim=1) * 20)
-    return (euler_mismatch + gravity_mismatch) / 2.
 
 
-class reward_body_acc(ManagerTermBase):
+class reward_base_acc(ManagerTermBase):
 
     def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)

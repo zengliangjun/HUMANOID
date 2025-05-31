@@ -2,14 +2,15 @@ from isaaclabex.assets.robots import XBot_L
 from isaaclabex.scenes import scenes_cfg
 from isaaclabex.envs import rl_env_exts_cfg
 from isaaclab.utils import configclass
-from .  import mdps, rewards
+from .mdps import mdps
+from .mdps  import rewards, mdps, obs, events
 
 @configclass
 class XBotFlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     # Scene settings
     scene = scenes_cfg.BaseSceneCfg(num_envs=4096, env_spacing=2.5)
     # Basic settings
-    observations: mdps.ObservationsCfg = mdps.ObservationsCfg()
+    observations: obs.ObservationsCfg = obs.ObservationsCfg()
     actions =  mdps.ActionsCfg()
     commands = mdps.CommandsCfg()
     # MDP settings
