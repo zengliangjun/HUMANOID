@@ -2,15 +2,12 @@ from isaaclab.utils import configclass
 import math
 from dataclasses import MISSING
 
-from isaaclab.managers import EventTermCfg, TerminationTermCfg, ObservationTermCfg, \
-                              ObservationGroupCfg
+from isaaclab.managers import TerminationTermCfg
 from isaaclab.managers import SceneEntityCfg
-from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
 import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
-from isaaclabex.envs.mdp.observations import privileged, ext_obs
 from isaaclabex.envs.mdp.commands import commands_cfg
-
+from isaaclabex.envs.mdp.actions import actions_cfg
 
 @configclass
 class CommandsCfg:
@@ -38,13 +35,15 @@ class CommandsCfg:
         joint_scales = [0.17, 0.34, 0.17]
     )
 
-
 @configclass
 class ActionsCfg:
     """Action specifications for the MDP."""
-    joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=[".*"], scale=0.25, use_default_offset=True)
-
-
+    #joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=[".*"], scale=0.25, use_default_offset=True)
+    joint_pos = actions_cfg.JPWithRefActionCfg(asset_name="robot",
+                    joint_names=[".*"],
+                    scale=0.25,
+                    use_default_offset=True,
+                    refcommand_name= "phase_command")
 
 @configclass
 class TerminationsCfg:
