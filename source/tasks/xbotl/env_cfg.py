@@ -78,3 +78,18 @@ class XBotFlatEnvCfg_PLAY(XBotFlatEnvCfg):
         # remove random pushing
 
 
+@configclass
+class XBotWithRefEnvCfg(XBotFlatEnvCfg):
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.actions =  mdps.ActionsWithRefCfg()
+
+
+@configclass
+class XBotWithRefEnvCfg_PLAY(XBotFlatEnvCfg_PLAY):
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.actions =  mdps.ActionsWithRefCfg()
+

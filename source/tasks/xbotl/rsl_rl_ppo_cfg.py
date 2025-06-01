@@ -34,3 +34,9 @@ class XBotFlatCfg(RslRlOnPolicyRunnerCfg):
         desired_kl=0.01,
         max_grad_norm=1.0,
     )
+
+
+@configclass
+class XBotWithRefCfg(XBotFlatCfg):
+    def __post_init__(self):
+        self.experiment_name = "xbot_l_withref"
