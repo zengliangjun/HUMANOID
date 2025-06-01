@@ -72,7 +72,10 @@ penalize_energy = joint.energy_cost
 penalize_torque_limits = isaaclab_rewards.applied_torque_limits
 # pos
 penalize_jpos_limits_l1 = isaaclab_rewards.joint_pos_limits
-penalize_jpos_limits_ratio = humanoid_rewards.joint_pos_limits_penalty_ratio
+try:
+    penalize_jpos_limits_ratio = humanoid_rewards.joint_pos_limits_penalty_ratio
+except:
+    penalize_jpos_limits_ratio = humanoid_rewards.joint_limits_penalty_ratio
 # pos regularization
 penalize_jpos_deviation_l1 = isaaclab_rewards.joint_deviation_l1
 penalize_jacc_norm_stand_check = spot_rewards.joint_position_penalty

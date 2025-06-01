@@ -17,9 +17,9 @@ class RewardsCfg:
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
-    reward_ang_z_exp = RewardTermCfg(
+    rew_tracking_z = RewardTermCfg(
         func=reward_collect.reward_ang_z_exp,
-        weight=.5,
+        weight=0.5,
         params={"std": 0.25,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
