@@ -3,12 +3,9 @@ from isaaclab_tasks.manager_based.classic.cartpole.mdp import rewards as cartpol
 from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoid_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
-from .joint.joint import joint, phase
-from .feet import feet_phase
-from .feet.feet import feet, feet_contact
-
+from .joint import joint, phase
+from .feet import feet_phase, feet, feet_contact
 from . import actions
-
 from .root import base, base_ori, base_phase, body, contact
 
 '''
