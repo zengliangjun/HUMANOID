@@ -99,6 +99,7 @@ penalize_jacc_l2 = isaaclab_rewards.joint_acc_l2                           # L2 
 penalize_jacc_norm = spot_rewards.joint_acceleration_penalty               # Norm penalty for joint acceleration errors.
 
 reward_left_right_symmetry = symmetry.rew_left_right_total2zero
+reward_hip_knee_symmetry = symmetry.rew_hip_knee_pitch_total2zero
 """
 Action Penalties:
 Penalties to enforce smoothness and regularity in the agent's actions.

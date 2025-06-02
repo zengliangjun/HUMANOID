@@ -145,6 +145,7 @@ def rew_hip_knee_pitch_total2zero(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
     command_name: str,
+    std: float,
     weight: Sequence[float] | list[float] | torch.Tensor = [1, 1]
 ) -> torch.Tensor:
     """
@@ -171,7 +172,7 @@ def rew_hip_knee_pitch_total2zero(
     # Compute weighted sum of differences for left/right joint pairs.
     total = diff[:, ::2] * weight[0] + diff[:, 1::2] * weight[1]
     total = torch.mean(torch.abs(total), dim=-1)
-    reward = torch.exp(-total)
+    reward = torch.exp(-total / std**2)
     # Only award reward if the command vector norm is above 0.1.
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
     return reward
@@ -194,6 +195,7 @@ def rew_left_right_total2zero(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
     command_name: str,
+    std: float
 ) -> torch.Tensor:
     """
     Calculate a reward for joint symmetry using equal weights for left and right joints.
@@ -206,4 +208,4 @@ def rew_left_right_total2zero(
     Returns:
         Tensor with the computed reward.
     """
-    return rew_hip_knee_pitch_total2zero(env, asset_cfg, command_name, [1, 1])
+    return rew_hip_knee_pitch_total2zero(env, asset_cfg, command_name, std, [1, 1])
