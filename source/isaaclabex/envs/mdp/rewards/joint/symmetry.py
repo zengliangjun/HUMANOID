@@ -145,7 +145,7 @@ def rew_hip_knee_pitch_total2zero(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
     command_name: str,
-    weight
+    weight: Sequence[float] | list[float] | torch.Tensor = [1, 1]
 ) -> torch.Tensor:
     """
     Compute a reward based on a weighted absolute difference between hip and knee joint positions.

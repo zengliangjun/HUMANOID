@@ -3,7 +3,7 @@ from isaaclab_tasks.manager_based.classic.cartpole.mdp import rewards as cartpol
 from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoid_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
-from .joint import joint, phase
+from .joint import joint, phase, symmetry
 from .feet import feet_phase, feet, feet_contact
 from . import actions
 from .root import base, base_ori, base_phase, body, contact
@@ -98,6 +98,7 @@ penalize_jvel_norm = spot_rewards.joint_velocity_penalty                   # Nor
 penalize_jacc_l2 = isaaclab_rewards.joint_acc_l2                           # L2 penalty for joint accelerations.
 penalize_jacc_norm = spot_rewards.joint_acceleration_penalty               # Norm penalty for joint acceleration errors.
 
+reward_left_right_symmetry = symmetry.rew_left_right_total2zero
 """
 Action Penalties:
 Penalties to enforce smoothness and regularity in the agent's actions.

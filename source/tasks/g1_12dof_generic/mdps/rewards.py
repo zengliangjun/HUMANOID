@@ -31,11 +31,23 @@ class RewardsCfg:
         params={"command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
-
+    symmetry_lr_reward = RewardTermCfg(
+        func=reward_collect.reward_left_right_symmetry,
+        weight=1.0,
+        params={"command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot",
+                            joint_names=["left_hip_pitch_joint",
+                                        "right_hip_pitch_joint",
+                                        "left_knee_joint",
+                                        "right_knee_joint",
+                                        "left_ankle_pitch_joint",
+                                        "right_ankle_pitch_joint"
+                                        ])},
+    )
     # Foot Rewards
     foot_air_time_reward = RewardTermCfg(
         func=reward_collect.reward_air_time_biped,
-        weight=0.2,
+        weight= 5, #0.2,
         params={"command_name": "base_velocity",
                 "threshold": 0.4,
                 "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link")},
@@ -68,7 +80,7 @@ class RewardsCfg:
     )
     base_orientation_penalty = RewardTermCfg(
         func=reward_collect.reward_ori_euler_gravity_b,
-        weight=-2.0,
+        weight=-5.0, #-2.0,
         params={"asset_cfg": SceneEntityCfg("robot")}
     )
 
@@ -99,7 +111,7 @@ class RewardsCfg:
     )
     joint_ry_penalty = RewardTermCfg(
         func=reward_collect.penalize_jpos_deviation_l1,
-        weight=-0.1,
+        weight=-0.5, #-0.1,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[".*_hip_yaw_joint",
@@ -126,7 +138,8 @@ class RewardsCfg:
     foot_airborne_penalty = RewardTermCfg(
         func=reward_collect.penalize_airborne,
         weight=-0.1,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link")}
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
+                "threshold": 0.12}
     )
 
     # Action Penalty
