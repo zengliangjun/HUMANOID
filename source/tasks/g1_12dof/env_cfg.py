@@ -78,3 +78,26 @@ class G1FlatEnvCfg_PLAY(G1FlatEnvCfg):
         # remove random pushing
 
 
+@configclass
+class HKEnvCfg(G1FlatEnvCfg):
+    def __post_init__(self):
+        super().__post_init__()
+        self.rewards = rewards.HKSymmetryCfg()
+
+@configclass
+class HKEnvCfg_PLAY(G1FlatEnvCfg_PLAY):
+    def __post_init__(self):
+        super().__post_init__()
+        self.rewards = rewards.HKSymmetryCfg()
+
+@configclass
+class LREnvCfg(G1FlatEnvCfg):
+    def __post_init__(self):
+        super().__post_init__()
+        self.rewards = rewards.LRSymmetryCfg()
+
+@configclass
+class LREnvCfg_PLAY(G1FlatEnvCfg_PLAY):
+    def __post_init__(self):
+        super().__post_init__()
+        self.rewards = rewards.LRSymmetryCfg()

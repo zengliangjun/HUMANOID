@@ -105,3 +105,38 @@ class RewardsCfg:
     # action
     penalize_action_rate = RewardTermCfg(
         func=reward_collect.penalize_action_rate_l2, weight=-0.01)
+
+
+@configclass
+class HKSymmetryCfg(RewardsCfg):
+    symmetry_hip_knee = RewardTermCfg(
+        func=reward_collect.reward_hip_knee_symmetry,
+        weight=1.0,
+        params={"std": 0.25,
+                "weight":  [1, 0.6], # [hip, knee]
+                "command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot",
+                            joint_names=["left_hip_pitch_joint",
+                                        "left_knee_joint",
+                                        "right_hip_pitch_joint",
+                                        "right_knee_joint"
+                                        ],
+                            preserve_order = True)},
+    )
+
+
+@configclass
+class LRSymmetryCfg(RewardsCfg):
+    symmetry_lr_reward = RewardTermCfg(
+        func=reward_collect.reward_left_right_symmetry,
+        weight=1.0,
+        params={"std": 0.25,
+                "command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot",
+                            joint_names=["left_hip_pitch_joint",
+                                        "right_hip_pitch_joint",
+                                        "left_knee_joint",
+                                        "right_knee_joint"
+                                        ],
+                            preserve_order = True)},
+    )

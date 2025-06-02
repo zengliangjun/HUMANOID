@@ -34,20 +34,34 @@ class RewardsCfg:
     symmetry_lr_reward = RewardTermCfg(
         func=reward_collect.reward_left_right_symmetry,
         weight=1.0,
-        params={"command_name": "base_velocity",
+        params={"std": 0.25,
+                "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot",
                             joint_names=["left_hip_pitch_joint",
                                         "right_hip_pitch_joint",
                                         "left_knee_joint",
-                                        "right_knee_joint",
-                                        "left_ankle_pitch_joint",
-                                        "right_ankle_pitch_joint"
-                                        ])},
+                                        "right_knee_joint"
+                                        ],
+                            preserve_order = True)},
+    )
+    symmetry_hip_knee = RewardTermCfg(
+        func=reward_collect.reward_hip_knee_symmetry,
+        weight=1.0,
+        params={"std": 0.25,
+                "weight":  [1, 0.6], # [hip, knee]
+                "command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot",
+                            joint_names=["left_hip_pitch_joint",
+                                        "left_knee_joint",
+                                        "right_hip_pitch_joint",
+                                        "right_knee_joint"
+                                        ],
+                            preserve_order = True)},
     )
     # Foot Rewards
     foot_air_time_reward = RewardTermCfg(
         func=reward_collect.reward_air_time_biped,
-        weight= 5, #0.2,
+        weight= 0.25, #0.2,
         params={"command_name": "base_velocity",
                 "threshold": 0.4,
                 "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link")},
