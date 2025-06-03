@@ -38,7 +38,7 @@ class RewardsCfg:
         weight=-2,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
-    penalize_linear_xy = RewardTermCfg(
+    penalize_ang_xy = RewardTermCfg(
         func=reward_collect.penalize_ang_xy_l2,
         weight=-0.05,
         params={"asset_cfg": SceneEntityCfg("robot")},
@@ -108,35 +108,19 @@ class RewardsCfg:
 
 
 @configclass
-class HKSymmetryCfg(RewardsCfg):
-    symmetry_hip_knee = RewardTermCfg(
-        func=reward_collect.reward_hip_knee_symmetry,
-        weight=1.0,
-        params={"std": 0.25,
-                "weight":  [1, 0.6], # [hip, knee]
-                "command_name": "base_velocity",
-                "asset_cfg": SceneEntityCfg("robot",
-                            joint_names=["left_hip_pitch_joint",
-                                        "left_knee_joint",
-                                        "right_hip_pitch_joint",
-                                        "right_knee_joint"
-                                        ],
-                            preserve_order = True)},
+class RewardsCfgEx(RewardsCfg):
+    reward_motion_speed = RewardTermCfg(
+        func=reward_collect.reward_motion_speed,
+        weight=0.2,
+        params={"command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot")},
+    )
+    reward_motion_hard = RewardTermCfg(
+        func=reward_collect.reward_motion_hard,
+        weight=0.5,
+        params={"command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot")},
     )
 
-
-@configclass
-class LRSymmetryCfg(RewardsCfg):
-    symmetry_lr_reward = RewardTermCfg(
-        func=reward_collect.reward_left_right_symmetry,
-        weight=1.0,
-        params={"std": 0.25,
-                "command_name": "base_velocity",
-                "asset_cfg": SceneEntityCfg("robot",
-                            joint_names=["left_hip_pitch_joint",
-                                        "right_hip_pitch_joint",
-                                        "left_knee_joint",
-                                        "right_knee_joint"
-                                        ],
-                            preserve_order = True)},
-    )
+    def __post_init__(self):
+        self.penalize_height.params["target_height"] = 0.78 + 0.055  # Adjusting for the foot clearance

@@ -41,16 +41,8 @@ class G1FlatCfg(RslRlOnPolicyRunnerCfg):
         self.policy.rnn_num_layers=1
 
 @configclass
-class G1HKFlatCfg(G1FlatCfg):
+class G1FlatExCfg(G1FlatCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
-        self.experiment_name = "g1_12_hk_flat"
-
-@configclass
-class G1LRFlatCfg(G1FlatCfg):
-    def __post_init__(self):
-        # post init of parent
-        super().__post_init__()
-        self.experiment_name = "g1_12_lr_flat"
-
+        self.experiment_name = "g1_12_ex_flat"

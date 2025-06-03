@@ -22,48 +22,22 @@ gym.register(
     },
 )
 
-"""
-# [hip, knee]
-"""
 gym.register(
-    id="G112HK-v0",
+    id="G112FlatEx-v0",
     entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
     disable_env_checker=True,
     kwargs={
-        "env_cfg_entry_point": f"{env_cfg.__name__}:HKEnvCfg",
-        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1HKFlatCfg",
+        "env_cfg_entry_point": f"{env_cfg.__name__}:G1FlatEnvExCfg",
+        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1FlatExCfg",
     },
 )
 
 gym.register(
-    id="G112HK-Play-v0",
+    id="G112FlatEx-Play-v0",
     entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
     disable_env_checker=True,
     kwargs={
-        "env_cfg_entry_point": f"{env_cfg.__name__}:HKEnvCfg_PLAY",
-        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1HKFlatCfg",
-    },
-)
-
-"""
-# [left, right]
-"""
-gym.register(
-    id="G112LR-v0",
-    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
-    disable_env_checker=True,
-    kwargs={
-        "env_cfg_entry_point": f"{env_cfg.__name__}:LREnvCfg",
-        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1LRFlatCfg",
-    },
-)
-
-gym.register(
-    id="G112LR-Play-v0",
-    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
-    disable_env_checker=True,
-    kwargs={
-        "env_cfg_entry_point": f"{env_cfg.__name__}:LREnvCfg_PLAY",
-        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1LRFlatCfg",
+        "env_cfg_entry_point": f"{env_cfg.__name__}:G1FlatEnvExCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1FlatExCfg",
     },
 )

@@ -46,13 +46,13 @@ class PoseMeanVariance(ManagerTermBase):
         self.mean_buf = torch.zeros((self.num_envs, joint_size), device=self.device, dtype=torch.float)
 
         # Convert provided parameters to tensors for vectorized operations.
-        self.mean_std = torch.tensor(cfg.params["mean_std"], device=self.device, dtype=torch.float)[None, :]
-        self.variance_std = torch.tensor(cfg.params["variance_std"], device=self.device, dtype=torch.float)[None, :]
-        self.mean_weight = torch.tensor(cfg.params["mean_weight"], device=self.device, dtype=torch.float)[None, :]
-        self.variance_weight = torch.tensor(cfg.params["variance_weight"], device=self.device, dtype=torch.float)[None, :]
+        self.mean_std = torch.tensor(cfg.params["mean_std"], device=self.device, dtype=torch.float)
+        self.variance_std = torch.tensor(cfg.params["variance_std"], device=self.device, dtype=torch.float)
+        self.mean_weight = torch.tensor(cfg.params["mean_weight"], device=self.device, dtype=torch.float)
+        self.variance_weight = torch.tensor(cfg.params["variance_weight"], device=self.device, dtype=torch.float)
 
         # Establish the threshold for a valid episode length.
-        self.threshold = cfg.params["episode_length_weight"]
+        self.episode_length_threshold = cfg.params["episode_length_threshold"]
 
         # Retrieve the articulation asset using its name.
         self.asset: Articulation = env.scene[cfg.params["asset_cfg"].name]
@@ -71,13 +71,13 @@ class PoseMeanVariance(ManagerTermBase):
 
     def __call__(
         self,
-        asset_cfg: SceneEntityCfg,
         env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg,
         mean_std,
         variance_std,
         mean_weight,
         variance_weight,
-        episode_length_weight
+        episode_length_threshold
     ) -> torch.Tensor:
         """
         Calculate the reward based on joint position differences.
@@ -87,7 +87,7 @@ class PoseMeanVariance(ManagerTermBase):
             env: The environment object containing simulation data.
             mean_std, variance_std: Normalization constants.
             mean_weight, variance_weight: Multiplicative factors for reward components.
-            episode_length_weight: Minimum episode length before rewarding.
+            episode_length_threshold: Minimum episode length before rewarding.
 
         Returns:
             Tensor with computed rewards.
@@ -101,12 +101,12 @@ class PoseMeanVariance(ManagerTermBase):
         mean = self.mean_buf.clone()
 
         # Update mean using an incremental running average.
-        self.mean_buf = (mean * (self.env.episode_length_buf[:, None] - 1) + diff) / self.env.episode_length_buf[:, None]
+        self.mean_buf[...] = (mean * (self._env.episode_length_buf[:, None] - 1) + diff) / self._env.episode_length_buf[:, None]
         # Update variance using incremental variance formula.
-        self.variance_buf = self.variance_buf + (diff - mean) * (diff - self.mean_buf)
+        self.variance_buf[...] = self.variance_buf + (diff - mean) * (diff - self.mean_buf)
 
         # Reset buffers for environments where episode length is zero.
-        zero_flag = self.env.episode_length_buf == 0
+        zero_flag = self._env.episode_length_buf == 0
         self.mean_buf[zero_flag] = 0
         self.variance_buf[zero_flag] = 0
 
@@ -116,15 +116,130 @@ class PoseMeanVariance(ManagerTermBase):
 
         # Exponential decay rewards for mean and variance differences.
         reward_mean = torch.mean(torch.exp(-torch.abs(diff_mean) / self.mean_std), dim=-1)
-        reward_variance = torch.sum(torch.exp(-torch.abs(diff_variance) / self.variance_std), dim=-1)
+        reward_variance = torch.mean(torch.exp(-torch.abs(diff_variance) / self.variance_std), dim=-1)
 
         # Combine rewards using provided weights.
         reward = reward_mean * self.mean_weight + reward_variance * self.variance_weight
 
         # Invalidate rewards for episodes shorter than the threshold.
-        novalid_flag = self.env.episode_length_buf < self.threshold
+        novalid_flag = self._env.episode_length_buf < self.episode_length_threshold
         reward[novalid_flag] = 0
         return reward
+
+
+class MeanMinVarianceMax(ManagerTermBase):
+    """
+    Compute a reward based on the running mean and variance of joint differences.
+
+    Parameters (in cfg.params):
+        asset_cfg: SceneEntityCfg holding joint configuration and asset name.
+        mean_std: Std. deviation for normalizing the mean difference.
+        variance_std: Std. deviation for normalizing the variance difference.
+        mean_weight: Weight multiplier for the mean reward component.
+        variance_weight: Weight multiplier for the variance reward component.
+        episode_length_weight: A threshold value; rewards are valid only if episode length is above this.
+    """
+
+    '''
+    rew_pos_variance = RewardTermCfg(
+            func=PoseMeanVariance,
+            weight=1.0,
+            params={"asset_cfg": SceneEntityCfg("robot",
+                                joint_names=["left_hip_pitch_joint",
+                                             "right_hip_pitch_joint",
+                                             "left_knee_joint",
+                                             "right_knee_joint" ]),
+                    "weight": []},
+        )
+    '''
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+        # Determine the number of joints from the asset configuration
+        joint_size = len(cfg.params["asset_cfg"].joint_ids)
+
+        # Initialize buffers for the running variance and mean for each joint.
+        self.mean_std = torch.tensor(cfg.params["mean_std"], device=self.device, dtype=torch.float)
+        self.variance_std = torch.tensor(cfg.params["variance_std"], device=self.device, dtype=torch.float)
+        self.variance_buf = torch.zeros((self.num_envs, joint_size), device=self.device, dtype=torch.float)
+        self.mean_buf = torch.zeros((self.num_envs, joint_size), device=self.device, dtype=torch.float)
+
+        # Convert provided parameters to tensors for vectorized operations.
+        self.mean_weight = torch.tensor(cfg.params["mean_weight"], device=self.device, dtype=torch.float)
+        self.variance_weight = torch.tensor(cfg.params["variance_weight"], device=self.device, dtype=torch.float)
+
+        # Establish the threshold for a valid episode length.
+        self.episode_length_threshold = cfg.params["episode_length_threshold"]
+
+        # Retrieve the articulation asset using its name.
+        self.asset: Articulation = env.scene[cfg.params["asset_cfg"].name]
+
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
+        """
+        Reset the mean and variance buffers for the specified environment IDs.
+
+        Parameters:
+            env_ids: Sequence of indices for the environments to reset.
+        """
+        if len(env_ids) == 0:
+            return
+        self.variance_buf[env_ids] = 0
+        self.mean_buf[env_ids] = 0
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg,
+        mean_std,
+        variance_std,
+        mean_weight,
+        variance_weight,
+        episode_length_threshold
+    ) -> torch.Tensor:
+        """
+        Calculate the reward based on joint position differences.
+
+        Parameters:
+            env: The environment object containing simulation data.
+            asset_cfg: Joint configuration asset.
+            mean_std, variance_std: Normalization constants.
+            mean_weight, variance_weight: Multiplicative factors for reward components.
+            episode_length_threshold: Minimum episode length before rewarding.
+
+        Returns:
+            Tensor with computed rewards.
+        """
+        # Retrieve current and default joint positions using joint_ids.
+        pose = self.asset.data.joint_pos[:, asset_cfg.joint_ids]
+        default_pose = self.asset.data.default_joint_pos[:, asset_cfg.joint_ids]
+
+        # Compute the difference between current pose and default pose.
+        diff = pose - default_pose
+        mean = self.mean_buf.clone()
+
+        # Update mean using an incremental running average.
+        self.mean_buf[...] = (mean * (self._env.episode_length_buf[:, None] - 1) + diff) / self._env.episode_length_buf[:, None]
+        # Update variance using incremental variance formula.
+        self.variance_buf[...] = self.variance_buf + (diff - mean) * (diff - self.mean_buf)
+
+        # Reset buffers for environments where episode length is zero.
+        zero_flag = self._env.episode_length_buf == 0
+        self.mean_buf[zero_flag] = 0
+        self.variance_buf[zero_flag] = 0
+
+        # Exponential decay rewards for mean and variance differences.
+        reward_mean = torch.mean(torch.exp(-torch.abs(self.mean_buf) / self.mean_std), dim=-1)
+        reward_variance = torch.clamp_max(torch.sum(torch.abs(self.variance_buf), dim=-1), self.variance_std)
+
+        # Combine rewards using provided weights.
+        reward = reward_mean * self.mean_weight + reward_variance * self.variance_weight
+
+        # Invalidate rewards for episodes shorter than the threshold.
+        novalid_flag = self._env.episode_length_buf < self.episode_length_threshold
+        reward[novalid_flag] = 0
+        return reward
+
+
 
 '''
 rew_hip_knee_pitch_total2zero = RewardTermCfg(

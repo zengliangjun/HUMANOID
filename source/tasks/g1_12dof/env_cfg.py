@@ -79,25 +79,15 @@ class G1FlatEnvCfg_PLAY(G1FlatEnvCfg):
 
 
 @configclass
-class HKEnvCfg(G1FlatEnvCfg):
+class G1FlatEnvExCfg(G1FlatEnvCfg):
     def __post_init__(self):
+        # post init of parent
         super().__post_init__()
-        self.rewards = rewards.HKSymmetryCfg()
+        self.rewards = rewards.RewardsCfgEx()
 
 @configclass
-class HKEnvCfg_PLAY(G1FlatEnvCfg_PLAY):
+class G1FlatEnvExCfg_PLAY(G1FlatEnvCfg_PLAY):
     def __post_init__(self):
+        # post init of parent
         super().__post_init__()
-        self.rewards = rewards.HKSymmetryCfg()
-
-@configclass
-class LREnvCfg(G1FlatEnvCfg):
-    def __post_init__(self):
-        super().__post_init__()
-        self.rewards = rewards.LRSymmetryCfg()
-
-@configclass
-class LREnvCfg_PLAY(G1FlatEnvCfg_PLAY):
-    def __post_init__(self):
-        super().__post_init__()
-        self.rewards = rewards.LRSymmetryCfg()
+        self.rewards = rewards.RewardsCfgEx()
