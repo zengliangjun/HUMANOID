@@ -286,7 +286,7 @@ def rew_hip_knee_pitch_total2zero(
 
     # Compute weighted sum of differences for left/right joint pairs.
     total = diff[:, ::2] * weight[0] + diff[:, 1::2] * weight[1]
-    total = torch.mean(torch.abs(total), dim=-1)
+    total = torch.mean(torch.square(total), dim=-1)
     reward = torch.exp(-total / std**2)
     # Only award reward if the command vector norm is above 0.1.
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
@@ -324,3 +324,40 @@ def rew_left_right_total2zero(
         Tensor with the computed reward.
     """
     return rew_hip_knee_pitch_total2zero(env, asset_cfg, command_name, std, [1, 1])
+
+
+def reward_equals_symmetry(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+    command_name: str,
+    std: float,
+    weight: Sequence[float] | list[float] | torch.Tensor = [1, 1]
+) -> torch.Tensor:
+    """
+    Compute a reward based on a weighted absolute difference between hip and knee joint positions.
+
+    Parameters:
+        env: The environment instance.
+        asset_cfg: Joint configuration asset.
+        command_name: The name of the command influencing the reward.
+        weight: A list-like object with weighting factors for left and right joint pairs.
+
+    Returns:
+        Tensor containing the reward values.
+    """
+    # Retrieve the articulation asset.
+    asset: Articulation = env.scene[asset_cfg.name]
+    # Extract current and default joint positions.
+    pose = asset.data.joint_pos[:, asset_cfg.joint_ids]
+    default_pose = asset.data.default_joint_pos[:, asset_cfg.joint_ids]
+
+    # Calculate the joint differences.
+    diff = pose - default_pose
+
+    # Compute weighted sum of differences for left/right joint pairs.
+    total = diff[:, ::2] * weight[0] - diff[:, 1::2] * weight[1]
+    total = torch.mean(torch.square(total), dim=-1)
+    reward = torch.exp(-total / std**2)
+    # Only award reward if the command vector norm is above 0.1.
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    return reward

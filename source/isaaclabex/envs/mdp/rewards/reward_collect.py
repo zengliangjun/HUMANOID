@@ -100,6 +100,7 @@ penalize_jacc_norm = spot_rewards.joint_acceleration_penalty               # Nor
 
 reward_left_right_symmetry = symmetry.rew_left_right_total2zero
 reward_hip_knee_symmetry = symmetry.rew_hip_knee_pitch_total2zero
+reward_equals_symmetry = symmetry.reward_equals_symmetry
 reward_pose_mean_var_symmetry = symmetry.PoseMeanVariance
 reward_pose_mean_min_var_max = symmetry.MeanMinVarianceMax
 """
