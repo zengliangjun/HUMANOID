@@ -1,7 +1,7 @@
 
 from isaaclab.utils import configclass
 from isaaclab.managers import RewardTermCfg, SceneEntityCfg
-from isaaclabex.envs.mdp.rewards import reward_collect
+from isaaclabex.envs.mdp.rewards import reward_collect, pbrs_collect
 
 @configclass
 class RewardsCfg:
@@ -17,7 +17,7 @@ class RewardsCfg:
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
-    rew_tracking_z = RewardTermCfg(
+    rew_ang_z_exp = RewardTermCfg(
         func=reward_collect.reward_ang_z_exp,
         weight=0.5,
         params={"std": 0.25,
@@ -29,7 +29,7 @@ class RewardsCfg:
         weight=0.18,
         params={"command_name": "phase_command",
                 "sensor_cfg": SceneEntityCfg("contact_forces",
-                     body_names=[".*left_ankle_roll_link", ".*right_ankle_pitch_link"])},
+                     body_names=[".*left_ankle_roll_link", ".*right_ankle_roll_link"])},
     )
 
     # base
