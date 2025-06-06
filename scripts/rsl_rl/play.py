@@ -10,6 +10,7 @@ from isaaclab.app import AppLauncher
 
 # local imports
 import cli_args  # isort: skip
+from scripts.rsl_rl.logger_org import Logger
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -61,8 +62,6 @@ def track_robot(_env):
     cam_target = (robot_pos_w[0], robot_pos_w[1], 0.0)
     # set the camera view
     _env.unwrapped.sim.set_camera_view(eye=cam_eye, target=cam_target)
-
-
 
 # Async print queue and worker
 print_queue = queue.Queue()
@@ -159,6 +158,13 @@ def main():
 
     count = 0
     ep_infos = []
+
+
+    logger = Logger(env.unwrapped.step_dt)
+    robot_index = 0
+    joint_index = 0
+    asset = env.unwrapped.scene["robot"]
+
     # simulate environment
     while simulation_app.is_running():
         # run everything in inference mode
@@ -169,6 +175,36 @@ def main():
             obs, _, _, extra = env.step(actions)
             if args_cli.track_robot:
                     track_robot(env)
+
+            commands = env.unwrapped.command_manager.get_command("base_velocity")
+
+            logger.log_states(
+            {
+                'dof_pos_target': actions[robot_index, joint_index].item() * env.unwrapped.cfg.actions.joint_pos.scale,
+                'dof_pos': asset.data.joint_pos[robot_index, joint_index].item(),
+                'dof_vel': asset.data.joint_vel[robot_index, joint_index].item(),
+                'dof_torque': asset.data.applied_torque[robot_index, joint_index].item(),
+                'command_x': commands[robot_index, 0].item(),
+                'command_y': commands[robot_index, 1].item(),
+                'command_yaw': commands[robot_index, 2].item(),
+                'base_vel_x': asset.data.root_lin_vel_b[robot_index, 0].item(),
+                'base_vel_y': asset.data.root_lin_vel_b[robot_index, 1].item(),
+                'base_vel_z': asset.data.root_lin_vel_b[robot_index, 2].item(),
+                'base_vel_yaw': asset.data.root_ang_vel_b[robot_index, 2].item()
+            }
+            )
+
+            num_episodes = torch.sum(env.unwrapped.reset_buf).item()
+            if num_episodes>0:
+
+                if "episode" in extra:
+                    ep_infos = extra["episode"]
+                elif "log" in extra:
+                    ep_infos = extra["log"]
+
+                logger.log_rewards(ep_infos, num_episodes)
+                logger.print_rewards()
+                logger.plot_states()
 
             if False:
                 count += 1
