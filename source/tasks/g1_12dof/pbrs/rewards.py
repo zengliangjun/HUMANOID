@@ -20,6 +20,20 @@ class RewardsCfg:
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
+    # feet , knee distance
+    rew_distance = RewardTermCfg(
+        func=reward_collect.reward_body_distance,
+        weight=0.2,
+        params={
+            "asset_cfg": SceneEntityCfg("robot",
+                         body_names=[".*left_ankle_roll_link",
+                                     ".*right_ankle_roll_link",
+                                     ".*left_knee_link",
+                                     ".*right_knee_link"]),
+            "min_threshold": 0.2,
+            "max_threshold": 0.5,
+            },
+    )
 
     # action
     p_action_rate = RewardTermCfg(
@@ -46,20 +60,6 @@ class RewardsCfg:
     p_pos_limits = RewardTermCfg(
         func=reward_collect.penalize_jpos_limits_l1,
         weight=-10.0, params={"asset_cfg": SceneEntityCfg("robot")}
-    )
-    # feet , knee distance
-    p_distance = RewardTermCfg(
-        func=reward_collect.reward_body_distance,
-        weight=0.2,
-        params={
-            "asset_cfg": SceneEntityCfg("robot",
-                         body_names=[".*left_ankle_roll_link",
-                                     ".*right_ankle_roll_link",
-                                     ".*left_knee_link",
-                                     ".*right_knee_link"]),
-            "min_threshold": 0.2,
-            "max_threshold": 0.5,
-            },
     )
 
     pbrs_orientation = RewardTermCfg(
