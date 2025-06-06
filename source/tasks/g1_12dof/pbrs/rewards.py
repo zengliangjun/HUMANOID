@@ -20,21 +20,6 @@ class RewardsCfg:
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
-    # feet , knee distance
-    rew_distance = RewardTermCfg(
-        func=reward_collect.reward_body_distance,
-        weight=0.2,
-        params={
-            "asset_cfg": SceneEntityCfg("robot",
-                         body_names=[".*left_ankle_roll_link",
-                                     ".*right_ankle_roll_link",
-                                     ".*left_knee_link",
-                                     ".*right_knee_link"]),
-            "min_threshold": 0.2,
-            "max_threshold": 0.5,
-            },
-    )
-
     # action
     p_action_rate = RewardTermCfg(
         func=reward_collect.penalize_action_rate_l2, weight=-0.01)
@@ -48,7 +33,6 @@ class RewardsCfg:
             "weight3": 0.05,
             },
     )
-
     p_torques = RewardTermCfg(
         func=reward_collect.penalize_torques_l2,
         weight=-0.0001, params={"asset_cfg": SceneEntityCfg("robot")}
@@ -61,12 +45,12 @@ class RewardsCfg:
         func=reward_collect.penalize_jpos_limits_l1,
         weight=-10.0, params={"asset_cfg": SceneEntityCfg("robot")}
     )
-
+    # body
     pbrs_orientation = RewardTermCfg(
         func=pbrs_collect.ori_l2_pbrs,
         weight=1.0,
         params={"asset_cfg": SceneEntityCfg("robot"),
-                "sigma": 0.5,
+                "sigma": 0.025, #0.5,
                 "gamma": 1,
                 "method": pbrs_base.PBRSExp}
     )
@@ -76,21 +60,54 @@ class RewardsCfg:
         params={
             "target_height": 0.78 + 0.035,  # Adjusting for the foot clearance
             "asset_cfg": SceneEntityCfg("robot"),
-            "sigma": 0.5 * (0.65) ** 2,
+            "sigma": 0.5 * (0.01) ** 2, # 0.5 * (0.65) ** 2,
             "gamma": 1,
             "method": pbrs_base.PBRSExp}
     )
+    pbrs_width = RewardTermCfg(
+        func=pbrs_collect.width_exp_pbrs,
+        weight=1,
+        params={
+            "target_width": 0.25,  # Adjusting for the foot clearance
+            "asset_cfg": SceneEntityCfg("robot",
+                         body_names=[".*left_ankle_roll_link",
+                                     ".*right_ankle_roll_link",
+                                     ".*left_knee_link",
+                                     ".*right_knee_link"]),
+            "sigma": 0.1,
+            "gamma": 1,
+            "method": pbrs_base.PBRSNormal
+            },
+    )
 
-    pbrs_yaw = RewardTermCfg(
+    pbrs_hipry = RewardTermCfg(
         func=pbrs_collect.jpos_deviation_l1_pbrs,
         weight=1.0,
         params={"asset_cfg":
-                SceneEntityCfg("robot", joint_names=[ ".*_hip_yaw_joint"]),
-                "sigma": 0.5,
+                SceneEntityCfg("robot", joint_names=[ ".*_hip_roll_joint", ".*_hip_yaw_joint"]),
+                "sigma": 0.5, # 0.25,
                 "gamma": 1,
                 "method": pbrs_base.PBRSExp},
     )
-
+    pbrs_hipp = RewardTermCfg(
+        func=pbrs_collect.jpos_deviation_l1_pbrs,
+        weight=1.0,
+        params={"asset_cfg":
+                SceneEntityCfg("robot", joint_names=[".*_hip_pitch_joint"]),
+                "sigma": 0.7, # 0.25,
+                "gamma": 1,
+                "method": pbrs_base.PBRSExp},
+    )
+    pbrs_ankle = RewardTermCfg(
+        func=pbrs_collect.jpos_deviation_l1_pbrs,
+        weight=1.0,
+        params={"asset_cfg":
+                SceneEntityCfg("robot", joint_names=[ ".*_ankle_roll_joint",
+                                                      ".*_ankle_pitch_joint"]),
+                "sigma": 0.25,
+                "gamma": 1,
+                "method": pbrs_base.PBRSExp},
+    )
     pbrs_total2zero = RewardTermCfg(
         func=pbrs_collect.total2zero_pbrs,
         weight=1.0,
@@ -100,8 +117,20 @@ class RewardsCfg:
                                         joint_names=[
                                                      "left_hip_pitch_joint",
                                                      "right_hip_pitch_joint",
-                                                     "left_knee_joint",
-                                                     "right_knee_joint"
+                                        ]),
+            "sigma": 0.25,
+            "gamma": 1,
+            "method": pbrs_base.PBRSNormal},
+    )
+    pbrs_hip_roll = RewardTermCfg(
+        func=pbrs_collect.total2zero_one_way_pbrs,
+        weight=1.0,
+        params={
+            "command_name": "base_velocity",
+            "asset_cfg": SceneEntityCfg("robot",
+                                        joint_names=[
+                                                    "left_hip_roll_joint",
+                                                    "right_hip_roll_joint",
                                         ]),
             "sigma": 0.25,
             "gamma": 1,
@@ -114,12 +143,45 @@ class RewardsCfg:
         params={
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot",
-                                        joint_names=["left_hip_roll_joint",
-                                                     "right_hip_roll_joint",
-                                                     "left_hip_yaw_joint",
-                                                     "right_hip_yaw_joint",
+                                        joint_names=[
+                                                    "left_hip_yaw_joint",
+                                                    "right_hip_yaw_joint",
                                         ]),
             "sigma": 0.25,
+            "gamma": 1,
+            "method": pbrs_base.PBRSNormal},
+    )
+    hipp_meanvar_pbrs = RewardTermCfg(
+        func=pbrs_collect.meanvar_pbrs,
+        weight=1.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot",
+                                        joint_names=[
+                                                     "left_hip_pitch_joint",
+                                                     "right_hip_pitch_joint",
+                                        ]),
+            "mean_std": 0.15,
+            "variance_std": 0.05,
+            "mean_weight": 1,
+            "variance_weight": 1,
+            "episode_length_threshold": 0,
+            "gamma": 1,
+            "method": pbrs_base.PBRSNormal},
+    )
+    knee_meanvar_pbrs = RewardTermCfg(
+        func=pbrs_collect.meanvar_pbrs,
+        weight=1.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot",
+                                        joint_names=[
+                                                     "left_knee_joint",
+                                                     "right_knee_joint",
+                                        ]),
+            "mean_std": 0.15,
+            "variance_std": 0.05,
+            "mean_weight": 1,
+            "variance_weight": 1,
+            "episode_length_threshold": 0,
             "gamma": 1,
             "method": pbrs_base.PBRSNormal},
     )

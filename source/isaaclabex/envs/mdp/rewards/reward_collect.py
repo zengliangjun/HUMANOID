@@ -61,7 +61,7 @@ Penalties and rewards specific to the body dynamics.
 """
 penalize_body_lin_acc_l2 = isaaclab_rewards.body_lin_acc_l2               # L2 penalty on body linear acceleration.
 reward_body_distance = body.reward_distance                              # Reward based on body distance metric.
-
+reward_width = body.reward_width                                 # Reward based on body width metric.
 """
 Joint Penalties:
 Penalties for energy consumption, torque, joint positions, velocities, and acceleration.
@@ -101,6 +101,7 @@ penalize_jacc_norm = spot_rewards.joint_acceleration_penalty               # Nor
 reward_left_right_symmetry = symmetry.rew_left_right_total2zero
 reward_hip_knee_symmetry = symmetry.rew_hip_knee_pitch_total2zero
 reward_equals_symmetry = symmetry.reward_equals_symmetry
+reward_hip_roll_symmetry = symmetry.rew_hip_roll_total2zero # no zero
 reward_pose_mean_var_symmetry = symmetry.PoseMeanVariance
 reward_pose_mean_min_var_max = symmetry.MeanMinVarianceMax
 """

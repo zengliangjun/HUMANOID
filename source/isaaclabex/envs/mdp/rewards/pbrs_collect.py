@@ -14,12 +14,24 @@ jpos_deviation_l1_pbrs = joint_pbrs.jpos_deviation_l1_pbrs
 torques_l2_pbrs = joint_pbrs.torques_l2_pbrs
 
 total2zero_pbrs = joint_pbrs.total2zero_pbrs
+total2zero_one_way_pbrs = joint_pbrs.total2zero_one_way_pbrs
 equals_pbrs = joint_pbrs.equals_pbrs
+meanvar_pbrs = joint_pbrs.meanvar_pbrs
+
+
 # Base PBRs
 lin_z_pbrs = penalize_pbrs.lin_z_pbrs
 ang_xy_pbrs = penalize_pbrs.ang_xy_pbrs
+
+
 ori_l2_pbrs = penalize_pbrs.ori_l2_pbrs
 height_flat_or_rayl2_pbrs = penalize_pbrs.height_flat_or_rayl2_pbrs
 
 lin_xy_exp_pbrs = rewards_pbrs.lin_xy_exp_pbrs
 ang_z_exp_pbrs = rewards_pbrs.ang_z_exp_pbrs
+
+"""
+Body Rewards:
+Penalties and rewards specific to the body dynamics.
+"""
+width_exp_pbrs = rewards_pbrs.width_exp_pbrs

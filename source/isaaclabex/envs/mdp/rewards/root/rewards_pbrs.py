@@ -57,3 +57,25 @@ class ang_z_exp_pbrs(pbrs_base.PbrsBase):
             command_name = command_name,
             asset_cfg=asset_cfg)
         return self._calculate(_reward)
+
+
+class width_exp_pbrs(pbrs_base.PbrsBase):
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+        target_width: float = 0.2,  # for g1
+        sigma: float = 0.1,
+        gamma: float = 1,
+        method: int = pbrs_base.PBRSNormal
+        ) -> torch.Tensor:
+
+        _reward = reward_collect.reward_width(
+            env=env,
+            asset_cfg=asset_cfg,
+            target_width=target_width)
+        return self._calculate(_reward)

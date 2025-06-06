@@ -325,6 +325,48 @@ def rew_left_right_total2zero(
     """
     return rew_hip_knee_pitch_total2zero(env, asset_cfg, command_name, std, [1, 1])
 
+# Function to compute a reward that drives hip and knee joint differences toward zero.
+def rew_hip_roll_total2zero(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+    command_name: str,
+    std: float
+) -> torch.Tensor:
+    """
+    Compute a reward based on a weighted absolute difference between hip and knee joint positions.
+
+    Parameters:
+        env: The environment instance.
+        asset_cfg: Joint configuration asset.
+        command_name: The name of the command influencing the reward.
+        weight: A list-like object with weighting factors for left and right joint pairs.
+
+    Returns:
+        Tensor containing the reward values.
+    """
+    # Retrieve the articulation asset.
+    asset: Articulation = env.scene[asset_cfg.name]
+    # Extract current and default joint positions.
+    pose = asset.data.joint_pos[:, asset_cfg.joint_ids]
+    default_pose = asset.data.default_joint_pos[:, asset_cfg.joint_ids]
+
+    # Calculate the joint differences.
+    diff = pose - default_pose
+
+    # Compute weighted sum of differences for left/right joint pairs.
+    total = diff[:, ::2] + diff[:, 1::2]
+    total = torch.mean(torch.square(total), dim=-1)
+    reward = torch.exp(-total / std**2) * 0.25
+
+    _negative = torch.clamp_max(diff[:, ::2], max = 0)
+    _positive = torch.clamp_min(diff[:, 1::2], min = 0)
+    _error = torch.mean((torch.square(_negative) + torch.square(_positive)), dim=-1) # to 0
+    reward += torch.exp(-_error / std**2)
+
+    # Only award reward if the command vector norm is above 0.1.
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    return reward
+
 
 def reward_equals_symmetry(
     env: ManagerBasedRLEnv,
