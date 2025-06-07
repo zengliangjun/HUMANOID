@@ -53,7 +53,16 @@ class G1FlatEntropyCfg(G1FlatCfg):
         # post init of parent
         super().__post_init__()
         self.algorithm.class_name="EntropyPPO"
-        self.algorithm.entropy_ranges = (4, 12)  # 目标熵值范围(最小,最大)
+        self.algorithm.entropy_ranges = (4, 12)  # 目标熵值范围(最小,最大)  1.5, 10
         self.algorithm.entropy_coef_factor = 1.05  # 熵系数调整幅度
         self.algorithm.entropy_coef_scale = 10  # 熵系数缩放因子
         self.experiment_name = "g1_12_entropy_flat"
+
+@configclass
+class G1FlatBSRSCfg(G1FlatCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        self.algorithm.class_name="BSRSPPO"
+        self.algorithm.scale = 1.5
+        self.experiment_name = "g1_12_bsrs15_flat"
