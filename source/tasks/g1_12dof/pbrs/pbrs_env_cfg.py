@@ -19,7 +19,8 @@ class CommandsCfg:
         heading_control_stiffness=0.5,
         debug_vis=True,
         ranges=commands_cfg.ZeroSmallCommandCfg.Ranges(
-            lin_vel_x=(0, 4.5), lin_vel_y=(-0.75, 0.75), ang_vel_z=(-2., 2.), heading=(0., 0)
+            #lin_vel_x=(0, 4.5), lin_vel_y=(-0.75, 0.75), ang_vel_z=(-2., 2.), heading=(0., 0)
+            lin_vel_x=(0, 2.5), lin_vel_y=(-0.35, 0.35), ang_vel_z=(-1., 1.), heading=(0., 0)
         ),
         small2zero_threshold_line=0.25,
         small2zero_threshold_angle=0.25
@@ -90,7 +91,9 @@ class G1FlatEnvCfg_PLAY(G1FlatEnvCfg):
         # make a smaller scene for play
         self.scene.num_envs = 50
         self.scene.env_spacing = 2.5
-        self.episode_length_s = 40.0
+
+        self.commands.base_velocity.resampling_time_range = (4.0, 4.0)
+        self.episode_length_s = 12.0
         # spawn the robot randomly in the grid (instead of their terrain levels)
         self.scene.terrain.max_init_terrain_level = None
         # reduce the number of terrains to save memory

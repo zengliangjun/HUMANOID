@@ -68,7 +68,7 @@ class RewardsCfg:
         func=pbrs_collect.width_exp_pbrs,
         weight=1,
         params={
-            "target_width": 0.25,  # Adjusting for the foot clearance
+            "target_width": 0.238,  # Adjusting for the foot clearance
             "asset_cfg": SceneEntityCfg("robot",
                          body_names=[".*left_ankle_roll_link",
                                      ".*right_ankle_roll_link",

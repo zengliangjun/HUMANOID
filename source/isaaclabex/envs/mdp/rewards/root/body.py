@@ -76,7 +76,9 @@ def reward_width(
     # 2. 假定 body 按照成对顺序排列，其中偶数索引和奇数索引代表一对
     # 3. 计算每一对中两个身体的 y 坐标差的绝对值，得到当前宽度
     # 4. 减去目标宽度 target_width，得到超出或不足目标的偏差
-    width = torch.abs(pos_b[:, 0::2, 1] - pos_b[:, 1::2, 1]) - target_width
+    width = (pos_b[:, 0::2, 1] - pos_b[:, 1::2, 1] - target_width) * 100
+    width[width < 0] = torch.square(width[width < 0] * 2)  # 确保负值被置为 0，避免不必要的惩罚
+    width = torch.clamp_min(width, min = 4)
 
     # 将偏差放大（乘以 100），计算其指数惩罚，最后求所有对的平均值作为最终 reward
-    return torch.mean(torch.exp(-torch.abs(width) * 100), dim=-1)
+    return torch.sum(torch.exp(-width / 6), dim=-1)
