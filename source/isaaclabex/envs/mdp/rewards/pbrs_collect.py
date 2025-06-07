@@ -17,7 +17,7 @@ total2zero_pbrs = joint_pbrs.total2zero_pbrs
 total2zero_one_way_pbrs = joint_pbrs.total2zero_one_way_pbrs
 equals_pbrs = joint_pbrs.equals_pbrs
 meanvar_pbrs = joint_pbrs.meanvar_pbrs
-
+meanmin_varmax_pbrs = joint_pbrs.meanmin_varmax_pbrs
 
 # Base PBRs
 lin_z_pbrs = penalize_pbrs.lin_z_pbrs

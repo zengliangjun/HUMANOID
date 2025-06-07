@@ -73,6 +73,7 @@ class PoseMeanVariance(ManagerTermBase):
         self,
         env: ManagerBasedRLEnv,
         asset_cfg: SceneEntityCfg,
+        command_name,
         mean_std,
         variance_std,
         mean_weight,
@@ -98,16 +99,17 @@ class PoseMeanVariance(ManagerTermBase):
 
         # Compute the difference between current pose and default pose.
         diff = pose - default_pose
-        mean = self.mean_buf.clone()
 
-        # Update mean using an incremental running average.
-        self.mean_buf[...] = (mean * (self._env.episode_length_buf[:, None] - 1) + diff) / self._env.episode_length_buf[:, None]
-        # Update variance using incremental variance formula.
-        self.variance_buf[...] = self.variance_buf + (diff - mean) * (diff - self.mean_buf)
+        delta = diff - self.mean_buf
+        self.mean_buf += delta / self._env.episode_length_buf[:, None]
+        delta2 = diff - self.mean_buf
+        self.variance_buf = (self.variance_buf * (self._env.episode_length_buf[:, None] - 2) + delta * delta2) / (self._env.episode_length_buf[:, None] - 1)
+
 
         # Reset buffers for environments where episode length is zero.
         zero_flag = self._env.episode_length_buf == 0
         self.mean_buf[zero_flag] = 0
+        zero_flag = self._env.episode_length_buf <= 1
         self.variance_buf[zero_flag] = 0
 
         # Compute differences between left-right joint pairs.
@@ -124,6 +126,8 @@ class PoseMeanVariance(ManagerTermBase):
         # Invalidate rewards for episodes shorter than the threshold.
         novalid_flag = self._env.episode_length_buf < self.episode_length_threshold
         reward[novalid_flag] = 0
+
+        reward *= torch.norm(env.command_manager.get_command(command_name), dim=1) > 0.1
         return reward
 
 
@@ -190,6 +194,7 @@ class MeanMinVarianceMax(ManagerTermBase):
         self,
         env: ManagerBasedRLEnv,
         asset_cfg: SceneEntityCfg,
+        command_name,
         mean_std,
         variance_std,
         mean_weight,
@@ -215,21 +220,22 @@ class MeanMinVarianceMax(ManagerTermBase):
 
         # Compute the difference between current pose and default pose.
         diff = pose - default_pose
-        mean = self.mean_buf.clone()
 
-        # Update mean using an incremental running average.
-        self.mean_buf[...] = (mean * (self._env.episode_length_buf[:, None] - 1) + diff) / self._env.episode_length_buf[:, None]
-        # Update variance using incremental variance formula.
-        self.variance_buf[...] = self.variance_buf + (diff - mean) * (diff - self.mean_buf)
+        delta = diff - self.mean_buf
+        self.mean_buf += delta / self._env.episode_length_buf[:, None]
+        delta2 = diff - self.mean_buf
+        self.variance_buf = (self.variance_buf * (self._env.episode_length_buf[:, None] - 2) + delta * delta2) / (self._env.episode_length_buf[:, None] - 1)
 
         # Reset buffers for environments where episode length is zero.
         zero_flag = self._env.episode_length_buf == 0
         self.mean_buf[zero_flag] = 0
+        zero_flag = self._env.episode_length_buf <= 1
         self.variance_buf[zero_flag] = 0
 
         # Exponential decay rewards for mean and variance differences.
         reward_mean = torch.mean(torch.exp(-torch.abs(self.mean_buf) / self.mean_std), dim=-1)
-        reward_variance = torch.clamp_max(torch.sum(torch.abs(self.variance_buf), dim=-1), self.variance_std)
+
+        reward_variance = torch.clamp_max(torch.mean(torch.abs(self.variance_buf), dim=-1), self.variance_std * 1.5) / self.variance_std
 
         # Combine rewards using provided weights.
         reward = reward_mean * self.mean_weight + reward_variance * self.variance_weight
@@ -237,6 +243,7 @@ class MeanMinVarianceMax(ManagerTermBase):
         # Invalidate rewards for episodes shorter than the threshold.
         novalid_flag = self._env.episode_length_buf < self.episode_length_threshold
         reward[novalid_flag] = 0
+        reward *= torch.norm(env.command_manager.get_command(command_name), dim=1) > 0.1
         return reward
 
 
@@ -289,7 +296,7 @@ def rew_hip_knee_pitch_total2zero(
     total = torch.mean(torch.square(total), dim=-1)
     reward = torch.exp(-total / std**2)
     # Only award reward if the command vector norm is above 0.1.
-    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    reward *= torch.norm(env.command_manager.get_command(command_name), dim=1) > 0.1
     return reward
 
 '''
@@ -364,7 +371,7 @@ def rew_hip_roll_total2zero(
     reward += torch.exp(-_error / std**2)
 
     # Only award reward if the command vector norm is above 0.1.
-    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    reward *= torch.norm(env.command_manager.get_command(command_name), dim=1) > 0.1
     return reward
 
 
@@ -401,5 +408,5 @@ def reward_equals_symmetry(
     total = torch.mean(torch.square(total), dim=-1)
     reward = torch.exp(-total / std**2)
     # Only award reward if the command vector norm is above 0.1.
-    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    reward *= torch.norm(env.command_manager.get_command(command_name), dim=1) > 0.1
     return reward

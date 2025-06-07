@@ -106,3 +106,23 @@ class G1FlatEnvCfg_PLAY(G1FlatEnvCfg):
         # disable randomization for play
         self.observations.policy.enable_corruption = False
         # remove random pushing
+
+@configclass
+class G1FlatNoRollEnvCfg(G1FlatEnvCfg):
+    """Environment configuration without roll rewards."""
+
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        # remove roll rewards
+        self.rewards.pbrs_hip_roll = None
+
+@configclass
+class G1FlatNoRollEnvCfg_PLAY(G1FlatEnvCfg_PLAY):
+    """Environment configuration without roll rewards."""
+
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        # remove roll rewards
+        self.rewards.pbrs_hip_roll = None

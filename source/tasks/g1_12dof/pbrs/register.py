@@ -21,3 +21,24 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1FlatCfg",
     },
 )
+
+
+gym.register(
+    id="G1pbrsflatNoRoll-v0",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{pbrs_env_cfg.__name__}:G1FlatNoRollEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1FlatNoRollCfg",
+    },
+)
+
+gym.register(
+    id="G1pbrsflatNoRoll-Play-v0",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{pbrs_env_cfg.__name__}:G1FlatNoRollEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{rsl_rl_ppo_cfg.__name__}:G1FlatNoRollCfg",
+    },
+)

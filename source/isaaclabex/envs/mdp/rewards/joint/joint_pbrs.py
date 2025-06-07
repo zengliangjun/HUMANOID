@@ -173,6 +173,7 @@ class meanvar_pbrs(pbrs_base.PbrsBase):
         self,
         env: ManagerBasedRLEnv,
         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+        command_name = "base_velocity",
         mean_std = 0.15,
         variance_std = 0.05,
         mean_weight = 1,
@@ -185,6 +186,45 @@ class meanvar_pbrs(pbrs_base.PbrsBase):
         _penalize = self.term \
                 (env=env,
                 asset_cfg=asset_cfg,
+                command_name = command_name,
+                mean_std = mean_std,
+                variance_std = variance_std,
+                mean_weight = mean_weight,
+                variance_weight = variance_weight,
+                episode_length_threshold = episode_length_threshold)
+
+        return self._calculate(_penalize)
+
+class meanmin_varmax_pbrs(pbrs_base.PbrsBase):
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+        self.term = reward_collect.reward_pose_mean_min_var_max(cfg, env)
+
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
+        super().reset(env_ids)
+        self.term.reset(env_ids)
+
+
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+        command_name = "base_velocity",
+        mean_std = 0.15,
+        variance_std = 0.05,
+        mean_weight = 1,
+        variance_weight = 1,
+        episode_length_threshold = 0,
+        gamma: float = 1,
+        method: int = pbrs_base.PBRSNormal
+        ) -> torch.Tensor:
+
+        _penalize = self.term \
+                (env=env,
+                asset_cfg=asset_cfg,
+                command_name=command_name,
                 mean_std = mean_std,
                 variance_std = variance_std,
                 mean_weight = mean_weight,
