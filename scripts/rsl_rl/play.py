@@ -10,7 +10,6 @@ from isaaclab.app import AppLauncher
 
 # local imports
 import cli_args  # isort: skip
-from scripts.rsl_rl.logger_org import Logger
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -36,6 +35,8 @@ app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 
 """Rest everything follows."""
+
+from logtoolkit.logger import Logger
 
 import gymnasium as gym
 import os
@@ -63,40 +64,9 @@ def track_robot(_env):
     # set the camera view
     _env.unwrapped.sim.set_camera_view(eye=cam_eye, target=cam_target)
 
-# Async print queue and worker
-print_queue = queue.Queue()
-print_thread = None
-
-def print_worker():
-    """Worker thread for async printing"""
-    while True:
-        item = print_queue.get()
-        if item is None:  # Sentinel value to stop the thread
-            break
-        print(item)
-        print_queue.task_done()
-
-def start_print_thread():
-    """Start the async print thread"""
-    global print_thread
-    print_thread = threading.Thread(target=print_worker, daemon=True)
-    print_thread.start()
-
-def stop_print_thread():
-    """Stop the async print thread"""
-    global print_thread
-    if print_thread:
-        print_queue.put(None)  # Send stop signal
-        print_thread.join()
-
-def async_print(text):
-    """Print text asynchronously"""
-    print_queue.put(text)
 
 def main():
     """Play with RSL-RL agent."""
-    # Start async print thread
-    start_print_thread()
     # parse configuration
     env_cfg = parse_env_cfg(
         args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
@@ -156,14 +126,7 @@ def main():
     if args_cli.track_robot:
         track_robot(env)
 
-    count = 0
-    ep_infos = []
-
-
-    logger = Logger(env.unwrapped.step_dt)
-    robot_index = 0
-    joint_index = 0
-    asset = env.unwrapped.scene["robot"]
+    logger = Logger(env.unwrapped)
 
     # simulate environment
     while simulation_app.is_running():
@@ -176,68 +139,7 @@ def main():
             if args_cli.track_robot:
                     track_robot(env)
 
-            commands = env.unwrapped.command_manager.get_command("base_velocity")
-
-            logger.log_states(
-            {
-                'dof_pos_target': actions[robot_index, joint_index].item() * env.unwrapped.cfg.actions.joint_pos.scale,
-                'dof_pos': asset.data.joint_pos[robot_index, joint_index].item(),
-                'dof_vel': asset.data.joint_vel[robot_index, joint_index].item(),
-                'dof_torque': asset.data.applied_torque[robot_index, joint_index].item(),
-                'command_x': commands[robot_index, 0].item(),
-                'command_y': commands[robot_index, 1].item(),
-                'command_yaw': commands[robot_index, 2].item(),
-                'base_vel_x': asset.data.root_lin_vel_b[robot_index, 0].item(),
-                'base_vel_y': asset.data.root_lin_vel_b[robot_index, 1].item(),
-                'base_vel_z': asset.data.root_lin_vel_b[robot_index, 2].item(),
-                'base_vel_yaw': asset.data.root_ang_vel_b[robot_index, 2].item()
-            }
-            )
-
-            num_episodes = torch.sum(env.unwrapped.reset_buf).item()
-            if num_episodes>0:
-
-                if "episode" in extra:
-                    ep_infos = extra["episode"]
-                elif "log" in extra:
-                    ep_infos = extra["log"]
-
-                logger.log_rewards(ep_infos, num_episodes)
-                logger.print_rewards()
-                logger.plot_states()
-
-            if False:
-                count += 1
-                if "episode" in extra:
-                    ep_infos.append(extra["episode"])
-                elif "log" in extra:
-                    ep_infos.append(extra["log"])
-
-                if count % env_cfg.num_steps_per_env == 0:
-                    width: int = 80
-                    pad: int = 35
-                    ep_string = f"""\n{'#' * width}\n"""
-                    for key in ep_infos[0]:
-                        infotensor = torch.tensor([], device=agent_cfg.device)
-                        for ep_info in ep_infos:
-                            # handle scalar and zero dimensional tensor infos
-                            if key not in ep_info:
-                                continue
-                            if not isinstance(ep_info[key], torch.Tensor):
-                                ep_info[key] = torch.Tensor([ep_info[key]])
-                            if len(ep_info[key].shape) == 0:
-                                ep_info[key] = ep_info[key].unsqueeze(0)
-                            infotensor = torch.cat((infotensor, ep_info[key].to(agent_cfg.device)))
-                        value = torch.mean(infotensor)
-                        # log to logger and terminal
-                        if "/" in key:
-                            ep_string += f"""{f'{key}:':>{pad}} {value:.4f}\n"""
-                        else:
-                            ep_string += f"""{f'Mean episode {key}:':>{pad}} {value:.4f}\n"""
-
-                    async_print(ep_string)
-                    ep_infos = []
-
+            logger.log_step(actions, extra)
 
         if args_cli.video:
             timestep += 1
@@ -247,9 +149,6 @@ def main():
 
     # close the simulator
     env.close()
-    # Stop async print thread
-    stop_print_thread()
-
 
 if __name__ == "__main__":
     # run the main function
