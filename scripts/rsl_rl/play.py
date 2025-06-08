@@ -10,6 +10,7 @@ from isaaclab.app import AppLauncher
 
 # local imports
 import cli_args  # isort: skip
+from videotoolkit import recordvideo
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -59,7 +60,7 @@ import tasks  # noqa: F401
 
 def track_robot(_env):
     robot_pos_w = _env.unwrapped.scene["robot"].data.root_pos_w[0].detach().cpu().numpy()
-    cam_eye = (robot_pos_w[0] + 3, robot_pos_w[1] + 3, 4)
+    cam_eye = (robot_pos_w[0] + 2.5, robot_pos_w[1] + 2.5, 1.8)
     cam_target = (robot_pos_w[0], robot_pos_w[1], 0.0)
     # set the camera view
     _env.unwrapped.sim.set_camera_view(eye=cam_eye, target=cam_target)
@@ -88,13 +89,11 @@ def main():
     if args_cli.video:
         video_kwargs = {
             "video_folder": os.path.join(log_dir, "videos", "play"),
-            "step_trigger": lambda step: step == 0,
             "video_length": args_cli.video_length,
+            "start_steps": 600,
             "disable_logger": True,
         }
-        print("[INFO] Recording videos during training.")
-        print_dict(video_kwargs, nesting=4)
-        env = gym.wrappers.RecordVideo(env, **video_kwargs)
+        video_record = recordvideo.RecordVideo(env, **video_kwargs)
 
     # convert to single-agent instance if required by the RL algorithm
     if isinstance(env.unwrapped, DirectMARLEnv):
@@ -122,7 +121,6 @@ def main():
 
     # reset environment
     obs, _ = env.get_observations()
-    timestep = 0
     if args_cli.track_robot:
         track_robot(env)
 
@@ -142,10 +140,7 @@ def main():
             logger.log_step(actions, extra)
 
         if args_cli.video:
-            timestep += 1
-            # Exit the play loop after recording one video
-            if timestep == args_cli.video_length:
-                break
+            video_record()
 
     # close the simulator
     env.close()
