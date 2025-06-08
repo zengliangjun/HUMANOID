@@ -4,6 +4,7 @@ from isaaclab.managers import EventTermCfg
 from isaaclab.managers import SceneEntityCfg
 
 import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
+from isaaclabex.envs.mdp.events import body
 
 @configclass
 class EventCfg:
@@ -15,7 +16,7 @@ class EventCfg:
         mode="startup",
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
-            "static_friction_range": (0.6, 1.25),
+            "static_friction_range": (0.05, 1.5), # (0.6, 1.25),
             "dynamic_friction_range": (1, 1),
             "restitution_range": (0.0, 0.0),
             "num_buckets": 64,
@@ -84,5 +85,15 @@ class EventCfg:
             "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
             "mass_distribution_params": (0.9, 1.1),
             "operation": "scale",
+        },
+    )
+    interval_coms = EventTermCfg(
+        func=body.randomize_coms,
+        mode="interval",
+        interval_range_s=(3.0, 6.0),
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
+            "coms_distribution_params": (-0.1, 0.1),
+            "operation": "add",
         },
     )

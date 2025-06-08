@@ -91,6 +91,7 @@ class G1FlatEnvCfg_PLAY(G1FlatEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
+        self.curriculum = None
 
         # make a smaller scene for play
         self.scene.num_envs = 50

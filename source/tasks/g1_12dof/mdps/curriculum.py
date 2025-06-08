@@ -15,7 +15,7 @@ class CurriculumCfg:
                 'startup_material': {    # event name
                     "static_friction_range": events.EventCurriculumStepItem(
                         start_range = (1, 1),
-                        end_range = (0.6, 1.4)
+                        end_range = (0.05, 1.5)
                     ),
                     "dynamic_friction_range": events.EventCurriculumStepItem(
                         start_range = (1, 1),
@@ -78,6 +78,12 @@ class CurriculumCfg:
                     "mass_distribution_params": events.EventCurriculumStepItem(
                         start_range = (1, 1),
                         end_range = (0.9, 1.1)
+                    ),
+                },
+                'interval_coms': {    # event name
+                    "coms_distribution_params": events.EventCurriculumStepItem(
+                        start_range = (0, 0),
+                        end_range = (-0.1, 0.1)
                     ),
                 },
             }
