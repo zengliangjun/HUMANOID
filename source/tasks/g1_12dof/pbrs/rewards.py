@@ -46,6 +46,19 @@ class RewardsCfg:
         weight=-10.0, params={"asset_cfg": SceneEntityCfg("robot")}
     )
     # body
+    p_width = RewardTermCfg(
+        func=reward_collect.penalize_width,
+        weight=-3,
+        params={
+            "target_width": 0.238,  # Adjusting for the foot clearance
+            "asset_cfg": SceneEntityCfg("robot",
+                         body_names=[".*left_ankle_roll_link",
+                                     ".*right_ankle_roll_link",
+                                     ".*left_knee_link",
+                                     ".*right_knee_link"])
+            },
+    )
+
     pbrs_orientation = RewardTermCfg(
         func=pbrs_collect.ori_l2_pbrs,
         weight=1.0,
@@ -64,6 +77,7 @@ class RewardsCfg:
             "gamma": 1,
             "method": pbrs_base.PBRSExp}
     )
+    '''
     pbrs_width = RewardTermCfg(
         func=pbrs_collect.width_exp_pbrs,
         weight=1,
@@ -79,6 +93,7 @@ class RewardsCfg:
             "method": pbrs_base.PBRSNormal
             },
     )
+    '''
 
     pbrs_hipry = RewardTermCfg(
         func=pbrs_collect.jpos_deviation_l1_pbrs,

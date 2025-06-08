@@ -26,6 +26,10 @@ class CommandsCfg:
         small2zero_threshold_angle=0.25
     )
 
+    def __post_init__(self):
+        self.base_velocity.goal_vel_visualizer_cfg.markers["arrow"].scale = (0.3, 0.3, 0.3)
+        self.base_velocity.current_vel_visualizer_cfg.markers["arrow"].scale = (0.3, 0.3, 0.3)
+
 @configclass
 class ObservationsCfg(obs.ObservationsCfg):
 
