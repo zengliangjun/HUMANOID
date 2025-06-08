@@ -37,7 +37,7 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
             render_mode (str | None): Render mode to be used, if any.
             **kwargs: Additional keyword arguments.
         """
-        super(ManagerBasedRLEnv_Extends, self).__init__(cfg=cfg)
+        super(ManagerBasedRLEnv_Extends, self).__init__(cfg=cfg, render_mode = render_mode, **kwargs)
         '''
         for reward penalty curriculum
         '''
