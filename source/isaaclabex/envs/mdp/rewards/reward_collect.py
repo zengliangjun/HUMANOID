@@ -3,7 +3,7 @@ from isaaclab_tasks.manager_based.classic.cartpole.mdp import rewards as cartpol
 from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoid_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
-from .joint import joint, phase, symmetry
+from .joint import joint, joint_status, phase, symmetry
 from .feet import feet_phase, feet, feet_contact
 from . import actions
 from .root import base, base_ori, base_phase, body, contact
@@ -105,6 +105,11 @@ reward_equals_symmetry = symmetry.reward_equals_symmetry
 reward_hip_roll_symmetry = symmetry.rew_hip_roll_total2zero # no zero
 reward_pose_mean_var_symmetry = symmetry.PoseMeanVariance
 reward_pose_mean_min_var_max = symmetry.MeanMinVarianceMax
+
+reward_episode = joint_status.EpisodeStatus
+reward_episode2zero = joint_status.Episode2Zero
+reward_step = joint_status.StepStatus
+
 """
 Action Penalties:
 Penalties to enforce smoothness and regularity in the agent's actions.
