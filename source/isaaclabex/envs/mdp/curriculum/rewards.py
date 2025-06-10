@@ -9,14 +9,6 @@ if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
     from isaaclab.managers import RewardTermCfg
 
-@configclass
-class EventCurriculumStepItem:
-    #start_steps: int = MISSING
-    #end_steps: int = MISSING
-
-    start_range: tuple[float, float] = MISSING
-    end_range: tuple[float, float] = MISSING
-
 def curriculum_with_steps(
     env: ManagerBasedRLEnv,
     env_ids: Sequence[int],

@@ -37,6 +37,53 @@ class ObservationsCfg(obs.ObservationsCfg):
         self.policy.phase = None
         self.critic.phase = None
 
+from isaaclabex.envs.mdp.curriculum import rewards as rewards_curriculum
+from isaaclab.managers import CurriculumTermCfg
+
+@configclass
+class CurriculumCfg(curriculum.CurriculumCfg):
+
+    events_with_steps = CurriculumTermCfg(
+        func=rewards_curriculum.curriculum_with_steps,
+        params={
+            'start_steps': 0,
+            'end_steps': 800000,
+            "curriculums": {
+                "rew_lin_xy_exp": {    # reward name
+                    "start_weight": 3.5,
+                    "end_weight": 2
+                },
+                "rew_ang_z_exp": {    # reward name
+                    "start_weight": 1.5,
+                    "end_weight": 2
+                },
+                'p_action_smoothness': {    # reward name
+                    "start_weight": -0.004,
+                    "end_weight": -0.02
+                },
+                'p_torques': {    # reward name
+                    "start_weight": -0.0005,
+                    "end_weight": -0.001
+                },
+                'p_width': {    # reward name
+                    "start_weight": -3.0,
+                    "end_weight": -10
+                },
+                'p_orientation': {    # reward name
+                    "start_weight": -1.0,
+                    "end_weight": -10
+                },
+                'p_height': {    # reward name
+                    "start_weight": -10.0,
+                    "end_weight": -40.0
+                }
+            }
+        }
+    )
+
+
+
+
 @configclass
 class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     # Scene settings
@@ -49,7 +96,7 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     rewards = rewards.RewardsCfg()
     terminations = mdps.TerminationsCfg()
     events = events.EventCfg()
-    curriculum = curriculum.CurriculumCfg()
+    curriculum = CurriculumCfg()
 
     def __post_init__(self):
         # ROBOT

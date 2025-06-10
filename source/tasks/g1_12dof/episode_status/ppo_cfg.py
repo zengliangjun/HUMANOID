@@ -6,7 +6,7 @@ class G1FlatCfg(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
     max_iterations = 40000
     save_interval = 1000
-    experiment_name = "g1episode"
+    experiment_name = "g1episode" # "g1pbrsflat_noroll"  #
     empirical_normalization = False
     policy = RslRlPpoActorCriticCfg(
         class_name = "ActorCriticRecurrent",
@@ -33,7 +33,7 @@ class G1FlatCfg(RslRlOnPolicyRunnerCfg):
 
     def __post_init__(self):
         self.policy.rnn_type='lstm'
-        self.policy.rnn_hidden_size=128
+        self.policy.rnn_hidden_size=256
         self.policy.rnn_num_layers=1
         self.algorithm.entropy_ranges = (1.5, 10)  # 目标熵值范围(最小,最大)
         self.algorithm.entropy_coef_factor = 1.05  # 熵系数调整幅度
