@@ -15,6 +15,8 @@ class ZeroSmallCommand(UniformVelocityCommand):
 
     def __init__(self, cfg: ZeroSmallCommandCfg, env: ManagerBasedEnv):
         super(ZeroSmallCommand, self).__init__(cfg, env)
+        self.is_line_env = torch.zeros_like(self.is_standing_env, dtype = torch.bool)
+        self.is_noline_env = torch.zeros_like(self.is_standing_env, dtype = torch.bool)
 
     def _resample_command(self, env_ids: Sequence[int]):
         super(ZeroSmallCommand, self)._resample_command(env_ids)
@@ -30,5 +32,9 @@ class ZeroSmallCommand(UniformVelocityCommand):
         # set small commands to zero
         self.vel_command_b[zero_line_ids, :2] *= 0
         self.vel_command_b[zero_angle_ids, 2] *= 0
+
         self.is_standing_env[zero_ids] = True
+        self.is_noline_env[: ] = torch.norm(self.vel_command_b[:, 1:], dim=-1) > 0.2
+        self.is_line_env = torch.logical_not(torch.logical_or(self.is_standing_env, self.is_noline_env))
+
 
