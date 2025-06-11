@@ -8,11 +8,11 @@ import torch
 from isaaclab.utils import configclass
 from dataclasses import MISSING
 from typing import Callable
-from isaaclab.managers.manager_term_cfg import ManagerTermBaseCfg
+from isaaclab.managers.manager_term_cfg import TerminationTermCfg
 
 
 @configclass
-class ConstraintTermCfg(ManagerTermBaseCfg):
+class ConstraintTermCfg(TerminationTermCfg):
     """Configuration for a constraint term."""
 
     func: Callable[..., torch.Tensor] = MISSING

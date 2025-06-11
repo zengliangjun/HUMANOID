@@ -122,9 +122,11 @@ class ConstraintManager(TerminationManager):
                 extras["EPS terminate/" + key] = torch.count_nonzero(self._term_dones[key][env_ids].float()).item()
             else:
                 extras["EPS Constraint/" + key] = torch.mean(self._term_dones[key][env_ids]).item()
-                extras["EPS Con maxes/" + key] = self._running_maxes[key].item()
-                terminates = self._probs[key][env_ids] == 1
-                extras["EPS Con count/" + key] = terminates.float().sum().item()
+                if key in self._running_maxes:
+                    extras["EPS Con maxes/" + key] = self._running_maxes[key].item()
+                if key in self._probs:
+                    terminates = self._probs[key][env_ids] == 1
+                    extras["EPS Con count/" + key] = terminates.float().sum().item()
 
         # Reset probs and delta_buf only for the specified env_ids
         for key in self._probs.keys():

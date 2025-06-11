@@ -84,3 +84,23 @@ class TerminationsCfg:
         params={"asset_cfg": SceneEntityCfg("robot"), "distance_buffer": 3.0},
         time_out=True,
     )
+
+from isaaclabex.envs.managers import constraint_term_cfg
+from isaaclabex.envs.mdp.constraint import body
+
+@configclass
+class ConstraintCfg(TerminationsCfg):
+
+    ter_width = constraint_term_cfg.ConstraintTermCfg(
+        func=body.constraint_width,
+        params={
+            "target_width": 0.238,
+            "asset_cfg": SceneEntityCfg("robot",
+                         body_names=[".*left_ankle_roll_link",
+                                     ".*right_ankle_roll_link",
+                                     ".*left_knee_link",
+                                     ".*right_knee_link"],
+                        preserve_order = True),
+            },
+        probability_max=0.25,
+    )

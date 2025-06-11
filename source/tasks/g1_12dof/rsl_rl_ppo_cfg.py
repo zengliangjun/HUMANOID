@@ -66,3 +66,10 @@ class G1FlatBSRSCfg(G1FlatCfg):
         self.algorithm.class_name="BSRSPPO"
         self.algorithm.scale = 1.5
         self.experiment_name = "g1_12_bsrs15_flat"
+
+@configclass
+class G1FlatConstraintCfg(G1FlatCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        self.experiment_name = "g1_12_constraint_flat"

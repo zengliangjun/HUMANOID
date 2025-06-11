@@ -91,3 +91,18 @@ class G1FlatEnvExCfg_PLAY(G1FlatEnvCfg_PLAY):
         # post init of parent
         super().__post_init__()
         self.rewards = rewards.RewardsCfgEx()
+
+
+@configclass
+class G1FlatEnvConstraintCfg(G1FlatEnvCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        self.terminations = mdps.ConstraintCfg()
+
+@configclass
+class G1FlatEnvConstraintCfg_PLAY(G1FlatEnvCfg_PLAY):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        self.terminations = mdps.ConstraintCfg()
