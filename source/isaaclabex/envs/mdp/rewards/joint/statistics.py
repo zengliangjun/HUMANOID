@@ -3,7 +3,8 @@
 from __future__ import annotations
 from collections.abc import Sequence
 import torch
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+from abc import ABC, abstractmethod
 
 from isaaclab.assets import Articulation
 from isaaclab.managers import ManagerTermBase, SceneEntityCfg
@@ -12,103 +13,119 @@ if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
     from isaaclab.managers import RewardTermCfg
 
-# Class for episode reward calculation using joint differences.
-class EpisodeStatus(ManagerTermBase):
+class BaseStatistics(ManagerTermBase, ABC):
+    """Base class for joint statistics calculation with common functionality."""
 
-    # Initialize with reward config and environment.
     def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
         joint_size = len(cfg.params["asset_cfg"].joint_ids)
-        self.jvariance_buf = torch.zeros((self.num_envs, joint_size), device=self.device, dtype=torch.float)
-        self.jmean_buf = torch.zeros((self.num_envs, joint_size), device=self.device, dtype=torch.float)
+        self._init_buffers(joint_size)
 
-    # Reset the mean and variance buffers for the specified environments.
+    def _init_buffers(self, joint_size: int):
+        """Initialize statistical buffers."""
+        # Basic statistics
+        self.mean_buf = torch.zeros((self.num_envs, joint_size),
+                                  device=self.device, dtype=torch.float)
+        self.var_buf = torch.zeros_like(self.mean_buf)
+
+        # Debug statistics (optional)
+        self.max_buf = torch.zeros_like(self.mean_buf)
+        self.min_buf = torch.zeros_like(self.mean_buf)
+
+    @abstractmethod
+    def _get_joint_data(self, asset_cfg: SceneEntityCfg) -> torch.Tensor:
+        """Abstract method to get joint data (position/velocity/acceleration)."""
+        pass
+
+    def _update_stats(self, data: torch.Tensor, debug: bool = False) -> None:
+        """Update running statistics with new data.
+
+        Args:
+            data: New joint data tensor of shape (num_envs, joint_size)
+            debug: Whether to update debug statistics
+        """
+        # Update mean and variance
+        delta = data - self.mean_buf
+        self.mean_buf += delta / self._env.episode_length_buf[:, None]
+
+        delta2 = data - self.mean_buf
+        self.var_buf = (self.var_buf * (self._env.episode_length_buf[:, None] - 2) +
+                       delta * delta2) / (self._env.episode_length_buf[:, None] - 1)
+
+        # Update debug stats if enabled
+        if debug:
+            self.max_buf = torch.maximum(self.max_buf, data)
+            self.min_buf = torch.minimum(self.min_buf, data)
+
+        # Reset buffers for new episodes
+        self._reset_new_episodes()
+
+    def _reset_new_episodes(self):
+        """Reset buffers for environments with new episodes."""
+        zero_flag = self._env.episode_length_buf == 0
+        self.mean_buf[zero_flag] = 0
+
+        zero_flag = self._env.episode_length_buf <= 1
+        self.var_buf[zero_flag] = 0
+        if hasattr(self, 'max_buf'):
+            self.max_buf[zero_flag] = 0
+            self.min_buf[zero_flag] = 0
+
     def reset(self, env_ids: Sequence[int] | None = None) -> None:
-        if len(env_ids) == 0:
+        """Reset buffers for specified environments."""
+        if env_ids is None or len(env_ids) == 0:
             return
-        self.jvariance_buf[env_ids] = 0
-        self.jmean_buf[env_ids] = 0
+        self.mean_buf[env_ids] = 0
+        self.var_buf[env_ids] = 0
+        if hasattr(self, 'max_buf'):
+            self.max_buf[env_ids] = 0
+            self.min_buf[env_ids] = 0
 
-    # Return current joint positions (no default offset subtracted).
+class PositionStatistics(BaseStatistics):
+    """Statistics for joint position data."""
+
+    def _get_joint_data(self, asset_cfg: SceneEntityCfg) -> torch.Tensor:
+        asset: Articulation = self._env.scene[asset_cfg.name]
+        return asset.data.joint_pos[:, asset_cfg.joint_ids]
+
     def _calculate_withzero(self, asset_cfg: SceneEntityCfg):
-        asset: Articulation = self._env.scene[asset_cfg.name]
-        jpos = asset.data.joint_pos[:, asset_cfg.joint_ids]
-        return jpos
+        """Get raw joint positions."""
+        return self._get_joint_data(asset_cfg)
 
-    # Return joint differences where default positions are subtracted.
     def _calculate_withdefault(self, asset_cfg: SceneEntityCfg):
+        """Get joint positions relative to default positions."""
         asset: Articulation = self._env.scene[asset_cfg.name]
-        jpos = asset.data.joint_pos[:, asset_cfg.joint_ids]
+        jpos = self._get_joint_data(asset_cfg)
         default_jpos = asset.data.default_joint_pos[:, asset_cfg.joint_ids]
         return jpos - default_jpos
 
-    # Update the running mean and variance using the new difference (diff).
-    def _calculate_mean_variance(self, diff) -> None:
-        # Calculate delta for updating the mean buffer.
-        delta = diff - self.jmean_buf
-        self.jmean_buf += delta / self._env.episode_length_buf[:, None]
-        # Recalculate delta using the updated mean and update variance.
-        delta2 = diff - self.jmean_buf
-        self.jvariance_buf = (self.jvariance_buf * (self._env.episode_length_buf[:, None] - 2) + delta * delta2) / (self._env.episode_length_buf[:, None] - 1)
-        # Reset buffers for environments with no or insufficient episodes.
-        zero_flag = self._env.episode_length_buf == 0
-        self.jmean_buf[zero_flag] = 0
-        zero_flag = self._env.episode_length_buf <= 1
-        self.jvariance_buf[zero_flag] = 0
-
-    # Compute reward from normalized differences in means and variances.
     def _calculate_diff(self, start_ids: Sequence[int], end_ids: Sequence[int]) -> torch.Tensor:
-        """计算基于关节平均值和方差差异的奖励分量
+        diff_mean = torch.abs(self.mean_buf[:, start_ids] - self.mean_buf[:, end_ids])
+        diff_variance = torch.abs(self.var_buf[:, start_ids] - self.var_buf[:, end_ids])
+        return (torch.mean(torch.exp(-diff_mean), dim=-1) +
+                torch.mean(torch.exp(-diff_variance), dim=-1)) / 2
 
-        参数:
-            start_ids: 起始关节索引序列
-            end_ids: 结束关节索引序列
-
-        返回:
-            torch.Tensor: 计算得到的奖励分量
-        """
-        diff_mean = torch.abs(self.jmean_buf[:, start_ids] - self.jmean_buf[:, end_ids])
-        diff_variance = torch.abs(self.jvariance_buf[:, start_ids] - self.jvariance_buf[:, end_ids])
-        return (torch.mean(torch.exp(-diff_mean), dim=-1) + torch.mean(torch.exp(-diff_variance), dim=-1)) / 2
-
-    # Compute reward component based on overall mean and variance norms.
     def _calculate_meanmin_variancemax(self, mean_std: float, variance_target: float) -> torch.Tensor:
-        """计算基于关节平均值最小化和方差最大化的奖励分量
-
-        使用sigmoid函数替代指数衰减，提供更好的梯度信号和数值稳定性
-
-        参数:
-            mean_std (float): 控制均值奖励过渡区的参数，必须为正
-            variance_target (float): 目标方差值，-1表示不考虑方差奖励
-
-        返回:
-            torch.Tensor: 形状为(num_envs,)的奖励张量
-        """
-        # 参数校验
+        # mean_std is only used for scaling, not as target
         mean_std = max(mean_std, 1e-6)
         if variance_target != -1:
             variance_target = max(variance_target, 1e-6)
 
-        # 计算均值奖励 (sigmoid形式)
-        mean = torch.mean(torch.abs(self.jmean_buf), dim=-1)
-        mean = torch.clamp(mean, max=3*mean_std)  # 限制最大值
-        safe_exp_input = (mean_std - mean) / (mean_std + 1e-8)
-        safe_exp_input = torch.clamp(safe_exp_input, min=-10, max=10)
-        mean_reward = 1 / (1 + torch.exp(-safe_exp_input))
-        mean_reward = torch.clamp(mean_reward, min=0.01)  # 最小奖励
+        # Reward mean_buf approaching 0
+        mean = torch.mean(torch.abs(self.mean_buf), dim=-1)
+        mean_reward = torch.exp(-mean / (mean_std + 1e-8))  # Higher reward when mean is closer to 0
+        mean_reward = torch.clamp(mean_reward, min=0.01, max=1.0)
 
         if variance_target != -1:
-            # 计算方差奖励 (sigmoid形式)
-            variance = torch.mean(torch.abs(self.jvariance_buf), dim=-1)
-            ratio = variance / (variance_target + 1e-8)
-            ratio = torch.clamp(ratio, 0.1, 10)  # 限制比率范围
-            variance_reward = 2 / (1 + torch.exp(5 * (ratio - 1))) - 1
+            # Reward var_buf approaching variance_target
+            variance = torch.mean(torch.abs(self.var_buf), dim=-1)
+            # Use Gaussian-like reward centered at variance_target
+            variance_diff = (variance - variance_target) / (variance_target + 1e-8)
+            variance_reward = torch.exp(-torch.square(variance_diff))
             variance_reward = torch.clamp(variance_reward, min=0.01, max=1.0)
-
-            return (variance_reward + mean_reward) / 4
+            return (variance_reward + mean_reward) / 2  # Equal weighting
         return mean_reward
 
-    # Main entry point to compute the episode reward.
     def __call__(
         self,
         env: ManagerBasedRLEnv,
@@ -120,53 +137,117 @@ class EpisodeStatus(ManagerTermBase):
         command_name,
         method: int = 0
     ) -> torch.Tensor:
-        # Select the method for computing joint differences.
         if method == 0:
             diff = self._calculate_withdefault(asset_cfg)
         else:
             diff = self._calculate_withzero(asset_cfg)
-        # Update running statistics.
-        self._calculate_mean_variance(diff)
-        # Compute reward components from differences.
+
+        self._update_stats(diff)
         reward0 = self._calculate_diff(start_ids, end_ids)
         reward1 = self._calculate_meanmin_variancemax(mean_std, variance_target)
         reward = (reward0 + reward1 * 3) / 4
-        # Optimize by computing the command norm only once.
+
         command = env.command_manager.get_command(command_name)
         command_norm = torch.norm(command, dim=1)
-        # Only consider rewards when command magnitude exceeds threshold.
         reward *= command_norm > 0.1
+
         zero_flag = self._env.episode_length_buf <= 1
         reward[zero_flag] = 0
 
         if torch.isnan(reward).sum() > 0:
-            raise ValueError(f"NaN detected in reward calculation for envs: {torch.isnan(reward).sum()}. ")
-
+            raise ValueError(f"NaN detected in reward calculation for envs: {torch.isnan(reward).sum()}.")
         if torch.isinf(reward).sum() > 0:
-            raise ValueError(f"NaN detected in reward calculation for envs: {torch.isinf(reward).sum()}. ")
+            raise ValueError(f"Inf detected in reward calculation for envs: {torch.isinf(reward).sum()}.")
 
         return reward
 
-class Episode2Zero(EpisodeStatus):
-    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
-        super().__init__(cfg, env)
+class Episode2Zero(PositionStatistics):
+    """Variant that calculates differences differently."""
 
     def _calculate_diff(self, start_ids: Sequence[int], end_ids: Sequence[int]) -> torch.Tensor:
-        """计算基于关节平均值和方差差异的奖励分量(Episode2Zero专用实现)
-
-        参数:
-            start_ids: 起始关节索引序列
-            end_ids: 结束关节索引序列
-
-        返回:
-            torch.Tensor: 计算得到的奖励分量
-        """
-        diff_mean = torch.abs(self.jmean_buf[:, start_ids] + self.jmean_buf[:, end_ids])
-        diff_variance = torch.abs(self.jvariance_buf[:, start_ids] - self.jvariance_buf[:, end_ids])
+        diff_mean = torch.abs(self.mean_buf[:, start_ids] + self.mean_buf[:, end_ids])
+        diff_variance = torch.abs(self.var_buf[:, start_ids] - self.var_buf[:, end_ids])
         return torch.mean(torch.exp(-diff_mean), dim=-1) + torch.mean(torch.exp(-diff_variance), dim=-1)
 
+class VelocityStatistics(BaseStatistics):
+    """Statistics for joint velocity data."""
+
+    def _get_joint_data(self, asset_cfg: SceneEntityCfg) -> torch.Tensor:
+        asset: Articulation = self._env.scene[asset_cfg.name]
+        return asset.data.joint_vel[:, asset_cfg.joint_ids]
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg,
+        command_name: str,
+        max_speed: float = -1,
+        debug: bool = False
+    ) -> torch.Tensor:
+        velocity = self._get_joint_data(asset_cfg)
+        self._update_stats(velocity, debug)
+
+        # Basic reward based on velocity variance
+        reward = torch.mean(torch.exp(-torch.abs(self.var_buf)), dim=-1)
+
+        # Penalize exceeding max speed if specified
+        if max_speed > 0 and debug:
+            speed_violation = (torch.abs(self.max_buf) > max_speed).any(dim=-1)
+            reward[speed_violation] *= 0.5  # Reduce reward for violations
+
+        command = env.command_manager.get_command(command_name)
+        command_norm = torch.norm(command, dim=1)
+        reward *= command_norm > 0.1
+
+        zero_flag = self._env.episode_length_buf <= 1
+        reward[zero_flag] = 0
+
+        if torch.isnan(reward).sum() > 0 or torch.isinf(reward).sum() > 0:
+            raise ValueError("Invalid reward values detected")
+
+        return reward
+
+class AccelerationStatistics(BaseStatistics):
+    """Statistics for joint acceleration data."""
+
+    def _get_joint_data(self, asset_cfg: SceneEntityCfg) -> torch.Tensor:
+        asset: Articulation = self._env.scene[asset_cfg.name]
+        return asset.data.joint_acc[:, asset_cfg.joint_ids]
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg,
+        command_name: str,
+        max_accel: float = -1,
+        debug: bool = False
+    ) -> torch.Tensor:
+        acceleration = self._get_joint_data(asset_cfg)
+        self._update_stats(acceleration, debug)
+
+        # Basic reward based on acceleration variance
+        reward = torch.mean(torch.exp(-torch.abs(self.var_buf)), dim=-1)
+
+        # Penalize exceeding max acceleration if specified
+        if max_accel > 0 and debug:
+            accel_violation = (torch.abs(self.max_buf) > max_accel).any(dim=-1)
+            reward[accel_violation] *= 0.5  # Reduce reward for violations
+
+        command = env.command_manager.get_command(command_name)
+        command_norm = torch.norm(command, dim=1)
+        reward *= command_norm > 0.1
+
+        zero_flag = self._env.episode_length_buf <= 1
+        reward[zero_flag] = 0
+
+        if torch.isnan(reward).sum() > 0 or torch.isinf(reward).sum() > 0:
+            raise ValueError("Invalid reward values detected")
+
+        return reward
+
+
 # Class for episode reward calculation using joint statistical measures.
-class StepStatus(ManagerTermBase):
+class BaseStepStats(ManagerTermBase):
 
     # Initialize buffers for tracking mean and variance statistics.
     def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
@@ -187,18 +268,6 @@ class StepStatus(ManagerTermBase):
         self.variance_mean_buf[env_ids] = 0
         self.variance_variance_buf[env_ids] = 0
 
-    # Return current joint positions (no default subtraction).
-    def _calcute_withzero(self, asset_cfg: SceneEntityCfg):
-        asset: Articulation = self._env.scene[asset_cfg.name]
-        jpos = asset.data.joint_pos[:, asset_cfg.joint_ids]
-        return jpos
-
-    # Return differences in joint positions (default positions subtracted).
-    def _calcute_withdefault(self, asset_cfg: SceneEntityCfg):
-        asset: Articulation = self._env.scene[asset_cfg.name]
-        jpos = asset.data.joint_pos[:, asset_cfg.joint_ids]
-        default_jpos = asset.data.default_joint_pos[:, asset_cfg.joint_ids]
-        return jpos - default_jpos
 
     # Update statistical buffers (mean and variance) for joint differences.
     def _calcute_mean_variance(self, diff) -> None:
@@ -269,10 +338,7 @@ class StepStatus(ManagerTermBase):
         method: int = 0
     ) -> torch.Tensor:
         # Select the proper joint difference calculation method.
-        if method == 0:
-            diff = self._calcute_withdefault(asset_cfg)
-        else:
-            diff = self._calcute_withzero(asset_cfg)
+        diff = self._calcute(asset_cfg, method)
         # Update statistical buffers with the current joint differences.
         self._calcute_mean_variance(diff)
         # Compute overall reward from the exponential scoring.
@@ -291,3 +357,49 @@ class StepStatus(ManagerTermBase):
             raise ValueError(f"NaN detected in reward calculation for envs: {torch.isinf(reward).sum()}. ")
 
         return reward
+
+class StepPositionStats(BaseStepStats):
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+
+    # Return current joint positions (no default subtraction).
+    def _calcute_withzero(self, asset_cfg: SceneEntityCfg):
+        asset: Articulation = self._env.scene[asset_cfg.name]
+        jpos = asset.data.joint_pos[:, asset_cfg.joint_ids]
+        return jpos
+
+    # Return differences in joint positions (default positions subtracted).
+    def _calcute_withdefault(self, asset_cfg: SceneEntityCfg):
+        asset: Articulation = self._env.scene[asset_cfg.name]
+        jpos = asset.data.joint_pos[:, asset_cfg.joint_ids]
+        default_jpos = asset.data.default_joint_pos[:, asset_cfg.joint_ids]
+        return jpos - default_jpos
+
+    def _calcute(self, asset_cfg: SceneEntityCfg, method: int = 0):
+        if method == 0:
+            return self._calcute_withdefault(asset_cfg)
+        else:
+            return self._calcute_withzero(asset_cfg)
+
+
+class StepVelocityStats(BaseStepStats):
+    """Step-based statistics for joint velocities."""
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+
+    def _calcute(self, asset_cfg: SceneEntityCfg, method: int = 0):
+        asset: Articulation = self._env.scene[asset_cfg.name]
+        return asset.data.joint_vel[:, asset_cfg.joint_ids]
+
+
+class StepAccelerationStats(BaseStepStats):
+    """Step-based statistics for joint accelerations."""
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+
+    def _calcute(self, asset_cfg: SceneEntityCfg, method: int = 0):
+        asset: Articulation = self._env.scene[asset_cfg.name]
+        return asset.data.joint_acc[:, asset_cfg.joint_ids]

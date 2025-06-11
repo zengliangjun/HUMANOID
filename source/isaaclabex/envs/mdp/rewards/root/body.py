@@ -110,8 +110,8 @@ def penalize_width(
     current_width = pos_b[:, 0::2, 1] - pos_b[:, 1::2, 1]
 
     # 动态阈值计算(基于高度和速度)
-    height = asset.data.root_link_pos_w[:, 2]
-    velocity = torch.norm(asset.data.root_link_lin_vel_w[:, :2], dim=1)
+    height = asset.data.root_link_pos_w[:, 2:]
+    velocity = torch.norm(asset.data.root_link_lin_vel_w[:, :2], dim=1, keepdim= True)
     width_factor = 0.8 + 0.2 * torch.sigmoid(height*2 - target_height) + 0.4 * torch.sigmoid(velocity*5 - center_velocity*5)
     dynamic_width = target_width * width_factor
 

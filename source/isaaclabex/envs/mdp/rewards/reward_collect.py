@@ -108,9 +108,9 @@ reward_hip_roll_symmetry = symmetry.rew_hip_roll_total2zero # no zero
 reward_pose_mean_var_symmetry = symmetry.PoseMeanVariance
 reward_pose_mean_min_var_max = symmetry.MeanMinVarianceMax
 
-reward_episode = statistics.EpisodeStatus
+reward_episode = statistics.PositionStatistics
 reward_episode2zero = statistics.Episode2Zero
-reward_step = statistics.StepStatus
+reward_step = statistics.StepPositionStats
 
 """
 Action Penalties:

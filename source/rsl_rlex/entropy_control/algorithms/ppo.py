@@ -34,7 +34,10 @@ class EntropyPPO(PPO):
         # 熵控制专用参数
         entropy_ranges = (1.5, 10),  # 目标熵值范围(最小,最大)
         entropy_coef_factor = 1.05,  # 熵系数调整幅度
-        entropy_coef_scale = 10  # 熵系数缩放因子
+        entropy_coef_scale = 10,  # 熵系数缩放因子
+        entropy_smoothing = 0.9,  # 熵值平滑系数
+        use_adaptive_ranges = True,  # 是否启用自适应熵范围
+        reward_scale = 1.0  # 回报缩放因子
     ):
         super(EntropyPPO, self).__init__(
             actor_critic,
@@ -62,6 +65,9 @@ class EntropyPPO(PPO):
         self.entropy_coef_scale = entropy_coef_scale
         self.entropy_coef_org = entropy_coef
 
+        self.entropy_smoothing = entropy_smoothing # 熵值平滑系数
+        self.use_adaptive_ranges = use_adaptive_ranges # 是否启用自适应熵范围
+        self.reward_scale = reward_scale # 回报缩放因子
 
     def update(self):  # noqa: C901
         """执行PPO算法更新步骤
@@ -192,15 +198,41 @@ class EntropyPPO(PPO):
             else:
                 value_loss = (returns_batch - value_batch).pow(2).mean()
 
-            # 动态调整熵系数
-            _mean = entropy_batch.mean()
-            if torch.abs(_mean) < self.entropy_ranges[0]:  # 熵值过低
-                self.entropy_coef *= self.entropy_coef_factor  # 增大熵系数鼓励探索
-                self.entropy_coef = min(self.entropy_coef, self.entropy_coef_scale * self.entropy_coef_org)  # 限制上限
+            # 动态调整熵系数 - 优化版本
+            current_entropy = entropy_batch.mean()
 
-            if torch.abs(_mean) > 10:  # 熵值过高
-                self.entropy_coef /= self.entropy_coef_factor  # 减小熵系数
-                self.entropy_coef = max(self.entropy_coef, self.entropy_coef_org / self.entropy_coef_scale)  # 限制下限
+            # 平滑处理熵值
+            if not hasattr(self, 'smoothed_entropy'):
+                self.smoothed_entropy = current_entropy
+            else:
+                self.smoothed_entropy = self.entropy_smoothing * self.smoothed_entropy + \
+                                       (1 - self.entropy_smoothing) * current_entropy
+
+            # 自适应调整熵范围
+            if self.use_adaptive_ranges:
+                target_min = max(0.5, self.smoothed_entropy * 0.8)
+                target_max = min(15.0, self.smoothed_entropy * 1.2)
+                effective_ranges = (target_min, target_max)
+            else:
+                effective_ranges = self.entropy_ranges
+
+            # 基于回报的调整因子
+            if hasattr(self, 'last_reward'):
+                reward_factor = 1.0 + (self.last_reward * self.reward_scale)
+                reward_factor = torch.clamp(torch.tensor(reward_factor), 0.8, 1.2).item()
+            else:
+                reward_factor = 1.0
+
+            # 动态调整熵系数
+            if self.smoothed_entropy < effective_ranges[0]:  # 熵值过低
+                adjust_factor = self.entropy_coef_factor * reward_factor
+                self.entropy_coef = min(self.entropy_coef * adjust_factor,
+                                      self.entropy_coef_scale * self.entropy_coef_org)
+
+            elif self.smoothed_entropy > effective_ranges[1]:  # 熵值过高
+                adjust_factor = (1.0 / self.entropy_coef_factor) * reward_factor
+                self.entropy_coef = max(self.entropy_coef * adjust_factor,
+                                      self.entropy_coef_org / self.entropy_coef_scale)
 
 
             loss = surrogate_loss + self.value_loss_coef * value_loss - self.entropy_coef * entropy_batch.mean()

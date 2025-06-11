@@ -3,6 +3,7 @@ from isaaclab.utils import configclass
 from isaaclab.managers import RewardTermCfg, SceneEntityCfg
 from isaaclabex.envs.mdp.rewards import reward_collect, pbrs_collect, pbrs_base
 
+
 @configclass
 class RewardsCfg:
     # -- task
@@ -68,7 +69,7 @@ class RewardsCfg:
                 "start_ids": [0],
                 "end_ids": [1],
                 "mean_std": 0.15,
-                "variance_target": 0.02,
+                "variance_target": 0.04,
                 "command_name": "base_velocity",
                 "method": 0, # default
                 },
@@ -165,6 +166,14 @@ class RewardsCfg:
                                         ]),
             "std": 0.25},
     )
+    p_stability= RewardTermCfg(
+        func=reward_collect.reward_stability,
+        weight=1.0,
+        params={"asset_cfg":
+                SceneEntityCfg("robot", body_names=[
+                                     ".*left_ankle_roll_link",
+                                     ".*right_ankle_roll_link"])},
+    )
     pbrs_ankle = RewardTermCfg(
         func=pbrs_collect.jpos_deviation_l1_pbrs,
         weight=1.0,
@@ -221,9 +230,11 @@ class RewardsCfg:
     # body
     p_width = RewardTermCfg(
         func=reward_collect.penalize_width,
-        weight=-3,
+        weight=-2,
         params={
             "target_width": 0.238,  # Adjusting for the foot clearance
+            "target_height": 0.78,
+            "center_velocity": 1.8,
             "asset_cfg": SceneEntityCfg("robot",
                          body_names=[".*left_ankle_roll_link",
                                      ".*right_ankle_roll_link",

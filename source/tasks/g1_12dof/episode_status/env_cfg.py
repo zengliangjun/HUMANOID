@@ -49,14 +49,6 @@ class CurriculumCfg(curriculum.CurriculumCfg):
             'start_steps': 0,
             'end_steps': 800000,
             "curriculums": {
-                "rew_lin_xy_exp": {    # reward name
-                    "start_weight": 3.5,
-                    "end_weight": 2
-                },
-                "rew_ang_z_exp": {    # reward name
-                    "start_weight": 1.5,
-                    "end_weight": 2
-                },
                 'p_action_smoothness': {    # reward name
                     "start_weight": -0.004,
                     "end_weight": -0.02
