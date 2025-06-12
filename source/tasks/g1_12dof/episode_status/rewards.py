@@ -9,27 +9,27 @@ class RewardsCfg:
     # -- task
     rew_lin_xy_exp = RewardTermCfg(
         func=reward_collect.reward_lin_xy_exp,
-        weight=3,
+        weight=5,
         params={"std": 0.5,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
     rew_ang_z_exp = RewardTermCfg(
         func=reward_collect.reward_ang_z_exp,
-        weight=1.5,
+        weight=4,
         params={"std": 0.3,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
     rew_motion_speed = RewardTermCfg(
         func=reward_collect.reward_motion_speed,
-        weight=0.2,
+        weight=3,
         params={"command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
     rew_motion_hard = RewardTermCfg(
         func=reward_collect.reward_motion_hard,
-        weight=0.5,
+        weight=3,
         params={"command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
@@ -257,7 +257,7 @@ class RewardsCfg:
     # body
     p_width = RewardTermCfg(
         func=reward_collect.penalize_width,
-        weight=-2,
+        weight=-10,
         params={
             "target_width": 0.238,  # Adjusting for the foot clearance
             "target_height": 0.78,
@@ -272,7 +272,7 @@ class RewardsCfg:
 
     p_orientation = RewardTermCfg(
         func=reward_collect.penalize_ori_l2,
-        weight=-1.0, params={"asset_cfg": SceneEntityCfg("robot")}
+        weight=-10, params={"asset_cfg": SceneEntityCfg("robot")}
     )
     p_height = RewardTermCfg(
         func=reward_collect.penalize_height_flat_or_rayl2,
@@ -295,7 +295,6 @@ class RewardsCfg:
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
-            'target_height': 0.08 + 0.055
+            'target_height': 0.16 + 0.055
         },
     )
-

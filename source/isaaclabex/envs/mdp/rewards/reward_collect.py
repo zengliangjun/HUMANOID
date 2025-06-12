@@ -4,7 +4,7 @@ from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoi
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
 from .joint import joint, phase, statistics, symmetry
-from .feet import feet_phase, feet, feet_contact
+from .feet import feet_phase, feet, feet_contact, statistics as feet_statistics
 from . import actions
 from .root import base, base_ori, base_phase, body, body_status, contact
 
@@ -156,3 +156,5 @@ penalize_forces = isaaclab_rewards.contact_forces                           # Pe
 penalize_forces2 = feet_contact.penalize_feet_forces                        # Additional penalty for contact forces.
 reward_contact_with_phase = feet_phase.rew_contact_with_phase                # Reward for synchronizing contacts with phase.
 reward_contact_with_phase_number = feet_phase.reward_feet_contact_number     # Reward based on the count of contact events.
+
+reward_forces = feet_statistics.ContactStatistics
