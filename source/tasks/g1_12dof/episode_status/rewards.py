@@ -21,10 +21,22 @@ class RewardsCfg:
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
+    rew_motion_speed = RewardTermCfg(
+        func=reward_collect.reward_motion_speed,
+        weight=0.2,
+        params={"command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot")},
+    )
+    rew_motion_hard = RewardTermCfg(
+        func=reward_collect.reward_motion_hard,
+        weight=0.5,
+        params={"command_name": "base_velocity",
+                "asset_cfg": SceneEntityCfg("robot")},
+    )
     # joint step
     rew_step1 = RewardTermCfg(
         func=reward_collect.reward_step,
-        weight=0.1,
+        weight=0.05,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_pitch_joint",
@@ -43,7 +55,7 @@ class RewardsCfg:
     )
     rew_step_center = RewardTermCfg(
         func=reward_collect.reward_step,
-        weight=0.1,
+        weight=0.05,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_yaw_joint",
@@ -60,7 +72,7 @@ class RewardsCfg:
     # joint episode
     rew_hipp_episode = RewardTermCfg(
         func=reward_collect.reward_episode,
-        weight=0.5,
+        weight=0.8,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_pitch_joint",
@@ -108,7 +120,7 @@ class RewardsCfg:
     )
     rew_knee_episode = RewardTermCfg(
         func=reward_collect.reward_episode,
-        weight=0.5,
+        weight=0.8,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_knee_joint",
@@ -117,14 +129,14 @@ class RewardsCfg:
                 "start_ids": [0],
                 "end_ids": [1],
                 "mean_std": 0.3,
-                "variance_target": 0.06,
+                "variance_target": 0.09,
                 "command_name": "base_velocity",
                 "method": 0 # default
                 },
     )
     rew_anklep_episode = RewardTermCfg(
         func=reward_collect.reward_episode,
-        weight=0.3,
+        weight=0.2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_ankle_pitch_joint",
@@ -133,7 +145,7 @@ class RewardsCfg:
                 "start_ids": [0],
                 "end_ids": [1],
                 "mean_std": 0.15,
-                "variance_target": 0.02,
+                "variance_target": -1,# 0.02,
                 "command_name": "base_velocity",
                 "method": 1 # withzero
                 },
@@ -156,7 +168,7 @@ class RewardsCfg:
     )
     rew_hipp2zero = RewardTermCfg(
         func=reward_collect.reward_left_right_symmetry,
-        weight=0.2,
+        weight=0.3,
         params={
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot",
@@ -166,7 +178,22 @@ class RewardsCfg:
                                         ]),
             "std": 0.25},
     )
-    p_stability= RewardTermCfg(
+    rew_hip_knee2zero = RewardTermCfg(
+        func=reward_collect.reward_hip_knee_symmetry,
+        weight=0.3,
+        params={
+            "command_name": "base_velocity",
+            "asset_cfg": SceneEntityCfg("robot",
+                                        joint_names=[
+                                                     "left_hip_pitch_joint",
+                                                     "left_knee_joint",
+                                                     "right_hip_pitch_joint",
+                                                     "right_knee_joint",
+                                        ]),
+            "weight": [1, -0.3],
+            "std": 0.25},
+    )
+    rew_stability= RewardTermCfg(
         func=reward_collect.reward_stability,
         weight=1.0,
         params={"asset_cfg":
@@ -252,5 +279,23 @@ class RewardsCfg:
         weight=-40.0, params={
             "target_height": 0.78 + 0.035,  # Adjusting for the foot clearance
             "asset_cfg": SceneEntityCfg("robot")}
+    )
+    # feet
+    p_foot_slide = RewardTermCfg(
+        func=reward_collect.penalize_slide,
+        weight=-0.2,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
+        },
+    )
+    p_foot_clearance = RewardTermCfg(
+        func=reward_collect.penalize_clearance,
+        weight=-20.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
+            'target_height': 0.08 + 0.055
+        },
     )
 

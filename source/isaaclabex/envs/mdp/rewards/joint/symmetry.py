@@ -296,7 +296,10 @@ def rew_hip_knee_pitch_total2zero(
     total = torch.mean(torch.square(total), dim=-1)
     reward = torch.exp(-total / std**2)
     # Only award reward if the command vector norm is above 0.1.
-    reward *= torch.norm(env.command_manager.get_command(command_name), dim=1) > 0.1
+    command = env.command_manager.get_command(command_name)
+    stand_flag = torch.norm(command, dim=1) < 0.1
+    diff_reward = torch.exp(-torch.norm(diff, dim = -1))
+    reward[stand_flag] = diff_reward[stand_flag]
     return reward
 
 '''

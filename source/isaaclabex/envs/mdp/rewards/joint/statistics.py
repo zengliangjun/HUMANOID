@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from isaaclab.assets import Articulation
 from isaaclab.managers import ManagerTermBase, SceneEntityCfg
 
+import math
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
     from isaaclab.managers import RewardTermCfg
@@ -112,13 +113,13 @@ class PositionStatistics(BaseStatistics):
             variance_target = max(variance_target, 1e-6)
 
         # Reward mean_buf approaching 0
-        mean = torch.mean(torch.abs(self.mean_buf), dim=-1)
+        mean = torch.norm(self.mean_buf, dim=-1) / math.sqrt(2)
         mean_reward = torch.exp(-mean / (mean_std + 1e-8))  # Higher reward when mean is closer to 0
         mean_reward = torch.clamp(mean_reward, min=0.01, max=1.0)
 
         if variance_target != -1:
             # Reward var_buf approaching variance_target
-            variance = torch.mean(torch.abs(self.var_buf), dim=-1)
+            variance = torch.norm(self.var_buf, dim=-1) / math.sqrt(2)
             # Use Gaussian-like reward centered at variance_target
             variance_diff = (variance - variance_target) / (variance_target + 1e-8)
             variance_reward = torch.exp(-torch.square(variance_diff))
@@ -145,14 +146,15 @@ class PositionStatistics(BaseStatistics):
         self._update_stats(diff)
         reward0 = self._calculate_diff(start_ids, end_ids)
         reward1 = self._calculate_meanmin_variancemax(mean_std, variance_target)
-        reward = (reward0 + reward1 * 3) / 4
+        reward = (reward0 + reward1 * 10) / 11
 
         command = env.command_manager.get_command(command_name)
-        command_norm = torch.norm(command, dim=1)
-        reward *= command_norm > 0.1
-
+        stand_flag = torch.norm(command, dim=1) < 0.1
         zero_flag = self._env.episode_length_buf <= 1
-        reward[zero_flag] = 0
+
+        flag = torch.logical_or(stand_flag, zero_flag)
+        diff_reward = torch.exp(-torch.norm(diff, dim = -1))
+        reward[flag] = diff_reward[flag]
 
         if torch.isnan(reward).sum() > 0:
             raise ValueError(f"NaN detected in reward calculation for envs: {torch.isnan(reward).sum()}.")
@@ -345,12 +347,14 @@ class BaseStepStats(ManagerTermBase):
         reward = self._calcute_exp(center)
         # Optimize by computing command norm only once.
         command = env.command_manager.get_command(command_name)
-        command_norm = torch.norm(command, dim=1)
+        stand_flag = torch.norm(command, dim=1) < 0.1
         # Filter out rewards for commands under the threshold.
-        reward *= command_norm > 0.1
-
         zero_flag = self._env.episode_length_buf <= 1
-        reward[zero_flag] = 0
+
+        flag = torch.logical_or(stand_flag, zero_flag)
+        diff_reward = torch.exp(-torch.norm(diff, dim = -1))
+        reward[flag] = diff_reward[flag]
+
         if torch.isnan(reward).sum() > 0:
             raise ValueError(f"NaN detected in reward calculation for envs: {torch.isnan(reward).sum()}. ")
         if torch.isinf(reward).sum() > 0:
