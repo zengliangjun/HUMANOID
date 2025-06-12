@@ -26,7 +26,7 @@ class BsRsStorage(RolloutStorage):
             num_transitions_per_env = num_transitions_per_env,
             obs_shape = obs_shape,
             privileged_obs_shape = privileged_obs_shape,
-            actions_shape = actions_shape
+            actions_shape = actions_shape,
             rnd_state_shape=rnd_state_shape,
             device="device")
 
