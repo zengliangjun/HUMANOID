@@ -66,35 +66,41 @@ class StatusBase(ManagerTermBase):
             for id, name in enumerate(self.asset.data.joint_names):
                 name = name.replace("_joint", "")
                 items[f"em/{name}"] = torch.mean(mean[:, id])
+                items[f"em2/{name}"] = torch.sqrt(torch.mean(torch.square(mean[:, id])))
 
             variance = self.episode_variance_buf[env_ids]
             for id, name in enumerate(self.asset.data.joint_names):
                 name = name.replace("_joint", "")
                 items[f"ev/{name}"] = torch.mean(variance[:, id])
+                items[f"ev2/{name}"] = torch.sqrt(torch.mean(torch.square(variance[:, id])))
 
             mean = self.step_mean_mean_buf[env_ids]
             for id, name in enumerate(self.asset.data.joint_names[::2]):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"smm/{name}"] = torch.mean(mean[:, id])
+                items[f"smm2/{name}"] = torch.sqrt(torch.mean(torch.square(mean[:, id])))
 
             variance = self.step_mean_variance_buf[env_ids]
             for id, name in enumerate(self.asset.data.joint_names[::2]):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"smv/{name}"] = torch.mean(variance[:, id])
+                items[f"smv2/{name}"] = torch.sqrt(torch.mean(torch.square(variance[:, id])))
 
             mean = self.step_variance_mean_buf[env_ids]
             for id, name in enumerate(self.asset.data.joint_names[::2]):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"svm/{name}"] = torch.mean(mean[:, id])
+                items[f"svm2/{name}"] = torch.sqrt(torch.mean(torch.square(mean[:, id])))
 
             variance = self.step_variance_variance_buf[env_ids]
             for id, name in enumerate(self.asset.data.joint_names[::2]):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"svv/{name}"] = torch.mean(variance[:, id])
+                items[f"svv2/{name}"] = torch.sqrt(torch.mean(torch.square(variance[:, id])))
 
         # 重置所有缓冲区
         buffers = [
