@@ -59,43 +59,42 @@ class StatusBase(ManagerTermBase):
         if env_ids is None or len(env_ids) == 0:
             return {}
 
-        if 0 != self._env.common_step_counter % self.cfg.export_interval:
-            return {}
-
         items = {}
-        mean = self.episode_mean_buf[env_ids]
-        for id, name in enumerate(self.asset.data.joint_names):
-            name = name.replace("_joint", "")
-            items[f"em/{name}"] = torch.mean(mean[:, id])
+        if 0 == self._env.common_step_counter % self.cfg.export_interval:
 
-        variance = self.episode_variance_buf[env_ids]
-        for id, name in enumerate(self.asset.data.joint_names):
-            name = name.replace("_joint", "")
-            items[f"ev/{name}"] = torch.mean(variance[:, id])
+            mean = self.episode_mean_buf[env_ids]
+            for id, name in enumerate(self.asset.data.joint_names):
+                name = name.replace("_joint", "")
+                items[f"em/{name}"] = torch.mean(mean[:, id])
 
-        mean = self.step_mean_mean_buf[env_ids]
-        for id, name in enumerate(self.asset.data.joint_names[::2]):
-            name = name.replace("_joint", "")
-            name = name.replace("left_", "")
-            items[f"smm/{name}"] = torch.mean(mean[:, id])
+            variance = self.episode_variance_buf[env_ids]
+            for id, name in enumerate(self.asset.data.joint_names):
+                name = name.replace("_joint", "")
+                items[f"ev/{name}"] = torch.mean(variance[:, id])
 
-        variance = self.step_mean_variance_buf[env_ids]
-        for id, name in enumerate(self.asset.data.joint_names[::2]):
-            name = name.replace("_joint", "")
-            name = name.replace("left_", "")
-            items[f"smv/{name}"] = torch.mean(variance[:, id])
+            mean = self.step_mean_mean_buf[env_ids]
+            for id, name in enumerate(self.asset.data.joint_names[::2]):
+                name = name.replace("_joint", "")
+                name = name.replace("left_", "")
+                items[f"smm/{name}"] = torch.mean(mean[:, id])
 
-        mean = self.step_variance_mean_buf[env_ids]
-        for id, name in enumerate(self.asset.data.joint_names[::2]):
-            name = name.replace("_joint", "")
-            name = name.replace("left_", "")
-            items[f"svm/{name}"] = torch.mean(mean[:, id])
+            variance = self.step_mean_variance_buf[env_ids]
+            for id, name in enumerate(self.asset.data.joint_names[::2]):
+                name = name.replace("_joint", "")
+                name = name.replace("left_", "")
+                items[f"smv/{name}"] = torch.mean(variance[:, id])
 
-        variance = self.step_variance_variance_buf[env_ids]
-        for id, name in enumerate(self.asset.data.joint_names[::2]):
-            name = name.replace("_joint", "")
-            name = name.replace("left_", "")
-            items[f"smv/{name}"] = torch.mean(variance[:, id])
+            mean = self.step_variance_mean_buf[env_ids]
+            for id, name in enumerate(self.asset.data.joint_names[::2]):
+                name = name.replace("_joint", "")
+                name = name.replace("left_", "")
+                items[f"svm/{name}"] = torch.mean(mean[:, id])
+
+            variance = self.step_variance_variance_buf[env_ids]
+            for id, name in enumerate(self.asset.data.joint_names[::2]):
+                name = name.replace("_joint", "")
+                name = name.replace("left_", "")
+                items[f"svv/{name}"] = torch.mean(variance[:, id])
 
         # 重置所有缓冲区
         buffers = [
