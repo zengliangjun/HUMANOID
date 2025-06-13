@@ -26,3 +26,8 @@ class ManagerBasedRLExtendsCfg(ManagerBasedRLEnvCfg):
     # copy from agent cfg
     num_steps_per_env: int = 24
     max_iterations: int = 5000
+
+
+    # Statistics manager configuration
+    statistics: object | None = None
+

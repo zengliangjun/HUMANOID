@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
-    from isaaclabex.envs.managers.constraint_term_cfg import ConstraintTermCfg
+    from isaaclabex.envs.managers.term_cfg import ConstraintTermCfg
 
 def curriculum_with_steps(
     env: ManagerBasedRLEnv,

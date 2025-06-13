@@ -8,8 +8,13 @@ import torch
 from isaaclab.utils import configclass
 from dataclasses import MISSING
 from typing import Callable
-from isaaclab.managers.manager_term_cfg import ManagerTermBaseCfg
 
+from typing import TYPE_CHECKING, Any
+from isaaclab.managers.manager_base import ManagerTermBase, ManagerTermBaseCfg
+from isaaclab.managers.scene_entity_cfg import SceneEntityCfg
+
+if TYPE_CHECKING:
+    from .statistics_manager import StatisticsTerm
 
 @configclass
 class ConstraintTermCfg(ManagerTermBaseCfg):
@@ -43,4 +48,29 @@ class ConstraintTermCfg(ManagerTermBaseCfg):
     and optionally schedule p_max to increase over training.
     """
     """Whether to use a soft probability curriculum for this constraint.
+    """
+
+@configclass
+class StatisticsTermCfg(ManagerTermBaseCfg):
+    """Configuration for a manager term."""
+
+    func: StatisticsTerm = MISSING
+    """The function or class to be called for the term.
+
+    The function must take the environment object as the first argument.
+    The remaining arguments are specified in the :attr:`params` attribute.
+
+    It also supports `callable classes`_, i.e. classes that implement the :meth:`__call__`
+    method. In this case, the class should inherit from the :class:`ManagerTermBase` class
+    and implement the required methods.
+
+    .. _`callable classes`: https://docs.python.org/3/reference/datamodel.html#object.__call__
+    """
+    params: dict[str, Any | SceneEntityCfg] = dict()
+    """The parameters to be passed to the function as keyword arguments. Defaults to an empty dict.
+
+    .. note::
+        If the value is a :class:`SceneEntityCfg` object, the manager will query the scene entity
+        from the :class:`InteractiveScene` and process the entity's joints and bodies as specified
+        in the :class:`SceneEntityCfg` object.
     """

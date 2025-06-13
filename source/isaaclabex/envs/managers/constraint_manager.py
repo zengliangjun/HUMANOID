@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 from isaaclab.managers.manager_term_cfg import TerminationTermCfg
 from isaaclab.managers.manager_base import ManagerTermBase
 from isaaclab.managers.termination_manager import TerminationManager
-from .constraint_term_cfg import ConstraintTermCfg
+from .term_cfg import ConstraintTermCfg
 
 if TYPE_CHECKING:
     from isaaclab.envs.manager_based_rl_env import ManagerBasedRLEnv
