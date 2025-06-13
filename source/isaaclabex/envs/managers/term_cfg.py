@@ -74,3 +74,7 @@ class StatisticsTermCfg(ManagerTermBaseCfg):
         from the :class:`InteractiveScene` and process the entity's joints and bodies as specified
         in the :class:`SceneEntityCfg` object.
     """
+
+    export_interval: int = 1
+
+

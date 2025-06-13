@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 class StatusBase(ManagerTermBase):
     """关节统计基类，提供公共统计方法和缓冲区"""
 
+    cfg: StatisticsTermCfg
+
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv):
         """
         初始化统计缓冲区
@@ -57,8 +59,10 @@ class StatusBase(ManagerTermBase):
         if env_ids is None or len(env_ids) == 0:
             return {}
 
-        items = {}
+        if 0 != self._env.common_step_counter % self.cfg.export_interval:
+            return {}
 
+        items = {}
         mean = self.episode_mean_buf[env_ids]
         for id, name in enumerate(self.asset.data.joint_names):
             name = name.replace("_joint", "")
