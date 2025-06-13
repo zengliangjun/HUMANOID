@@ -191,5 +191,7 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
 
         super()._reset_idx(env_ids)
 
-        self.statistics_manager.reset(env_ids)
+        # -- statistics manager
+        info = self.statistics_manager.reset(env_ids)
+        self.extras["log"].update(info)
 
