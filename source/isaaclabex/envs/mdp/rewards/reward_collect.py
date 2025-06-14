@@ -3,7 +3,7 @@ from isaaclab_tasks.manager_based.classic.cartpole.mdp import rewards as cartpol
 from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoid_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
-from .joint import joint, phase, statistics, symmetry
+from .joint import joint, phase, statistics, symmetry, statisticsv2_pos
 from .feet import feet_phase, feet, feet_contact, statistics as feet_statistics
 from . import actions
 from .root import base, base_ori, base_phase, body, body_status, contact
@@ -111,6 +111,17 @@ reward_pose_mean_min_var_max = symmetry.MeanMinVarianceMax
 reward_episode = statistics.PositionStatistics
 reward_episode2zero = statistics.Episode2Zero
 reward_step = statistics.StepPositionStats
+
+rew_pitch_total2zero = statisticsv2_pos.rew_pitch_total2zero  # Reward for pitch angle deviation from zero.
+rew_step_mean_mean = statisticsv2_pos.rew_step_mean_mean  # Reward for mean step position.
+rew_step_variance_mean = statisticsv2_pos.rew_step_variance_mean  # Reward for mean step variance.
+rew_step_vv_mv = statisticsv2_pos.rew_step_vv_mv  # Reward for mean step velocity variance.
+rew_episode_mean = statisticsv2_pos.rew_episode_mean  # Reward for mean episode position.
+rew_episode_mean_symmetry = statisticsv2_pos.rew_episode_mean_symmetry  # Reward for symmetry in episode mean position.
+rew_episode_variance = statisticsv2_pos.rew_episode_variance  # Reward for episode variance.
+rew_episode_variance_symmetry = statisticsv2_pos.rew_episode_variance_symmetry  # Reward for symmetry in episode variance.
+
+
 
 """
 Action Penalties:

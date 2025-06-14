@@ -38,3 +38,9 @@ class G1FlatCfg(RslRlOnPolicyRunnerCfg):
         self.algorithm.entropy_ranges = (1.5, 10)  # 目标熵值范围(最小,最大)
         self.algorithm.entropy_coef_factor = 1.05  # 熵系数调整幅度
         self.algorithm.entropy_coef_scale = 10  # 熵系数缩放因子
+
+
+
+@configclass
+class G1FlatCfgV2(G1FlatCfg):
+    experiment_name = "g1episodev2" # "g1pbrsflat_noroll"  #

@@ -148,3 +148,37 @@ class G1FlatEnvCfg_PLAY(G1FlatEnvCfg):
         # disable randomization for play
         self.observations.policy.enable_corruption = False
         # remove random pushing
+
+
+from isaaclabex.envs.mdp.statistics import joints
+from isaaclabex.envs.managers import term_cfg
+from isaaclab.managers import SceneEntityCfg
+from . import rewardsv2
+
+@configclass
+class StatisticsCfg:
+    pos = term_cfg.StatisticsTermCfg(
+        func= joints.StatusJPos,
+        params={
+            "command_name": "base_velocity",
+            "asset_cfg": SceneEntityCfg("robot")},
+        export_interval = 1000000
+    )
+
+
+@configclass
+class G1FlatEnvV2Cfg(G1FlatEnvCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        self.statistics = StatisticsCfg()
+        self.rewards = rewardsv2.RewardsCfg()
+
+
+
+@configclass
+class G1FlatEnvV2Cfg_PLAY(G1FlatEnvCfg_PLAY):
+    def __post_init__(self):
+        super().__post_init__()
+        self.statistics = StatisticsCfg()
+        self.rewards = rewardsv2.RewardsCfg()

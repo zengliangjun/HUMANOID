@@ -21,3 +21,24 @@ gym.register(
     },
 )
 
+
+gym.register(
+    id="G1episodev2flat-v0",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_cfg.__name__}:G1FlatEnvV2Cfg",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1FlatCfgV2",
+    },
+)
+
+gym.register(
+    id="G1episodev2flat-Play-v0",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_cfg.__name__}:G1FlatEnvV2Cfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1FlatCfgV2",
+    },
+)
+

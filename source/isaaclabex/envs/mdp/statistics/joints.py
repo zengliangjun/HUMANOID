@@ -33,6 +33,8 @@ class StatusBase(ManagerTermBase):
         super().__init__(cfg, env)
         asset_cfg: SceneEntityCfg = cfg.params["asset_cfg"]
 
+        self.command_name = cfg.params["command_name"]
+
         # 初始化关节统计缓冲区
         self.asset: Articulation = self._env.scene[asset_cfg.name]
         joint_count = len(self.asset.data.joint_names)
@@ -48,6 +50,10 @@ class StatusBase(ManagerTermBase):
         self.step_mean_variance_buf = torch.zeros_like(self.step_mean_mean_buf)
         self.step_variance_mean_buf = torch.zeros_like(self.step_mean_mean_buf)
         self.step_variance_variance_buf = torch.zeros_like(self.step_mean_mean_buf)
+
+        # 初始化标志位
+        self.stand_flag = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+        self.zero_flag = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
 
     def reset(self, env_ids: Sequence[int] | None = None) -> dict:
         """重置指定环境的统计缓冲区
@@ -135,7 +141,7 @@ class StatusBase(ManagerTermBase):
 
         # 处理新episode
         new_episode_mask = self._env.episode_length_buf <= 1
-        self.episode_mean_buf[new_episode_mask] = 0
+        # self.episode_mean_buf[new_episode_mask] = 0
         self.episode_variance_buf[new_episode_mask] = 0
 
     def _calculate_step(self, diff: torch.Tensor) -> None:
@@ -161,8 +167,14 @@ class StatusBase(ManagerTermBase):
 
         # 处理新episode
         reset_mask = self._env.episode_length_buf <= 1
-        self.step_mean_mean_buf[reset_mask] = 0
+        # self.step_mean_mean_buf[reset_mask] = 0
         self.step_variance_mean_buf[reset_mask] = 0
+
+    def _update_flag(self):
+        command = self._env.command_manager.get_command(self.command_name)
+        self.stand_flag[...] = torch.norm(command, dim=1) < 0.1
+        self.zero_flag[...] = self._env.episode_length_buf <= 1
+
 
 class StatusJPos(StatusBase):
     """关节位置统计"""
@@ -170,10 +182,7 @@ class StatusJPos(StatusBase):
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
         self.method = cfg.params.get("method", 0)  # 0: 相对默认位置, 1: 绝对位置
-
-    @property
-    def name(self) -> str:
-        return "jpos"
+        self.diff = torch.zeros_like(self.episode_variance_buf)
 
     def __call__(self):
         """执行统计计算"""
@@ -182,8 +191,11 @@ class StatusJPos(StatusBase):
             if self.method == 0
             else self._calculate_withzero()
         )
+        self.diff[...] = diff
         self._calculate_episode(diff)
         self._calculate_step(diff)
+        self._update_flag()
+
 
     def _calculate_withdefault(self) -> torch.Tensor:
         """计算相对于默认位置的差值"""
@@ -199,10 +211,6 @@ class StatusJVel(StatusBase):
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
 
-    @property
-    def name(self) -> str:
-        return "jvel"
-
     def __call__(self):
         """执行统计计算"""
         diff = self.asset.data.joint_vel
@@ -215,10 +223,6 @@ class StatusJAcc(StatusBase):
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
 
-    @property
-    def name(self) -> str:
-        return "jacc"
-
     def __call__(self):
         """执行统计计算"""
         diff = self.asset.data.joint_acc
@@ -230,10 +234,6 @@ class StatusTorque(StatusBase):
 
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
-
-    @property
-    def name(self) -> str:
-        return "torque"
 
     def __call__(self):
         """执行统计计算"""
