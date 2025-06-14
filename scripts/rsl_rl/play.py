@@ -22,6 +22,7 @@ parser.add_argument(
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--track_robot", action="store_true", default=False, help="Name of the task.")
+parser.add_argument("--plot_logger", action="store_true", default=False, help="Name of the task.")
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -137,6 +138,7 @@ def main():
             if args_cli.track_robot:
                     track_robot(env)
 
+        if args_cli.plot_logger:
             logger.log_step(actions, extra)
 
         if args_cli.video:
