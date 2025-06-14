@@ -4,6 +4,7 @@ import torch
 from typing import TYPE_CHECKING, Optional
 from abc import ABC, abstractmethod
 
+import math
 from isaaclab.assets import Articulation
 from isaaclab.managers import ManagerTermBase, SceneEntityCfg
 from isaaclabex.envs.rl_env_exts import ManagerBasedRLEnv
@@ -59,7 +60,7 @@ def rew_mean_self(
     step_ids = [x // 2 for x in asset_cfg.joint_ids[::2]]
     step_mean_mean = term.step_mean_mean_buf[:, step_ids]
     episode_mean0 = episode_mean[:, ::2]
-    episode_mean1 = episode_mean[:, ::2]
+    episode_mean1 = episode_mean[:, 1::2]
     reward = _exp_decay(std, [step_mean_mean, episode_mean0, episode_mean1])
     reward = torch.mean(reward, dim=-1)
 
@@ -84,7 +85,7 @@ def rew_mean_zero(
     step_ids = [x // 2 for x in asset_cfg.joint_ids[::2]]
     step_mean_mean = term.step_mean_mean_buf[:, step_ids]
     episode_mean0 = episode_mean[:, ::2]
-    episode_mean1 = episode_mean[:, ::2]
+    episode_mean1 = episode_mean[:, 1::2]
     reward = _exp_zero(std, [step_mean_mean, episode_mean0, episode_mean1])
     reward = torch.mean(reward, dim=-1)
 
@@ -112,13 +113,19 @@ def rew_variance_self(
     step_variance_mean = term.step_variance_mean_buf[:, step_ids]
 
     episode_variance0 = episode_variance[:, ::2]
-    episode_variance1 = episode_variance[:, ::2]
+    episode_variance1 = episode_variance[:, 1::2]
 
     reward = _exp_decay(std, [step_mean_variance,
                             step_variance_mean,
                             episode_variance0,
                             episode_variance1])
     reward = torch.mean(reward, dim=-1)
+
+    ## max variance
+    variance = (episode_variance - std * 0.75) / (std * 0.75)
+    variance = torch.clamp_max(variance, 0) + 1
+    variance_reward = torch.mean(torch.square(variance), dim=-1) * 0.6
+    reward += variance_reward
 
     flag = torch.logical_or(term.stand_flag, term.zero_flag)
     diff_reward = torch.exp(-torch.norm(term.diff, dim = -1))
@@ -138,7 +145,7 @@ def rew_variance_zero(
 
     episode_variance = term.episode_variance_buf[:, asset_cfg.joint_ids]
     episode_variance0 = episode_variance[:, ::2]
-    episode_variance1 = episode_variance[:, ::2]
+    episode_variance1 = episode_variance[:, 1::2]
 
     reward = _exp_zero(std, [episode_variance0, episode_variance1])
     reward = torch.mean(reward, dim=-1)

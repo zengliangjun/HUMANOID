@@ -6,6 +6,12 @@ from isaaclab.utils import configclass
 from ..mdps  import mdps, curriculum, obs, events
 from . import rewards
 
+from isaaclabex.envs.mdp.curriculum import rewards as rewards_curriculum
+from isaaclab.managers import CurriculumTermCfg
+import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
+from isaaclabex.terrains.config import rough_low_level_cfg
+
+
 @configclass
 class CommandsCfg:
     """Command specifications for the MDP."""
@@ -37,13 +43,12 @@ class ObservationsCfg(obs.ObservationsCfg):
         self.policy.phase = None
         self.critic.phase = None
 
-from isaaclabex.envs.mdp.curriculum import rewards as rewards_curriculum
-from isaaclab.managers import CurriculumTermCfg
-
 @configclass
 class CurriculumCfg(curriculum.CurriculumCfg):
 
-    events_with_steps = CurriculumTermCfg(
+    terrain_levels = CurriculumTermCfg(func=mdp.terrain_levels_vel)
+
+    penalize_with_steps = CurriculumTermCfg(
         func=rewards_curriculum.curriculum_with_steps,
         params={
             'start_steps': 0,
@@ -92,8 +97,8 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
         # ROBOT
         self.scene.robot = unitree_g112.UNITREE_GO112_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
-        self.scene.terrain.terrain_type = "plane"
-        self.scene.terrain.terrain_generator = None
+        #self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = rough_low_level_cfg.ROUGH_TERRAINS_CFG
         self.scene.height_scanner = None
 
         self.events.base_external_force_torque = None
@@ -184,11 +189,42 @@ class G1FlatEnvV2Cfg_PLAY(G1FlatEnvCfg_PLAY):
 
 from . import rewardsv3
 
+
+@configclass
+class CurriculumCfgv3(CurriculumCfg):
+
+    rew_with_steps = CurriculumTermCfg(
+        func=rewards_curriculum.curriculum_with_steps,
+        params={
+            'start_steps': 0,
+            'end_steps': 80000,
+            "curriculums": {
+                'rew_mean_hip': {    # reward name
+                    "start_weight": 0.8,
+                    "end_weight": 0.6
+                },
+                'rew_mean_knee': {    # reward name
+                    "start_weight": 0.8,
+                    "end_weight": 0.6
+                },
+                'rew_variance_self': {    # reward name
+                    "start_weight": 0.8,
+                    "end_weight": 0.6
+                },
+                'p_foot_clearance': {    # reward name
+                    "start_weight": -20.0,
+                    "end_weight": -80.0
+                }
+            }
+        }
+    )
+
 @configclass
 class G1FlatEnvV3Cfg(G1FlatEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
+        self.curriculum = CurriculumCfgv3()
         self.statistics = StatisticsCfg()
         self.rewards = rewardsv3.RewardsCfg()
 

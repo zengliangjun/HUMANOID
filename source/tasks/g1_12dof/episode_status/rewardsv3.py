@@ -187,9 +187,9 @@ class RewardsCfg:
         weight=-10, params={"asset_cfg": SceneEntityCfg("robot")}
     )
     p_height = RewardTermCfg(
-        func=reward_collect.penalize_height_flat_or_rayl2,
+        func=reward_collect.penalize_height_base2feet,
         weight=-40.0, params={
-            "target_height": 0.78 + 0.035,  # Adjusting for the foot clearance
+            "target_height": 0.78,  # Adjusting for the foot clearance
             "asset_cfg": SceneEntityCfg("robot")}
     )
     # feet
