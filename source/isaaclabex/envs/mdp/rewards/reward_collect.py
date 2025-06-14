@@ -3,7 +3,7 @@ from isaaclab_tasks.manager_based.classic.cartpole.mdp import rewards as cartpol
 from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoid_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
-from .joint import joint, phase, statistics, symmetry, statisticsv2_pos
+from .joint import joint, phase, statistics, symmetry, statisticsv2_pos, statisticsv3_pos
 from .feet import feet_phase, feet, feet_contact, statistics as feet_statistics
 from . import actions
 from .root import base, base_ori, base_phase, body, body_status, contact
@@ -121,6 +121,10 @@ rew_episode_mean_symmetry = statisticsv2_pos.rew_episode_mean_symmetry  # Reward
 rew_episode_variance = statisticsv2_pos.rew_episode_variance  # Reward for episode variance.
 rew_episode_variance_symmetry = statisticsv2_pos.rew_episode_variance_symmetry  # Reward for symmetry in episode variance.
 
+rew_mean_self = statisticsv3_pos.rew_mean_self
+rew_mean_zero = statisticsv3_pos.rew_mean_zero
+rew_variance_self = statisticsv3_pos.rew_variance_self
+rew_variance_zero = statisticsv3_pos.rew_variance_zero
 
 
 """

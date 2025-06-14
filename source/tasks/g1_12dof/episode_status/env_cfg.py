@@ -175,10 +175,26 @@ class G1FlatEnvV2Cfg(G1FlatEnvCfg):
         self.rewards = rewardsv2.RewardsCfg()
 
 
-
 @configclass
 class G1FlatEnvV2Cfg_PLAY(G1FlatEnvCfg_PLAY):
     def __post_init__(self):
         super().__post_init__()
         self.statistics = StatisticsCfg()
         self.rewards = rewardsv2.RewardsCfg()
+
+from . import rewardsv3
+
+@configclass
+class G1FlatEnvV3Cfg(G1FlatEnvCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+        self.statistics = StatisticsCfg()
+        self.rewards = rewardsv3.RewardsCfg()
+
+@configclass
+class G1FlatEnvV3Cfg_PLAY(G1FlatEnvCfg_PLAY):
+    def __post_init__(self):
+        super().__post_init__()
+        self.statistics = StatisticsCfg()
+        self.rewards = rewardsv3.RewardsCfg()

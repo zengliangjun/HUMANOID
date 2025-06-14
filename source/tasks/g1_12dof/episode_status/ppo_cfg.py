@@ -44,3 +44,7 @@ class G1FlatCfg(RslRlOnPolicyRunnerCfg):
 @configclass
 class G1FlatCfgV2(G1FlatCfg):
     experiment_name = "g1episodev2" # "g1pbrsflat_noroll"  #
+
+@configclass
+class G1FlatCfgV3(G1FlatCfg):
+    experiment_name = "g1episodev3" # "g1pbrsflat_noroll"  #
