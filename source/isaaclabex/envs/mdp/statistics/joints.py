@@ -158,17 +158,28 @@ class StatusBase(ManagerTermBase):
     def _update_step_stats(self, mean: torch.Tensor, var: torch.Tensor) -> None:
         """更新step级别统计缓冲区"""
         # 更新均值统计
-        delta_mean = mean - self.step_mean_mean_buf
-        self.step_mean_mean_buf += delta_mean / self._env.episode_length_buf[:, None]
+        delta_mean0 = mean - self.step_mean_mean_buf
+        self.step_mean_mean_buf += delta_mean0 / self._env.episode_length_buf[:, None]
+        # 计算均值方差
+        delta_mean1 = mean - self.step_mean_mean_buf
+        self.step_mean_variance_buf = (
+            self.step_mean_variance_buf * (self._env.episode_length_buf[:, None] - 2)
+            + delta_mean0 * delta_mean1
+        ) / (self._env.episode_length_buf[:, None] - 1)
 
         # 更新方差统计
-        delta_var = var - self.step_variance_mean_buf
-        self.step_variance_mean_buf += delta_var / self._env.episode_length_buf[:, None]
+        delta_var0 = var - self.step_variance_mean_buf
+        self.step_variance_mean_buf += delta_var0 / self._env.episode_length_buf[:, None]
+        # 计算方差方差
+        delta_var1 = var - self.step_variance_mean_buf
+        self.step_variance_variance_buf = (
+            self.step_variance_variance_buf * (self._env.episode_length_buf[:, None] - 2)
+            + delta_var0 * delta_var1
+        ) / (self._env.episode_length_buf[:, None] - 1)
 
-        # 处理新episode
         reset_mask = self._env.episode_length_buf <= 1
-        # self.step_mean_mean_buf[reset_mask] = 0
-        self.step_variance_mean_buf[reset_mask] = 0
+        self.step_mean_variance_buf[reset_mask] = 0
+        self.step_variance_variance_buf[reset_mask] = 0
 
     def _update_flag(self):
         command = self._env.command_manager.get_command(self.command_name)
