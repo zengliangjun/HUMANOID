@@ -48,3 +48,9 @@ class G1FlatCfgV2(G1FlatCfg):
 @configclass
 class G1FlatCfgV3(G1FlatCfg):
     experiment_name = "g1episodev3" # "g1pbrsflat_noroll"  #
+
+
+
+@configclass
+class G1ObsStatisticCfgV0(G1FlatCfg):
+    experiment_name = "g1obsStatisticv0" # "g1pbrsflat_noroll"  #

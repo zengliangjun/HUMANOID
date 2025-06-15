@@ -12,7 +12,7 @@ import torch
 from typing import TYPE_CHECKING
 
 from isaaclab.assets import Articulation
-from isaaclab.managers import ManagerTermBase, SceneEntityCfg
+from isaaclab.managers import ActionManager, ManagerTermBase, SceneEntityCfg
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -240,3 +240,22 @@ class StatusTorque(StatusBase):
         diff = self.asset.data.applied_torque
         self._calculate_episode(diff)
         self._calculate_step(diff)
+
+
+class StatusAction(StatusBase):
+    """关节扭矩统计"""
+
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+        self.action_name = cfg.params.get("action_name")
+
+    def __call__(self):
+        """执行统计计算"""
+        manager: ActionManager = self._env.action_manager
+        if self.action_name is None:
+            action = manager.action
+        else:
+            action = manager.get_term(self.action_name).raw_actions
+
+        self._calculate_episode(action)
+        self._calculate_step(action)
