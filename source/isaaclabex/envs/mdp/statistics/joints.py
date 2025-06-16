@@ -296,9 +296,10 @@ def covariance_subclass(parent_class):
 
 
             # 使用 torch.einsum 计算外积后更新协方差缓冲值
-            self.episode_covariance_buf = \
+            covariance = torch.einsum("bi,bj->bij", delta1, delta0)
+            self.episode_covariance_buf = (\
                 self.episode_covariance_buf * (self._env.episode_length_buf[:, None, None] - 2) + \
-                torch.einsum("bi,bj->bij", delta1, delta0) / (self._env.episode_length_buf[:, None, None] - 1)
+                covariance) / (self._env.episode_length_buf[:, None, None] - 1)
 
             # 处理新episode
             new_episode_mask = self._env.episode_length_buf <= 1
