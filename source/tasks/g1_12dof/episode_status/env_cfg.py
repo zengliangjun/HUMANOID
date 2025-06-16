@@ -7,7 +7,7 @@ from ..mdps  import mdps, curriculum, obs, events
 from . import rewards
 
 from isaaclabex.envs.mdp.curriculum import rewards as rewards_curriculum
-from isaaclab.managers import CurriculumTermCfg
+from isaaclab.managers import CurriculumTermCfg, TerminationTermCfg, SceneEntityCfg
 import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclabex.terrains.config import rough_low_level_cfg
 
@@ -80,6 +80,54 @@ class CurriculumCfg(curriculum.CurriculumCfg):
 
 
 @configclass
+class TerminationsCfg:
+    """Termination terms for the MDP."""
+
+    time_out = TerminationTermCfg(func=mdp.time_out, time_out=True)
+
+    orientation = TerminationTermCfg(
+        func=mdp.bad_orientation,
+        params={"asset_cfg": SceneEntityCfg("robot"), "limit_angle": 3.14 * 45 / 180})
+
+    height = TerminationTermCfg(
+        func=mdp.root_height_below_minimum,
+        params={"minimum_height": 0.4})
+
+    contact = TerminationTermCfg(
+        func=mdp.illegal_contact,
+        params={"sensor_cfg": SceneEntityCfg("contact_forces",
+                            body_names=[
+                                'pelvis',
+                                'imu_in_pelvis',
+                                'pelvis_contour_link',
+                                'torso_link',
+                                'd435_link',
+                                'head_link',
+                                'imu_in_torso',
+                                'left_shoulder_pitch_link',
+                                'left_shoulder_roll_link',
+                                'left_shoulder_yaw_link',
+                                'left_elbow_link',
+                                'left_wrist_roll_rubber_hand',
+                                'logo_link',
+                                'mid360_link',
+                                'right_shoulder_pitch_link',
+                                'right_shoulder_roll_link',
+                                'right_shoulder_yaw_link',
+                                'right_elbow_link',
+                                'right_wrist_roll_rubber_hand'
+                                        ]), "threshold": 1.0},
+    )
+    out_of_terrain = TerminationTermCfg(
+        func=mdp.terrain_out_of_bounds,
+        params={"asset_cfg": SceneEntityCfg("robot"), "distance_buffer": 3.0},
+        time_out=True,
+    )
+
+
+
+
+@configclass
 class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     # Scene settings
     scene = scenes_cfg.BaseSceneCfg(num_envs=4096, env_spacing=2.5)
@@ -89,7 +137,7 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     commands = CommandsCfg()
     # MDP settings
     rewards = rewards.RewardsCfg()
-    terminations = mdps.TerminationsCfg()
+    terminations = TerminationsCfg()
     events = events.EventCfg()
     curriculum = CurriculumCfg()
 

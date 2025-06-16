@@ -42,6 +42,11 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
 
     time_out = TerminationTermCfg(func=mdp.time_out, time_out=True)
+
+    orientation = TerminationTermCfg(
+        func=mdp.bad_orientation,
+        params={"asset_cfg": SceneEntityCfg("robot"), "limit_angle": 3.14 * 45 / 180})
+
     height = TerminationTermCfg(
         func=mdp.root_height_below_minimum,
         params={"minimum_height": 0.4})

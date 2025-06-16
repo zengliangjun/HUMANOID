@@ -298,3 +298,9 @@ class RewardsCfg:
             'target_height': 0.16 + 0.055
         },
     )
+
+    # -------------------- Episode Penalty --------------------
+    p_termination = RewardTermCfg(
+        func=reward_collect.penalize_eps_terminated,
+        weight=-200,
+    )

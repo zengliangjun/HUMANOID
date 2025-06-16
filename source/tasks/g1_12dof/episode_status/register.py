@@ -74,3 +74,13 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1ObsStatisticCfgV0",
     },
 )
+
+gym.register(
+    id="G1ObsStatistic-Play-v0",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_obs_cfg.__name__}:G1ObsStatisticsCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1ObsStatisticCfgV0",
+    },
+)
