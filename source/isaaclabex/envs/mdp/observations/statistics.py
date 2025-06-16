@@ -1,5 +1,5 @@
 from isaaclab.envs import ManagerBasedEnv
-from isaaclab.managers import SceneEntityCfg
+from isaaclabex.envs.managers.statistics_manager import StatisticsManager
 import torch
 from isaaclab.assets import Articulation
 from isaaclabex.envs.mdp.statistics import joints
@@ -43,3 +43,12 @@ def obs_step_variance_mean(env: ManagerBasedEnv,
     term: joints.StatusJPos = manager.get_term(pos_statistics_name)
 
     return torch.sqrt(term.step_variance_mean_buf)
+
+def obs_covar_mean(env: ManagerBasedEnv,
+    pos_statistics_name: str = "pos") -> torch.Tensor:
+
+    manager: StatisticsManager = env.statistics_manager
+    term: joints.CovarJPos = manager.get_term(pos_statistics_name)
+
+    return term.episode_covariance_buf.flatten(start_dim=1)
+

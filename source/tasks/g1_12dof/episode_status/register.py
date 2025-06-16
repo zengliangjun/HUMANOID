@@ -84,3 +84,25 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1ObsStatisticCfgV0",
     },
 )
+
+from . import env_covar_cfg
+
+gym.register(
+    id="G1ObsCovar-v0",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_covar_cfg.__name__}:G1ObsCovarCfg",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1ObsCovarCfgV0",
+    },
+)
+
+gym.register(
+    id="G1ObsCovar-Play-v0",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_covar_cfg.__name__}:G1ObsCovarCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1ObsCovarCfgV0",
+    },
+)

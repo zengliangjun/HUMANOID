@@ -73,6 +73,10 @@ class CurriculumCfg(curriculum.CurriculumCfg):
                 'p_height': {    # reward name
                     "start_weight": -10.0,
                     "end_weight": -40.0
+                },
+                'p_foot_clearance': {    # reward name
+                    "start_weight": -20.0,
+                    "end_weight": -80.0
                 }
             }
         }
@@ -142,6 +146,28 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
     curriculum = CurriculumCfg()
 
     def __post_init__(self):
+        self.events.reset_base.params = {
+            "pose_range": {"x": (-0.5, 0.5), "y": (-0.5, 0.5), "yaw": (-3.14, 3.14)},
+            "velocity_range": {
+                "x": (-0.1, 0.1),
+                "y": (-0.1, 0.1),
+                "z": (-0.1, 0.1),
+                "roll": (-0.1, 0.1),
+                "pitch": (-0.1, 0.1),
+                "yaw": (-0.1, 0.1),
+            },
+        }
+        self.events.reset_base.params = {
+            "pose_range": {"x": (-0.5, 0.5), "y": (-0.5, 0.5), "yaw": (-3.14, 3.14)},
+            "velocity_range": {
+                "x": (-0.1, 0.1),
+                "y": (-0.1, 0.1),
+                "z": (-0.1, 0.1),
+                "roll": (-0.1, 0.1),
+                "pitch": (-0.1, 0.1),
+                "yaw": (-0.1, 0.1),
+            },
+        }
         # ROBOT
         self.scene.robot = unitree_g112.UNITREE_GO112_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
@@ -239,40 +265,10 @@ from . import rewardsv3
 
 
 @configclass
-class CurriculumCfgv3(CurriculumCfg):
-
-    rew_with_steps = CurriculumTermCfg(
-        func=rewards_curriculum.curriculum_with_steps,
-        params={
-            'start_steps': 0,
-            'end_steps': 80000,
-            "curriculums": {
-                'rew_mean_hip': {    # reward name
-                    "start_weight": 0.8,
-                    "end_weight": 0.6
-                },
-                'rew_mean_knee': {    # reward name
-                    "start_weight": 0.8,
-                    "end_weight": 0.6
-                },
-                'rew_variance_self': {    # reward name
-                    "start_weight": 0.8,
-                    "end_weight": 0.6
-                },
-                'p_foot_clearance': {    # reward name
-                    "start_weight": -20.0,
-                    "end_weight": -80.0
-                }
-            }
-        }
-    )
-
-@configclass
 class G1FlatEnvV3Cfg(G1FlatEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
-        self.curriculum = CurriculumCfgv3()
         self.statistics = StatisticsCfg()
         self.rewards = rewardsv3.RewardsCfg()
 

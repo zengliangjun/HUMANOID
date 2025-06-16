@@ -1,5 +1,6 @@
 from isaaclab.utils import configclass
 from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg
+from rsl_rlex.multiinput.modules import mi_modules_cfg
 
 @configclass
 class G1FlatCfg(RslRlOnPolicyRunnerCfg):
@@ -54,3 +55,44 @@ class G1FlatCfgV3(G1FlatCfg):
 @configclass
 class G1ObsStatisticCfgV0(G1FlatCfg):
     experiment_name = "g1obsStatisticv0" # "g1pbrsflat_noroll"  #
+
+
+
+@configclass
+class G1ObsCovarCfgV0(G1FlatCfg):
+    experiment_name = "g1obsCovarv0" # "g1pbrsflat_noroll"  #
+
+    def __post_init__(self):
+        self.policy = mi_modules_cfg.MIEncodeActorCriticCfg(
+                class_name = "MIERecurrentActorCritic",
+                init_noise_std=0.8,
+                actor_hidden_dims=[256, 256],
+                critic_hidden_dims=[256, 256],
+                activation="elu",
+                policy_groups= ["policy", "action_statistics", "action_covar"],
+                critic_groups= ["action_statistics", "action_covar",
+                                "critic", "pos_statistics", "pos_covar"],
+                encode_groups= [
+                    "policy", "action_statistics", "action_covar",
+                    "critic", "pos_statistics", "pos_covar"
+                ],
+            )
+
+        self.policy.encode_policy_hidden_dims = [96]
+        self.policy.encode_action_statistics_hidden_dims = [96]
+        self.policy.encode_action_covar_hidden_dims = [96]
+
+        self.policy.encode_critic_hidden_dims = [96]
+        self.policy.encode_pos_statistics_hidden_dims = [96]
+        self.policy.encode_pos_covar_hidden_dims = [96]
+
+        self.policy.rnn_type='lstm'
+        self.policy.rnn_hidden_size=256
+        self.policy.rnn_num_layers=1
+
+        self.algorithm.class_name = "MIPPO"
+        self.algorithm.entropy_ranges = (1.5, 10)  # 目标熵值范围(最小,最大)
+        self.algorithm.entropy_coef_factor = 1.05  # 熵系数调整幅度
+        self.algorithm.entropy_coef_scale = 10  # 熵系数缩放因子
+
+

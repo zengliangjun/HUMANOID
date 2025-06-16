@@ -272,45 +272,75 @@ class StatusAction(StatusBase):
         self._calculate_step(action)
 
 
-def covariance_subclass(parent_class):
+class CovarianceStatistics():
 
-    class CovarianceStatistics(parent_class):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        joint_count = len(self.asset.data.joint_names)
+        self.episode_covariance_buf = torch.zeros((self.num_envs, joint_count, joint_count),
+                                                    device=self.device, dtype=torch.float)
 
-        def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
-            super().__init__(cfg, env)
-            joint_count = len(self.asset.data.joint_names)
-            self.episode_covariance_buf = torch.zeros((self.num_envs, joint_count, joint_count),
-                                                        device=self.device, dtype=torch.float)
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        # 计算均值
+        delta0 = diff - self.episode_mean_buf
+        self.episode_mean_buf += delta0 / self._env.episode_length_buf[:, None]
 
-        def _calculate_episode(self, diff: torch.Tensor) -> None:
-            # 计算均值
-            delta0 = diff - self.episode_mean_buf
-            self.episode_mean_buf += delta0 / self._env.episode_length_buf[:, None]
-
-            # 计算方差
-            delta1 = diff - self.episode_mean_buf
-            self.episode_variance_buf = (
-                self.episode_variance_buf * (self._env.episode_length_buf[:, None] - 2)
-                + delta0 * delta1
-            ) / (self._env.episode_length_buf[:, None] - 1)
+        # 计算方差
+        delta1 = diff - self.episode_mean_buf
+        self.episode_variance_buf = (
+            self.episode_variance_buf * (self._env.episode_length_buf[:, None] - 2)
+            + delta0 * delta1
+        ) / (self._env.episode_length_buf[:, None] - 1)
 
 
-            # 使用 torch.einsum 计算外积后更新协方差缓冲值
-            covariance = torch.einsum("bi,bj->bij", delta1, delta0)
-            self.episode_covariance_buf = (\
-                self.episode_covariance_buf * (self._env.episode_length_buf[:, None, None] - 2) + \
-                covariance) / (self._env.episode_length_buf[:, None, None] - 1)
+        # 使用 torch.einsum 计算外积后更新协方差缓冲值
+        covariance = torch.einsum("bi,bj->bij", delta1, delta0)
+        self.episode_covariance_buf = (\
+            self.episode_covariance_buf * (self._env.episode_length_buf[:, None, None] - 2) + \
+            covariance) / (self._env.episode_length_buf[:, None, None] - 1)
 
-            # 处理新episode
-            new_episode_mask = self._env.episode_length_buf <= 1
-            # self.episode_mean_buf[new_episode_mask] = 0
-            self.episode_variance_buf[new_episode_mask] = 0
-            self.episode_covariance_buf[new_episode_mask] = 0
+        episode_mask = self._env.episode_length_buf <= 1
+        self.episode_variance_buf[episode_mask] = 0
+        self.episode_covariance_buf[episode_mask] = 0
 
-    return CovarianceStatistics
+class CovarAction(StatusAction, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusAction.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
 
-CovarAction = covariance_subclass(StatusAction)
-CovarJPos = covariance_subclass(StatusJPos)
-CovarJVel = covariance_subclass(StatusJVel)
-CovarJAcc = covariance_subclass(StatusJAcc)
-CovarTorque = covariance_subclass(StatusTorque)
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
+
+
+class CovarJPos(StatusJPos, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusJPos.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
+
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
+
+
+class CovarJVel(StatusJVel, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusJVel.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
+
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
+
+class CovarJAcc(StatusJAcc, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusJAcc.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
+
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
+
+class CovarTorque(StatusTorque, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusTorque.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
+
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
+
