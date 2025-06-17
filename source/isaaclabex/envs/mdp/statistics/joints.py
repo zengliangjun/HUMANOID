@@ -123,24 +123,31 @@ class StatusBase(ManagerTermBase):
 
         return items
 
+    def _episode_length(self) -> torch.Tensor:
+        if -1 == self.cfg.episode_truncation:
+            return self._env.episode_length_buf
+        else:
+            return torch.clamp_max(self._env.episode_length_buf, self.cfg.episode_truncation)
+
     def _calculate_episode(self, diff: torch.Tensor) -> None:
         """更新episode级别的统计量（Welford算法）
         Args:
             diff: 当前step的关节状态差值
         """
+        episode_length_buf = self._episode_length()
         # 计算均值
         delta0 = diff - self.episode_mean_buf
-        self.episode_mean_buf += delta0 / self._env.episode_length_buf[:, None]
+        self.episode_mean_buf += delta0 / episode_length_buf[:, None]
 
         # 计算方差
         delta1 = diff - self.episode_mean_buf
         self.episode_variance_buf = (
-            self.episode_variance_buf * (self._env.episode_length_buf[:, None] - 2)
+            self.episode_variance_buf * (episode_length_buf[:, None] - 2)
             + delta0 * delta1
-        ) / (self._env.episode_length_buf[:, None] - 1)
+        ) / (episode_length_buf[:, None] - 1)
 
         # 处理新episode
-        new_episode_mask = self._env.episode_length_buf <= 1
+        new_episode_mask = episode_length_buf <= 1
         # self.episode_mean_buf[new_episode_mask] = 0
         self.episode_variance_buf[new_episode_mask] = 0
 
@@ -157,27 +164,28 @@ class StatusBase(ManagerTermBase):
 
     def _update_step_stats(self, mean: torch.Tensor, var: torch.Tensor) -> None:
         """更新step级别统计缓冲区"""
+        episode_length_buf = self._episode_length()
         # 更新均值统计
         delta_mean0 = mean - self.step_mean_mean_buf
-        self.step_mean_mean_buf += delta_mean0 / self._env.episode_length_buf[:, None]
+        self.step_mean_mean_buf += delta_mean0 / episode_length_buf[:, None]
         # 计算均值方差
         delta_mean1 = mean - self.step_mean_mean_buf
         self.step_mean_variance_buf = (
-            self.step_mean_variance_buf * (self._env.episode_length_buf[:, None] - 2)
+            self.step_mean_variance_buf * (episode_length_buf[:, None] - 2)
             + delta_mean0 * delta_mean1
-        ) / (self._env.episode_length_buf[:, None] - 1)
+        ) / (episode_length_buf[:, None] - 1)
 
         # 更新方差统计
         delta_var0 = var - self.step_variance_mean_buf
-        self.step_variance_mean_buf += delta_var0 / self._env.episode_length_buf[:, None]
+        self.step_variance_mean_buf += delta_var0 / episode_length_buf[:, None]
         # 计算方差方差
         delta_var1 = var - self.step_variance_mean_buf
         self.step_variance_variance_buf = (
-            self.step_variance_variance_buf * (self._env.episode_length_buf[:, None] - 2)
+            self.step_variance_variance_buf * (episode_length_buf[:, None] - 2)
             + delta_var0 * delta_var1
-        ) / (self._env.episode_length_buf[:, None] - 1)
+        ) / (episode_length_buf[:, None] - 1)
 
-        reset_mask = self._env.episode_length_buf <= 1
+        reset_mask = episode_length_buf <= 1
         self.step_mean_variance_buf[reset_mask] = 0
         self.step_variance_variance_buf[reset_mask] = 0
 
@@ -280,25 +288,26 @@ class CovarianceStatistics():
                                                     device=self.device, dtype=torch.float)
 
     def _calculate_episode(self, diff: torch.Tensor) -> None:
+        episode_length_buf = self._episode_length()
         # 计算均值
         delta0 = diff - self.episode_mean_buf
-        self.episode_mean_buf += delta0 / self._env.episode_length_buf[:, None]
+        self.episode_mean_buf += delta0 / episode_length_buf[:, None]
 
         # 计算方差
         delta1 = diff - self.episode_mean_buf
         self.episode_variance_buf = (
-            self.episode_variance_buf * (self._env.episode_length_buf[:, None] - 2)
+            self.episode_variance_buf * (episode_length_buf[:, None] - 2)
             + delta0 * delta1
-        ) / (self._env.episode_length_buf[:, None] - 1)
+        ) / (episode_length_buf[:, None] - 1)
 
 
         # 使用 torch.einsum 计算外积后更新协方差缓冲值
         covariance = torch.einsum("bi,bj->bij", delta1, delta0)
         self.episode_covariance_buf = (\
-            self.episode_covariance_buf * (self._env.episode_length_buf[:, None, None] - 2) + \
-            covariance) / (self._env.episode_length_buf[:, None, None] - 1)
+            self.episode_covariance_buf * (episode_length_buf[:, None, None] - 2) + \
+            covariance) / (episode_length_buf[:, None, None] - 1)
 
-        episode_mask = self._env.episode_length_buf <= 1
+        episode_mask = episode_length_buf <= 1
         self.episode_variance_buf[episode_mask] = 0
         self.episode_covariance_buf[episode_mask] = 0
 

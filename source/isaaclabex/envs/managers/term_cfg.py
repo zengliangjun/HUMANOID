@@ -78,3 +78,8 @@ class StatisticsTermCfg(ManagerTermBaseCfg):
     export_interval: int = 1
 
 
+    """
+    统计过程中 episode 最大截断值, -1 表示不截断
+    """
+    episode_truncation: int = -1
+
