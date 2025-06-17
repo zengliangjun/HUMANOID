@@ -177,5 +177,32 @@ class StatusFootContact(StatusBase):
         self._calculate_episode(diff)
 
 
+from .joints import CovarianceStatistics
+
+class CovarVel(StatusVel, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusVel.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
+
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
+
+
+class CovarFootHeight(StatusFootHeight, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusFootHeight.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
+
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
+
+
+class CovarFootContact(StatusFootContact, CovarianceStatistics):
+    def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
+        StatusFootContact.__init__(self, cfg, env)
+        CovarianceStatistics.__init__(self, cfg, env)
+
+    def _calculate_episode(self, diff: torch.Tensor) -> None:
+        CovarianceStatistics._calculate_episode(self, diff)
 
 
