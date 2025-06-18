@@ -56,7 +56,36 @@ class G1FlatCfgV3(G1FlatCfg):
 class G1ObsStatisticCfgV0(G1FlatCfg):
     experiment_name = "g1obsStatisticv0" # "g1pbrsflat_noroll"  #
 
+    def __post_init__(self):
+        self.policy = mi_modules_cfg.MIEncodeActorCriticCfg(
+                class_name = "MIERecurrentActorCritic",
+                init_noise_std=0.8,
+                actor_hidden_dims=[256, 256],
+                critic_hidden_dims=[256, 256],
+                activation="elu",
+                policy_groups= ["policy", "action_statistics"],
+                critic_groups= ["action_statistics",
+                                "critic", "pos_statistics"],
+                encode_groups= [
+                    "policy", "action_statistics",
+                    "critic", "pos_statistics"
+                ],
+            )
 
+        self.policy.encode_policy_hidden_dims = [96]
+        self.policy.encode_action_statistics_hidden_dims = [96]
+
+        self.policy.encode_critic_hidden_dims = [96]
+        self.policy.encode_pos_statistics_hidden_dims = [96]
+
+        self.policy.rnn_type='lstm'
+        self.policy.rnn_hidden_size=256
+        self.policy.rnn_num_layers=1
+
+        self.algorithm.class_name = "MIPPO"
+        self.algorithm.entropy_ranges = (1.5, 10)  # 目标熵值范围(最小,最大)
+        self.algorithm.entropy_coef_factor = 1.05  # 熵系数调整幅度
+        self.algorithm.entropy_coef_scale = 10  # 熵系数缩放因子
 
 @configclass
 class G1ObsCovarCfgV0(G1FlatCfg):

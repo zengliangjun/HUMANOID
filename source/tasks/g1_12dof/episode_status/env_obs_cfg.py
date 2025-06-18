@@ -4,7 +4,7 @@ from . import env_cfg
 
 from isaaclabex.envs.mdp.statistics import joints
 from isaaclabex.envs.managers import term_cfg
-from isaaclab.managers import SceneEntityCfg, ObservationTermCfg
+from isaaclab.managers import SceneEntityCfg, ObservationTermCfg, ObservationGroupCfg
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
 from isaaclabex.envs.mdp.observations import statistics
@@ -16,6 +16,8 @@ class StatisticsCfg:
         params={
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot")},
+
+        episode_truncation = 80,
         export_interval = 1000000
     )
     action = term_cfg.StatisticsTermCfg(
@@ -24,13 +26,16 @@ class StatisticsCfg:
             "action_name": "joint_pos",
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot")},
+
+        episode_truncation = 80,
         export_interval = 1000000
     )
 
-
+@configclass
 class ObservationsCfg(obs.ObservationsCfg):
+
     @configclass
-    class PolicyCfg(obs.ObservationsCfg.PolicyCfg):
+    class ActionStatisticsCfg(ObservationGroupCfg):
         action_episode_mean = ObservationTermCfg(func=statistics.obs_episode_mean,
                                        params={"pos_statistics_name": "action"},
                                        noise=Unoise(n_min=-0.01, n_max=0.01))
@@ -47,25 +52,12 @@ class ObservationsCfg(obs.ObservationsCfg):
                                        params={"pos_statistics_name": "action"},
                                        noise=Unoise(n_min=-0.01, n_max=0.01))
 
+        def __post_init__(self):
+            self.enable_corruption = True
+            self.concatenate_terms = True
 
     @configclass
-    class CriticCfg(obs.ObservationsCfg.CriticCfg):
-        action_episode_mean = ObservationTermCfg(func=statistics.obs_episode_mean,
-                                       params={"pos_statistics_name": "action"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
-        action_episode_variance = ObservationTermCfg(func=statistics.obs_episode_variance,
-                                       params={"pos_statistics_name": "action"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
-        action_step_mean_mean = ObservationTermCfg(func=statistics.obs_step_mean_mean,
-                                       params={"pos_statistics_name": "action"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
-        action_step_mean_variance = ObservationTermCfg(func=statistics.obs_step_mean_variance,
-                                       params={"pos_statistics_name": "action"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
-        action_step_variance_mean = ObservationTermCfg(func=statistics.obs_step_variance_mean,
-                                       params={"pos_statistics_name": "action"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
-
+    class PosStatisticsCfg(ObservationGroupCfg):
 
         pos_episode_mean = ObservationTermCfg(func=statistics.obs_episode_mean,
                                        params={"pos_statistics_name": "pos"},
@@ -83,14 +75,18 @@ class ObservationsCfg(obs.ObservationsCfg):
                                        params={"pos_statistics_name": "pos"},
                                        noise=Unoise(n_min=-0.01, n_max=0.01))
 
+        def __post_init__(self):
+            self.enable_corruption = True
+            self.concatenate_terms = True
+
 
     def __post_init__(self):
         self.policy.phase = None
         self.critic.phase = None
 
     # observation groups
-    policy: PolicyCfg = PolicyCfg()
-    critic: CriticCfg = CriticCfg()
+    action_statistics: ActionStatisticsCfg = ActionStatisticsCfg()
+    pos_statistics: PosStatisticsCfg = PosStatisticsCfg()
 
 
 @configclass
