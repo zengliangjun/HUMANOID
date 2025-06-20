@@ -157,17 +157,7 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
                 "yaw": (-0.1, 0.1),
             },
         }
-        self.events.reset_base.params = {
-            "pose_range": {"x": (-0.5, 0.5), "y": (-0.5, 0.5), "yaw": (-3.14, 3.14)},
-            "velocity_range": {
-                "x": (-0.1, 0.1),
-                "y": (-0.1, 0.1),
-                "z": (-0.1, 0.1),
-                "roll": (-0.1, 0.1),
-                "pitch": (-0.1, 0.1),
-                "yaw": (-0.1, 0.1),
-            },
-        }
+
         # ROBOT
         self.scene.robot = unitree_g112.UNITREE_GO112_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
