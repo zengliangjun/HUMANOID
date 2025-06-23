@@ -13,15 +13,15 @@ class CurriculumCfg:
         func=rewards.curriculum_with_steps,
         params={
             'start_steps': 0,
-            'end_steps': 800000,
+            'end_steps': 1000000,
             "curriculums": {
                 'p_action_smoothness': {    # reward name
                     "start_weight": -0.004,
-                    "end_weight": -0.02
+                    "end_weight": -0.01
                 },
                 'p_torques': {    # reward name
-                    "start_weight": -0.0005,
-                    "end_weight": -0.001
+                    "start_weight": -1e-5,
+                    "end_weight": -4e-3
                 },
                 'p_width': {    # reward name
                     "start_weight": -3.0,
@@ -47,7 +47,7 @@ class CurriculumCfg:
         func=events.curriculum_with_steps,
         params={
             'start_steps': 0,
-            'end_steps': 800000,
+            'end_steps': 1000000,
             "curriculums": {
                 'startup_material': {    # event name
                     "static_friction_range": events.EventCurriculumStepItem(
@@ -61,7 +61,7 @@ class CurriculumCfg:
                 },
                 'reset_base': {    # event name
                     "pose_range": events.EventCurriculumStepItem(
-                        start_range = {"x": (-0, 0), "y": (-0, 0), "yaw": (-0, 0)},
+                        start_range = {"x": (-0.5, 0.5), "y": (-0.5, 0.5), "yaw": (-3.14, 3.14)},
                         end_range = {"x": (-0.5, 0.5), "y": (-0.5, 0.5), "yaw": (-3.14, 3.14)}
                     ),
                     "velocity_range": events.EventCurriculumStepItem(
@@ -74,31 +74,31 @@ class CurriculumCfg:
                                             "yaw": (-0.0, 0.0),
                                         },
                         end_range =  {
-                                        "x": (-0.5, 0.5),
-                                        "y": (-0.5, 0.5),
-                                        "z": (-0.5, 0.5),
-                                        "roll": (-0.5, 0.5),
-                                        "pitch": (-0.5, 0.5),
-                                        "yaw": (-0.5, 0.5),
+                                        "x": (-0.1, 0.1),
+                                        "y": (-0.1, 0.1),
+                                        "z": (-0.1, 0.1),
+                                        "roll": (-0.1, 0.1),
+                                        "pitch": (-0.1, 0.1),
+                                        "yaw": (-0.1, 0.1),
                                     }
                     ),
                 },
                 'reset_joints': {    # event name
                     "position_range": events.EventCurriculumStepItem(
-                        start_range = (0, 0),
+                        start_range = (1, 1),
                         end_range = (0.5, 1.5)
                     ),
                 },
                 'interval_push': {    # event name
                     "velocity_range": events.EventCurriculumStepItem(
                         start_range =  {"x": (-0.0, 0.0), "y": (-0.0, 0.0)},
-                        end_range =  {"x": (-0.5, 0.5), "y": (-0.5, 0.5)}
+                        end_range =  {"x": (-0.75, 0.75), "y": (-0.75, 0.75)}
                     ),
                 },
                 'interval_gravity': {    # event name
                     "gravity_distribution_params": events.EventCurriculumStepItem(
                         start_range =  (0, 0),
-                        end_range =  (-0.1, 0.1)
+                        end_range =  (-0.2, 0.2)
                     ),
                 },
                 'interval_actuator': {    # event name
@@ -114,13 +114,13 @@ class CurriculumCfg:
                 'interval_mass': {    # event name
                     "mass_distribution_params": events.EventCurriculumStepItem(
                         start_range = (1, 1),
-                        end_range = (0.9, 1.1)
+                        end_range = (0.8, 1.2)
                     ),
                 },
                 'interval_coms': {    # event name
                     "coms_distribution_params": events.EventCurriculumStepItem(
                         start_range = (0, 0),
-                        end_range = (-0.1, 0.1)
+                        end_range = (-0.2, 0.2)
                     ),
                 },
             }
