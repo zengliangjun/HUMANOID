@@ -89,7 +89,7 @@ class RewardsCfg:
     )
 
     rew_ankler_zero = RewardTermCfg(
-        func=reward_collect.rew_mean_zero,
+        func=reward_collect.rew_mean_zero_nostep,
         weight=0.15,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
@@ -100,7 +100,7 @@ class RewardsCfg:
                 }
     )
     rew_hipr_zero = RewardTermCfg(
-        func=reward_collect.rew_mean_zero,
+        func=reward_collect.rew_mean_zero_nostep,
         weight=0.2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
@@ -111,7 +111,7 @@ class RewardsCfg:
                 }
     )
     rew_hipy_zero = RewardTermCfg(
-        func=reward_collect.rew_mean_zero,
+        func=reward_collect.rew_mean_zero_nostep,
         weight=0.2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[

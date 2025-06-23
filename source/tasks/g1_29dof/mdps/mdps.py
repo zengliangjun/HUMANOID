@@ -98,7 +98,15 @@ class StatisticsCfg:
         func= joints.StatusJPos,
         params={
             "command_name": "base_velocity",
-            "asset_cfg": SceneEntityCfg("robot")},
+            "asset_cfg": SceneEntityCfg("robot"),
+            "step_joint_names": [
+                "left_hip_pitch_joint",
+                "right_hip_pitch_joint",
+                "left_knee_joint",
+                "right_knee_joint",
+                "left_shoulder_pitch_joint",
+                "right_shoulder_pitch_joint"
+            ]},
 
         # episode_truncation = 80,
         export_interval = 1000000
