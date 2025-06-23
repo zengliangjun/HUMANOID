@@ -157,7 +157,6 @@ class G1FlatEnvCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
                 "yaw": (-0.1, 0.1),
             },
         }
-
         # ROBOT
         self.scene.robot = unitree_g112.UNITREE_GO112_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
