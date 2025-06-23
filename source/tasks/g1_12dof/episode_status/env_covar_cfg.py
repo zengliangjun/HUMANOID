@@ -66,19 +66,19 @@ class ObservationsCfg(obs.ObservationsCfg):
 
         pos_episode_mean = ObservationTermCfg(func=statistics.obs_episode_mean,
                                        params={"pos_statistics_name": "pos"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
+                                       noise=Unoise(n_min=-0.1, n_max=0.1))
         pos_episode_variance = ObservationTermCfg(func=statistics.obs_episode_variance,
                                        params={"pos_statistics_name": "pos"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
+                                       noise=Unoise(n_min=-0.1, n_max=0.1))
         pos_step_mean_mean = ObservationTermCfg(func=statistics.obs_step_mean_mean,
                                        params={"pos_statistics_name": "pos"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
+                                       noise=Unoise(n_min=-0.1, n_max=0.1))
         pos_step_mean_variance = ObservationTermCfg(func=statistics.obs_step_mean_variance,
                                        params={"pos_statistics_name": "pos"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
+                                       noise=Unoise(n_min=-0.1, n_max=0.1))
         pos_step_variance_mean = ObservationTermCfg(func=statistics.obs_step_variance_mean,
                                        params={"pos_statistics_name": "pos"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
+                                       noise=Unoise(n_min=-0.1, n_max=0.1))
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -88,7 +88,7 @@ class ObservationsCfg(obs.ObservationsCfg):
     class ActionCovarCfg(ObservationGroupCfg):
         action_episode_mean = ObservationTermCfg(func=statistics.obs_covar_mean,
                                        params={"pos_statistics_name": "action"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
+                                       noise=Unoise(n_min=-0.1, n_max=0.1))
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -96,9 +96,9 @@ class ObservationsCfg(obs.ObservationsCfg):
 
     @configclass
     class PosCovarCfg(ObservationGroupCfg):
-        action_episode_mean = ObservationTermCfg(func=statistics.obs_covar_mean,
+        pos_episode_mean = ObservationTermCfg(func=statistics.obs_covar_mean,
                                        params={"pos_statistics_name": "pos"},
-                                       noise=Unoise(n_min=-0.01, n_max=0.01))
+                                       noise=Unoise(n_min=-0.1, n_max=0.1))
 
         def __post_init__(self):
             self.enable_corruption = True
