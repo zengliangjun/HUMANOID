@@ -4,7 +4,7 @@ from isaaclab_tasks.manager_based.classic.humanoid.mdp import rewards as humanoi
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import rewards as loc_rewards
 from isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp import rewards as spot_rewards
 from .joint import joint, phase, statistics, symmetry, statisticsv2_pos, statisticsv3_pos
-from .feet import feet_phase, feet, feet_contact, statistics as feet_statistics
+from .feet import feet_phase, feet, feet_contact, statistics as feet_statistics, statisticsv3 as feet_statisticsv3
 from . import actions
 from .root import base, base_ori, base_phase, body, body_status, contact
 
@@ -157,6 +157,7 @@ reward_clearance = spot_rewards.foot_clearance_reward                      # Rew
 reward_clearance_phase = feet_phase.reward_feet_clearance                   # Phase-based clearance reward.
 penalize_clearance = feet.penalize_foot_clearance                           # Penalty for insufficient clearance.
 
+penalize_statistics_clearance = feet_statisticsv3.penalize_footclearance
 # Gait reward.
 GaitReward = spot_rewards.GaitReward                                       # Reward for achieving desired gait pattern.
 

@@ -20,8 +20,12 @@ class StatusBase(ManagerTermBase):
         asset_cfg: SceneEntityCfg = cfg.params["asset_cfg"]
         self.asset: Articulation = self._env.scene[asset_cfg.name]
         self.asset_cfg = asset_cfg
+        self.command_name = cfg.params["command_name"]
 
         self._init_buffers()
+        # 初始化标志位
+        self.stand_flag = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+        self.zero_flag = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
 
     def _episode_length(self) -> torch.Tensor:
         # 获取episode长度，当cfg中设置了截断时进行最大值截断
@@ -49,6 +53,11 @@ class StatusBase(ManagerTermBase):
         new_episode_mask = episode_length_buf <= 1
         # self.episode_mean_buf[new_episode_mask] = 0
         self.episode_variance_buf[new_episode_mask] = 0
+
+    def _update_flag(self):
+        command = self._env.command_manager.get_command(self.command_name)
+        self.stand_flag[...] = torch.norm(command, dim=1) < 0.1
+        self.zero_flag[...] = self._env.episode_length_buf <= 1
 
 
 class StatusVel(StatusBase):
@@ -91,8 +100,9 @@ class StatusVel(StatusBase):
         """执行统计计算：计算机器人根链速度的x和y分量的绝对值"""
         diff = torch.abs(self.asset.data.root_lin_vel_b[:, :2])  # 只取x和y分量
         self._calculate_episode(diff)
+        self._update_flag()
 
-class StatusFootHeight(StatusBase):
+class StatusFootClearance(StatusBase):
 
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
@@ -133,6 +143,7 @@ class StatusFootHeight(StatusBase):
         diff = self.asset.data.body_pos_w[:, self.asset_cfg.body_ids, 2]
         diff = torch.abs(diff[:, :1] - diff[:, 1:])
         self._calculate_episode(diff)
+        self._update_flag()
 
 
 class StatusFootContact(StatusBase):
@@ -175,10 +186,11 @@ class StatusFootContact(StatusBase):
         """执行统计计算：直接根据足部接触位置计算统计数据"""
         diff = self.asset.data.body_pos_w[:, self.asset_cfg.body_ids, 2]
         self._calculate_episode(diff)
+        self._update_flag()
 
 
 from .joints import CovarianceStatistics
-
+"""
 class CovarVel(StatusVel, CovarianceStatistics):
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
         StatusVel.__init__(self, cfg, env)
@@ -188,9 +200,9 @@ class CovarVel(StatusVel, CovarianceStatistics):
         CovarianceStatistics._calculate_episode(self, diff)
 
 
-class CovarFootHeight(StatusFootHeight, CovarianceStatistics):
+class CovarFootClearance(StatusFootClearance, CovarianceStatistics):
     def __init__(self, cfg: StatisticsTermCfg, env: ManagerBasedRLEnv) -> None:
-        StatusFootHeight.__init__(self, cfg, env)
+        CovarFootClearance.__init__(self, cfg, env)
         CovarianceStatistics.__init__(self, cfg, env)
 
     def _calculate_episode(self, diff: torch.Tensor) -> None:
@@ -204,5 +216,5 @@ class CovarFootContact(StatusFootContact, CovarianceStatistics):
 
     def _calculate_episode(self, diff: torch.Tensor) -> None:
         CovarianceStatistics._calculate_episode(self, diff)
-
+"""
 
