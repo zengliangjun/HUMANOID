@@ -117,4 +117,10 @@ class G1ObsStatisticsCfg_PLAY(env_cfg.G1FlatEnvV3Cfg_PLAY):
         super().__post_init__()
         self.observations = ObservationsCfg()
         self.statistics = StatisticsCfg()
+        self.commands.base_velocity.ranges.lin_vel_x=(0, 2)
+        self.events.interval_push = None
+        self.events.interval_gravity = None
+        self.events.interval_actuator = None
+        self.events.interval_mass = None
+        self.events.interval_coms = None
 
