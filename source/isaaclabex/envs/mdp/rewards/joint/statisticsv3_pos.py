@@ -57,8 +57,9 @@ def rew_mean_self(
 
     episode_mean = term.episode_mean_buf[:, asset_cfg.joint_ids]
 
-    step_ids = [x // 2 for x in asset_cfg.joint_ids[::2]]
+    step_ids = term.step_ids(asset_cfg)
     step_mean_mean = term.step_mean_mean_buf[:, step_ids]
+
     episode_mean0 = episode_mean[:, ::2]
     episode_mean1 = episode_mean[:, 1::2]
     reward = _exp_decay(std, [step_mean_mean, episode_mean0, episode_mean1])
@@ -82,8 +83,9 @@ def rew_mean_zero(
 
     episode_mean = term.episode_mean_buf[:, asset_cfg.joint_ids]
 
-    step_ids = [x // 2 for x in asset_cfg.joint_ids[::2]]
+    step_ids = term.step_ids(asset_cfg)
     step_mean_mean = term.step_mean_mean_buf[:, step_ids]
+
     episode_mean0 = episode_mean[:, ::2]
     episode_mean1 = episode_mean[:, 1::2]
     reward = _exp_zero(std, [step_mean_mean, episode_mean0, episode_mean1])
@@ -93,6 +95,30 @@ def rew_mean_zero(
     diff_reward = torch.exp(-torch.norm(term.diff, dim = -1))
     reward[flag] = diff_reward[flag]
     return reward
+
+def rew_mean_zero_nostep(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+    pos_statistics_name: str = "pos",
+    std: float = 0.25
+) -> torch.Tensor:
+
+    assert isinstance(env, ManagerBasedRLEnv)
+    manager: StatisticsManager = env.statistics_manager
+    term: joints.StatusJPos = manager.get_term(pos_statistics_name)
+
+    episode_mean = term.episode_mean_buf[:, asset_cfg.joint_ids]
+
+    episode_mean0 = episode_mean[:, ::2]
+    episode_mean1 = episode_mean[:, 1::2]
+    reward = _exp_zero(std, [episode_mean0, episode_mean1])
+    reward = torch.mean(reward, dim=-1)
+
+    flag = torch.logical_or(term.stand_flag, term.zero_flag)
+    diff_reward = torch.exp(-torch.norm(term.diff, dim = -1))
+    reward[flag] = diff_reward[flag]
+    return reward
+
 
 def rew_variance_self(
     env: ManagerBasedRLEnv,
@@ -107,7 +133,7 @@ def rew_variance_self(
 
     episode_variance = term.episode_variance_buf[:, asset_cfg.joint_ids]
 
-    step_ids = [x // 2 for x in asset_cfg.joint_ids[::2]]
+    step_ids = term.step_ids(asset_cfg)
 
     step_mean_variance = term.step_mean_variance_buf[:, step_ids]
     step_variance_mean = term.step_variance_mean_buf[:, step_ids]

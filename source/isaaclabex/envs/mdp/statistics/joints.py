@@ -45,8 +45,15 @@ class StatusBase(ManagerTermBase):
         self.episode_mean_buf = torch.zeros_like(self.episode_variance_buf)
 
         # Step级别统计（按关节分组）
-        self.step_mean_mean_buf = torch.zeros((self.num_envs, joint_count // 2),
-                              device=self.device, dtype=torch.float)
+        if hasattr(cfg.params, "step_joint_names"):
+            self.step_jointids = self.asset.find_joints(cfg.params["step_joint_names"], preserve_order = True)
+            self.step_mean_mean_buf = torch.zeros((self.num_envs, len(self.step_jointids) // 2),
+                                device=self.device, dtype=torch.float)
+
+        else:
+            self.step_mean_mean_buf = torch.zeros((self.num_envs, joint_count // 2),
+                                device=self.device, dtype=torch.float)
+
         self.step_mean_variance_buf = torch.zeros_like(self.step_mean_mean_buf)
         self.step_variance_mean_buf = torch.zeros_like(self.step_mean_mean_buf)
         self.step_variance_variance_buf = torch.zeros_like(self.step_mean_mean_buf)
@@ -54,6 +61,16 @@ class StatusBase(ManagerTermBase):
         # 初始化标志位
         self.stand_flag = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
         self.zero_flag = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+
+    def step_ids(self, asset_cfg):
+        if hasattr(self, "step_jointids"):
+            ids = []
+            for jid in asset_cfg.joint_ids[::2]:
+                id = self.step_jointids.index(jid)
+                ids.append(id // 2)
+            return ids
+        else:
+            return [x // 2 for x in asset_cfg.joint_ids[::2]]
 
     def reset(self, env_ids: Sequence[int] | None = None) -> dict:
         """重置指定环境的统计缓冲区
@@ -154,6 +171,9 @@ class StatusBase(ManagerTermBase):
     def _calculate_step(self, diff: torch.Tensor) -> None:
         """更新step级别的分组统计量"""
         # 将关节分为两组（如左右关节）
+        if hasattr(self, "step_jointids"):
+            diff = diff[:, self.step_jointids]
+
         diff = torch.stack([diff[:, ::2], diff[:, 1::2]], dim=-1)
 
         # 计算每组均值和方差
