@@ -17,7 +17,7 @@ class StatisticsCfg:
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot")},
 
-        episode_truncation = 80,
+        # episode_truncation = 80,
         export_interval = 1000000
     )
     action = term_cfg.StatisticsTermCfg(
@@ -27,7 +27,7 @@ class StatisticsCfg:
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot")},
 
-        episode_truncation = 80,
+        # episode_truncation = 80,
         export_interval = 1000000
     )
 
@@ -96,6 +96,20 @@ class G1ObsStatisticsCfg(env_cfg.G1FlatEnvV3Cfg):
         super().__post_init__()
         self.observations = ObservationsCfg()
         self.statistics = StatisticsCfg()
+
+        # final valid cfg
+        """
+        self.curriculum.penalize_with_steps = None
+        self.curriculum.events_with_steps = None
+
+        self.rewards.rew_stability.weight = 3
+
+        self.rewards.p_action_rate.weight = -0.05
+        self.rewards.p_action_smoothness.weight=-0.008
+        self.rewards.p_torques.weight=-1e-5
+        self.rewards.p_pos_limits.weight=-2.0
+        self.rewards.p_foot_slide.weight=-0.5
+        """
 
 @configclass
 class G1ObsStatisticsCfg_PLAY(env_cfg.G1FlatEnvV3Cfg_PLAY):
