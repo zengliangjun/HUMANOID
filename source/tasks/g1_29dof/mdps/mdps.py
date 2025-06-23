@@ -67,6 +67,8 @@ class TerminationsCfg:
                                 'right_hip_roll_link',
                                 'right_hip_yaw_link',
                                 'right_knee_link',
+                                'waist_yaw_link',
+                                'waist_roll_link',
                                 'torso_link',
                                 'd435_link',
                                 'head_link',
@@ -75,14 +77,20 @@ class TerminationsCfg:
                                 'left_shoulder_roll_link',
                                 'left_shoulder_yaw_link',
                                 'left_elbow_link',
-                                'left_wrist_roll_rubber_hand',
+                                'left_wrist_roll_link',
+                                'left_wrist_pitch_link',
+                                'left_wrist_yaw_link',
+                                'left_rubber_hand',
                                 'logo_link',
                                 'mid360_link',
                                 'right_shoulder_pitch_link',
                                 'right_shoulder_roll_link',
                                 'right_shoulder_yaw_link',
                                 'right_elbow_link',
-                                'right_wrist_roll_rubber_hand'
+                                'right_wrist_roll_link',
+                                'right_wrist_pitch_link',
+                                'right_wrist_yaw_link',
+                                'right_rubber_hand'
                                         ]), "threshold": 1.0},
     )
     out_of_terrain = TerminationTermCfg(
@@ -116,7 +124,15 @@ class StatisticsCfg:
         params={
             "action_name": "joint_pos",
             "command_name": "base_velocity",
-            "asset_cfg": SceneEntityCfg("robot")},
+            "asset_cfg": SceneEntityCfg("robot"),
+            "step_joint_names": [
+                "left_hip_pitch_joint",
+                "right_hip_pitch_joint",
+                "left_knee_joint",
+                "right_knee_joint",
+                "left_shoulder_pitch_joint",
+                "right_shoulder_pitch_joint"
+            ]},
 
         # episode_truncation = 80,
         export_interval = 1000000

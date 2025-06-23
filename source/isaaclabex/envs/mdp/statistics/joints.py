@@ -45,8 +45,8 @@ class StatusBase(ManagerTermBase):
         self.episode_mean_buf = torch.zeros_like(self.episode_variance_buf)
 
         # Step级别统计（按关节分组）
-        if hasattr(cfg.params, "step_joint_names"):
-            self.step_jointids = self.asset.find_joints(cfg.params["step_joint_names"], preserve_order = True)
+        if hasattr(cfg.params, "step_joint_names") or "step_joint_names" in cfg.params:
+            self.step_jointids, self.step_jointnames = self.asset.find_joints(cfg.params["step_joint_names"], preserve_order = True)
             self.step_mean_mean_buf = torch.zeros((self.num_envs, len(self.step_jointids) // 2),
                                 device=self.device, dtype=torch.float)
 
@@ -97,29 +97,34 @@ class StatusBase(ManagerTermBase):
                 items[f"ev/{name}"] = torch.mean(variance[:, id])
                 items[f"ev2/{name}"] = torch.sqrt(torch.mean(torch.square(variance[:, id])))
 
+            if hasattr(self.cfg.params, "step_joint_names") or "step_joint_names" in self.cfg.params:
+                names = self.cfg.params["step_joint_names"][::2]
+            else:
+                names = self.asset.data.joint_names[::2]
+
             mean = self.step_mean_mean_buf[env_ids]
-            for id, name in enumerate(self.asset.data.joint_names[::2]):
+            for id, name in enumerate(names):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"smm/{name}"] = torch.mean(mean[:, id])
                 items[f"smm2/{name}"] = torch.sqrt(torch.mean(torch.square(mean[:, id])))
 
             variance = self.step_mean_variance_buf[env_ids]
-            for id, name in enumerate(self.asset.data.joint_names[::2]):
+            for id, name in enumerate(names):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"smv/{name}"] = torch.mean(variance[:, id])
                 items[f"smv2/{name}"] = torch.sqrt(torch.mean(torch.square(variance[:, id])))
 
             mean = self.step_variance_mean_buf[env_ids]
-            for id, name in enumerate(self.asset.data.joint_names[::2]):
+            for id, name in enumerate(names):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"svm/{name}"] = torch.mean(mean[:, id])
                 items[f"svm2/{name}"] = torch.sqrt(torch.mean(torch.square(mean[:, id])))
 
             variance = self.step_variance_variance_buf[env_ids]
-            for id, name in enumerate(self.asset.data.joint_names[::2]):
+            for id, name in enumerate(names):
                 name = name.replace("_joint", "")
                 name = name.replace("left_", "")
                 items[f"svv/{name}"] = torch.mean(variance[:, id])
@@ -255,6 +260,7 @@ class StatusJVel(StatusBase):
         diff = self.asset.data.joint_vel
         self._calculate_episode(diff)
         self._calculate_step(diff)
+        self._update_flag()
 
 class StatusJAcc(StatusBase):
     """关节加速度统计"""
@@ -267,6 +273,7 @@ class StatusJAcc(StatusBase):
         diff = self.asset.data.joint_acc
         self._calculate_episode(diff)
         self._calculate_step(diff)
+        self._update_flag()
 
 class StatusTorque(StatusBase):
     """关节扭矩统计"""
@@ -279,6 +286,7 @@ class StatusTorque(StatusBase):
         diff = self.asset.data.applied_torque
         self._calculate_episode(diff)
         self._calculate_step(diff)
+        self._update_flag()
 
 
 class StatusAction(StatusBase):
@@ -298,6 +306,7 @@ class StatusAction(StatusBase):
 
         self._calculate_episode(action)
         self._calculate_step(action)
+        self._update_flag()
 
 
 class CovarianceStatistics():
