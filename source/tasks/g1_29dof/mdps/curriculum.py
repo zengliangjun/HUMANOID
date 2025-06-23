@@ -13,7 +13,7 @@ class CurriculumCfg:
         func=rewards.curriculum_with_steps,
         params={
             'start_steps': 0,
-            'end_steps': 1000000,
+            'end_steps': 1500000,
             "curriculums": {
                 'p_action_smoothness': {    # reward name
                     "start_weight": -0.004,
@@ -47,7 +47,7 @@ class CurriculumCfg:
         func=events.curriculum_with_steps,
         params={
             'start_steps': 0,
-            'end_steps': 1000000,
+            'end_steps': 1500000,
             "curriculums": {
                 'startup_material': {    # event name
                     "static_friction_range": events.EventCurriculumStepItem(
