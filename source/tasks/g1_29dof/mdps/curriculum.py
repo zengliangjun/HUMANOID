@@ -15,6 +15,10 @@ class CurriculumCfg:
             'start_steps': 0,
             'end_steps': 1500000,
             "curriculums": {
+                'p_action_rate': {    # reward name
+                    "start_weight": -0.004,
+                    "end_weight": -0.1
+                },
                 'p_action_smoothness': {    # reward name
                     "start_weight": -0.004,
                     "end_weight": -0.01
