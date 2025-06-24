@@ -19,7 +19,7 @@ def _exp_decay(std, values: list[float]):
     count = 0
     total = None
     for id0 in range(len(values)):
-        for id1 in range(1, len(values)):
+        for id1 in range(id0 + 1, len(values)):
             if id0 == id1:
                 continue
             diff = torch.abs(values[id0] - values[id1]) / std
@@ -141,7 +141,8 @@ def rew_variance_self(
     episode_variance0 = episode_variance[:, ::2]
     episode_variance1 = episode_variance[:, 1::2]
 
-    reward = _exp_decay(std, [step_mean_variance,
+    reward = torch.exp(- (step_mean_variance / std)) / 4 + \
+             _exp_decay(std, [
                             step_variance_mean,
                             episode_variance0,
                             episode_variance1])
