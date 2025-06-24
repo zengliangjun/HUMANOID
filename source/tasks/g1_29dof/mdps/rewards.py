@@ -9,7 +9,7 @@ class RewardsCfg:
     # -- task
     rew_lin_xy_exp = RewardTermCfg(
         func=reward_collect.reward_lin_xy_exp,
-        weight=5,
+        weight=7,
         params={"std": 0.5,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
@@ -23,7 +23,7 @@ class RewardsCfg:
     )
     rew_motion_speed = RewardTermCfg(
         func=reward_collect.reward_motion_speed,
-        weight=3,
+        weight=2,
         params={"command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
@@ -60,13 +60,13 @@ class RewardsCfg:
                         "left_shoulder_pitch_joint",
                         "right_shoulder_pitch_joint"]),
                 "pos_statistics_name": "pos",
-                "std": 0.25
+                "std": 0.10
                 }
     )
 
     rew_mean_hipp = RewardTermCfg(
         func=reward_collect.rew_mean_self,
-        weight=0.25,
+        weight=0.3,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_pitch_joint",
@@ -78,7 +78,7 @@ class RewardsCfg:
 
     rew_mean_knee = RewardTermCfg(
         func=reward_collect.rew_mean_self,
-        weight=0.25,
+        weight=0.3,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_knee_joint",
@@ -96,7 +96,7 @@ class RewardsCfg:
                         "left_ankle_roll_joint","right_ankle_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.08
                 }
     )
     rew_mean_hipr_zero = RewardTermCfg(
@@ -107,7 +107,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     rew_mean_hipy_zero = RewardTermCfg(
@@ -118,7 +118,7 @@ class RewardsCfg:
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     rew_mean_waistrpy_zero = RewardTermCfg(
@@ -129,7 +129,7 @@ class RewardsCfg:
                         "waist_roll_joint", "waist_pitch_joint", "waist_yaw_joint"
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.01
                 }
     )
     rew_mean_shoulderr_zero = RewardTermCfg(
@@ -140,7 +140,7 @@ class RewardsCfg:
                         "left_shoulder_roll_joint",   "right_shoulder_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     rew_mean_shouldery_zero = RewardTermCfg(
@@ -151,7 +151,7 @@ class RewardsCfg:
                         "left_shoulder_yaw_joint",   "right_shoulder_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     rew_mean_elbow_zero = RewardTermCfg(
@@ -162,7 +162,7 @@ class RewardsCfg:
                         "left_elbow_joint",   "right_elbow_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     rew_mean_wristr_zero = RewardTermCfg(
@@ -173,7 +173,7 @@ class RewardsCfg:
                         "left_wrist_roll_joint",   "right_wrist_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     rew_mean_wristp_zero = RewardTermCfg(
@@ -184,7 +184,7 @@ class RewardsCfg:
                         "left_wrist_pitch_joint",   "right_wrist_pitch_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     rew_mean_wristy_zero = RewardTermCfg(
@@ -195,7 +195,7 @@ class RewardsCfg:
                         "left_wrist_yaw_joint",   "right_wrist_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.03
                 }
     )
     # shoulder
@@ -208,13 +208,13 @@ class RewardsCfg:
                         "right_shoulder_pitch_joint",
                         ]),
                 "pos_statistics_name": "pos",
-                "std": 0.09
+                "std": 0.01
                 }
     )
 
     rew_hipp_self = RewardTermCfg(
         func=reward_collect.rew_variance_self,
-        weight=0.25,
+        weight=0.3,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_pitch_joint",
@@ -227,7 +227,7 @@ class RewardsCfg:
 
     rew_knee_self = RewardTermCfg(
         func=reward_collect.rew_variance_self,
-        weight=0.25,
+        weight=0.3,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_knee_joint",
@@ -246,7 +246,7 @@ class RewardsCfg:
                         "left_ankle_roll_joint","right_ankle_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.01
                 },
     )
 
@@ -258,7 +258,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.001
                 },
     )
 
@@ -270,7 +270,7 @@ class RewardsCfg:
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.001
                 },
     )
     #
@@ -282,7 +282,7 @@ class RewardsCfg:
                         "waist_roll_joint", "waist_pitch_joint", "waist_yaw_joint"
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.001
                 },
     )
     rew_shoulderr_zero = RewardTermCfg(
@@ -293,7 +293,7 @@ class RewardsCfg:
                         "left_shoulder_roll_joint",   "right_shoulder_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.004
                 },
     )
     rew_shouldery_zero = RewardTermCfg(
@@ -304,7 +304,7 @@ class RewardsCfg:
                         "left_shoulder_yaw_joint",   "right_shoulder_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.004
                 },
     )
     rew_elbow_zero = RewardTermCfg(
@@ -315,7 +315,7 @@ class RewardsCfg:
                         "left_elbow_joint",   "right_elbow_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.002
                 },
     )
     rew_wristr_zero = RewardTermCfg(
@@ -326,7 +326,7 @@ class RewardsCfg:
                         "left_wrist_roll_joint",   "right_wrist_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.002
                 },
     )
     rew_wristp_zero = RewardTermCfg(
@@ -337,7 +337,7 @@ class RewardsCfg:
                         "left_wrist_pitch_joint",   "right_wrist_pitch_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.002
                 },
     )
     rew_wristy_zero = RewardTermCfg(
@@ -348,7 +348,7 @@ class RewardsCfg:
                         "left_wrist_yaw_joint",   "right_wrist_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.2
+                "std": 0.002
                 },
     )
 

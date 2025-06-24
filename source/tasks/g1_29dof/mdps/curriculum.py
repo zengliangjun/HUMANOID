@@ -42,6 +42,10 @@ class CurriculumCfg:
                 'p_foot_clearance': {    # reward name
                     "start_weight": -20.0,
                     "end_weight": -80.0
+                },
+                'rew_stability': {    # reward name
+                    "start_weight": 0.5,
+                    "end_weight": 3
                 }
             }
         }
