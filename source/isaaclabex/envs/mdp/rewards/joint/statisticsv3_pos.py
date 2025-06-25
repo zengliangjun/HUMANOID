@@ -48,7 +48,8 @@ def rew_mean_self(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
     pos_statistics_name: str = "pos",
-    std: float = 0.25
+    std: float = 0.25,
+    diff_scale: float = 1,
 ) -> torch.Tensor:
 
     assert isinstance(env, ManagerBasedRLEnv)
@@ -62,7 +63,7 @@ def rew_mean_self(
 
     episode_mean0 = episode_mean[:, ::2]
     episode_mean1 = episode_mean[:, 1::2]
-    reward = _exp_decay(std, [step_mean_mean, episode_mean0, episode_mean1])
+    reward = _exp_decay(std / diff_scale, [step_mean_mean, episode_mean0, episode_mean1])
     reward = torch.mean(reward, dim=-1)
 
     flag = torch.logical_or(term.stand_flag, term.zero_flag)
@@ -144,7 +145,8 @@ def rew_variance_self(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
     pos_statistics_name: str = "pos",
-    std: float = 0.05
+    std: float = 0.05,
+    diff_scale: float = 1,
 ) -> torch.Tensor:
 
     assert isinstance(env, ManagerBasedRLEnv)
@@ -161,11 +163,11 @@ def rew_variance_self(
     episode_variance0 = episode_variance[:, ::2]
     episode_variance1 = episode_variance[:, 1::2]
 
-    reward = torch.exp(- (step_mean_variance / std)) / 4 + \
-             _exp_decay(std, [
+    reward = torch.exp(- (step_mean_variance * diff_scale / std)) / 4 + \
+             _exp_decay(std / diff_scale, [
                             step_variance_mean,
                             episode_variance0,
-                            episode_variance1])
+                            episode_variance1]) * 3 / 4
     reward = torch.mean(reward, dim=-1)
 
     ## max variance
@@ -184,7 +186,8 @@ def rew_variance_self_noencourage(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
     pos_statistics_name: str = "pos",
-    std: float = 0.05
+    std: float = 0.05,
+    diff_scale: float = 1,
 ) -> torch.Tensor:
 
     assert isinstance(env, ManagerBasedRLEnv)
@@ -201,11 +204,11 @@ def rew_variance_self_noencourage(
     episode_variance0 = episode_variance[:, ::2]
     episode_variance1 = episode_variance[:, 1::2]
 
-    reward = torch.exp(- (step_mean_variance / std)) / 4 + \
-             _exp_decay(std, [
+    reward = torch.exp(- (step_mean_variance * diff_scale / std)) / 4 + \
+             _exp_decay(std / diff_scale, [
                             step_variance_mean,
                             episode_variance0,
-                            episode_variance1])
+                            episode_variance1]) * 3 / 4
     reward = torch.mean(reward, dim=-1)
 
     flag = torch.logical_or(term.stand_flag, term.zero_flag)
