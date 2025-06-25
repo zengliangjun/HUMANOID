@@ -253,7 +253,7 @@ def rew_variance_zero_nosymmetry(
 
     episode_variance = term.episode_variance_buf[:, asset_cfg.joint_ids]
 
-    reward =torch.exp(-torch.norm(episode_variance, dim = -1)/ std)
+    reward =torch.exp(-torch.abs(episode_variance)/ std)
     reward = torch.mean(reward, dim=-1)
 
     flag = torch.logical_or(term.stand_flag, term.zero_flag)
