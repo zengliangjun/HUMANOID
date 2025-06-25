@@ -54,10 +54,25 @@ def reward_yaw_rool_joint_pos(env: ManagerBasedRLEnv,
     """
     asset: Articulation = env.scene[asset_cfg.name]
     diff_full = asset.data.joint_pos - asset.data.default_joint_pos
-    diff = diff_full[: , asset_cfg.joint_ids]
+    diff_full = diff_full[: , asset_cfg.joint_ids]
 
-    left = diff[:, ::2]
-    right = diff[:, 1::2]
+    left = diff_full[:, ::2]
+    right = diff_full[:, 1::2]
     diff = torch.norm(left, dim=1) + torch.norm(right, dim=1)
     diff = torch.clamp(diff - 0.1, 0, 50)
-    return torch.exp(-diff * 100) - 0.01 * torch.norm(diff_full, dim=1)
+    return torch.exp(-diff * 20) - 0.05 * torch.norm(diff_full, dim=1)
+
+
+def reward_penalize_joint_pos(env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
+    """
+    Calculates the reward for keeping joint positions close to default positions, with a focus
+    on penalizing deviation in yaw and roll directions. Excludes yaw and roll from the main penalty.
+    """
+    asset: Articulation = env.scene[asset_cfg.name]
+    diff_full = asset.data.joint_pos - asset.data.default_joint_pos
+    diff_full = diff_full[: , asset_cfg.joint_ids]
+
+    diff = torch.norm(diff_full, dim=1)
+    diff = torch.clamp(diff, 0, 50)
+    return torch.exp(-diff * 10) - 0.1 * torch.norm(diff_full, dim=1)

@@ -6,7 +6,7 @@ from rsl_rlex.multiinput.modules import mi_modules_cfg
 class G129dofObsStatisticCfgV0(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
     max_iterations = 100000
-    save_interval = 2000
+    save_interval = 500
     experiment_name = "g129dofobsStatisticv0" # "g1pbrsflat_noroll"  #
     empirical_normalization = False
 
