@@ -107,7 +107,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.03
+                "std": 0.08
                 }
     )
     rew_mean_hipy_zero = RewardTermCfg(
@@ -140,7 +140,7 @@ class RewardsCfg:
                         "left_shoulder_roll_joint",   "right_shoulder_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.03
+                "std": 0.05
                 }
     )
     rew_mean_shouldery_zero = RewardTermCfg(
@@ -151,7 +151,7 @@ class RewardsCfg:
                         "left_shoulder_yaw_joint",   "right_shoulder_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.03
+                "std": 0.05
                 }
     )
     rew_mean_elbow_zero = RewardTermCfg(
@@ -195,7 +195,7 @@ class RewardsCfg:
                         "left_wrist_yaw_joint",   "right_wrist_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.03
+                "std": 0.05
                 }
     )
     # shoulder
@@ -258,7 +258,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.001
+                "std": 0.006
                 },
     )
 
@@ -270,7 +270,7 @@ class RewardsCfg:
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.001
+                "std": 0.008
                 },
     )
     #
@@ -282,7 +282,7 @@ class RewardsCfg:
                         "waist_roll_joint", "waist_pitch_joint", "waist_yaw_joint"
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.001
+                "std": 0.003
                 },
     )
     rew_shoulderr_zero = RewardTermCfg(
@@ -293,7 +293,7 @@ class RewardsCfg:
                         "left_shoulder_roll_joint",   "right_shoulder_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.004
+                "std": 0.006
                 },
     )
     rew_shouldery_zero = RewardTermCfg(
@@ -304,7 +304,7 @@ class RewardsCfg:
                         "left_shoulder_yaw_joint",   "right_shoulder_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.004
+                "std": 0.006
                 },
     )
     rew_elbow_zero = RewardTermCfg(
@@ -315,7 +315,7 @@ class RewardsCfg:
                         "left_elbow_joint",   "right_elbow_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.002
+                "std": 0.006
                 },
     )
     rew_wristr_zero = RewardTermCfg(
@@ -326,7 +326,7 @@ class RewardsCfg:
                         "left_wrist_roll_joint",   "right_wrist_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.002
+                "std": 0.004
                 },
     )
     rew_wristp_zero = RewardTermCfg(
@@ -337,7 +337,7 @@ class RewardsCfg:
                         "left_wrist_pitch_joint",   "right_wrist_pitch_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.002
+                "std": 0.004
                 },
     )
     rew_wristy_zero = RewardTermCfg(
@@ -348,7 +348,7 @@ class RewardsCfg:
                         "left_wrist_yaw_joint",   "right_wrist_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.002
+                "std": 0.004
                 },
     )
 
