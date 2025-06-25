@@ -124,8 +124,11 @@ rew_episode_variance_symmetry = statisticsv2_pos.rew_episode_variance_symmetry  
 rew_mean_self = statisticsv3_pos.rew_mean_self
 rew_mean_zero = statisticsv3_pos.rew_mean_zero
 rew_mean_zero_nostep = statisticsv3_pos.rew_mean_zero_nostep
+rew_mean_zero_nosymmetry = statisticsv3_pos.rew_mean_zero_nosymmetry
 rew_variance_self = statisticsv3_pos.rew_variance_self
+rew_variance_self_noencourage = statisticsv3_pos.rew_variance_self_noencourage
 rew_variance_zero = statisticsv3_pos.rew_variance_zero
+rew_variance_zero_nosymmetry = statisticsv3_pos.rew_variance_zero_nosymmetry
 
 
 """

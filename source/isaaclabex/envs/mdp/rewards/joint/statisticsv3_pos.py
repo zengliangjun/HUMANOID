@@ -119,6 +119,26 @@ def rew_mean_zero_nostep(
     reward[flag] = diff_reward[flag]
     return reward
 
+def rew_mean_zero_nosymmetry(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+    pos_statistics_name: str = "pos",
+    std: float = 0.25
+) -> torch.Tensor:
+
+    assert isinstance(env, ManagerBasedRLEnv)
+    manager: StatisticsManager = env.statistics_manager
+    term: joints.StatusJPos = manager.get_term(pos_statistics_name)
+
+    episode_mean = term.episode_mean_buf[:, asset_cfg.joint_ids]
+
+    reward = torch.exp(-torch.abs(episode_mean) / std)
+    reward = torch.mean(reward, dim=-1)
+
+    flag = torch.logical_or(term.stand_flag, term.zero_flag)
+    diff_reward = torch.exp(-torch.norm(term.diff, dim = -1))
+    reward[flag] = diff_reward[flag]
+    return reward
 
 def rew_variance_self(
     env: ManagerBasedRLEnv,
@@ -159,6 +179,41 @@ def rew_variance_self(
     reward[flag] = diff_reward[flag]
     return reward
 
+
+def rew_variance_self_noencourage(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+    pos_statistics_name: str = "pos",
+    std: float = 0.05
+) -> torch.Tensor:
+
+    assert isinstance(env, ManagerBasedRLEnv)
+    manager: StatisticsManager = env.statistics_manager
+    term: joints.StatusJPos = manager.get_term(pos_statistics_name)
+
+    episode_variance = term.episode_variance_buf[:, asset_cfg.joint_ids]
+
+    step_ids = term.step_ids(asset_cfg)
+
+    step_mean_variance = term.step_mean_variance_buf[:, step_ids]
+    step_variance_mean = term.step_variance_mean_buf[:, step_ids]
+
+    episode_variance0 = episode_variance[:, ::2]
+    episode_variance1 = episode_variance[:, 1::2]
+
+    reward = torch.exp(- (step_mean_variance / std)) / 4 + \
+             _exp_decay(std, [
+                            step_variance_mean,
+                            episode_variance0,
+                            episode_variance1])
+    reward = torch.mean(reward, dim=-1)
+
+    flag = torch.logical_or(term.stand_flag, term.zero_flag)
+    diff_reward = torch.exp(-torch.norm(term.diff, dim = -1))
+    reward[flag] = diff_reward[flag]
+    return reward
+
+
 def rew_variance_zero(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
@@ -182,3 +237,23 @@ def rew_variance_zero(
     reward[flag] = diff_reward[flag]
     return reward
 
+def rew_variance_zero_nosymmetry(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+    pos_statistics_name: str = "pos",
+    std: float = 0.05
+) -> torch.Tensor:
+
+    assert isinstance(env, ManagerBasedRLEnv)
+    manager: StatisticsManager = env.statistics_manager
+    term: joints.StatusJPos = manager.get_term(pos_statistics_name)
+
+    episode_variance = term.episode_variance_buf[:, asset_cfg.joint_ids]
+
+    reward =torch.exp(-torch.norm(episode_variance, dim = -1)/ std)
+    reward = torch.mean(reward, dim=-1)
+
+    flag = torch.logical_or(term.stand_flag, term.zero_flag)
+    diff_reward = torch.exp(-torch.norm(term.diff, dim = -1))
+    reward[flag] = diff_reward[flag]
+    return reward
