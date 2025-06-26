@@ -43,14 +43,14 @@ UNITREE_GO129_CFG = ArticulationCfg(
             "waist_roll_joint": 0.0,
             "waist_pitch_joint": 0.0,  # -90 degrees
             # upper body (14dof = 8 dof + 6 dof wrist)
-            "left_shoulder_pitch_joint": 0.3, # 0.0,
+            "left_shoulder_pitch_joint": 0.5, # 0.0,
             "left_shoulder_roll_joint": 0.0,
             "left_shoulder_yaw_joint": 0.0,
             "left_elbow_joint":  0.3, #1, #0.87,
             "left_wrist_roll_joint":  0.0,
             "left_wrist_pitch_joint":  0.0,
             "left_wrist_yaw_joint":  0.0,
-            "right_shoulder_pitch_joint": 0.3, # 0.0,
+            "right_shoulder_pitch_joint": 0.5, # 0.0,
             "right_shoulder_roll_joint": 0.0,
             "right_shoulder_yaw_joint": 0.0,
             "right_elbow_joint":  0.3, #1, #0.87,

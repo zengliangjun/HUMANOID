@@ -84,9 +84,8 @@ except:
     penalize_jpos_limits_ratio = humanoid_rewards.joint_limits_penalty_ratio        # Fallback joint limits penalty ratio.
 # Joint position regularization.
 penalize_jpos_deviation_l1 = isaaclab_rewards.joint_deviation_l1           # L1 penalty for deviation from desired joint positions.
-penalize_jacc_norm_stand_check = spot_rewards.joint_position_penalty        # Norm penalty for joint positions.
-reward_jpos_yaw_rool = joint.reward_yaw_rool_joint_pos                     # Reward for correct yaw/roll in joint positions.
-reward_penalize_joint = joint.reward_penalize_joint_pos 
+penalize_jpos_norm_stand_check = spot_rewards.joint_position_penalty        # Norm penalty for joint positions.
+reward_penalize_joint = joint.reward_penalize_joint            # Reward for correct yaw/roll in joint positions.
 reward_jpos_withrefpose = phase.rew_joint_pos_withrefpose                  # Reward for matching a reference pose.
 
 # Target joint positions.

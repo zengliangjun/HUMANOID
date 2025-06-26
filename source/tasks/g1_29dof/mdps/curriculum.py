@@ -24,7 +24,7 @@ class CurriculumCfg:
                     "end_weight": -0.01
                 },
                 'p_torques': {    # reward name
-                    "start_weight": -1e-5,
+                    "start_weight": -1e-6,
                     "end_weight": -4e-3
                 },
                 'p_width': {    # reward name
@@ -32,16 +32,16 @@ class CurriculumCfg:
                     "end_weight": -10
                 },
                 'p_orientation': {    # reward name
-                    "start_weight": -1.0,
-                    "end_weight": -10
+                    "start_weight": -20,
+                    "end_weight": -20
                 },
                 'p_height': {    # reward name
-                    "start_weight": -10.0,
+                    "start_weight": -3.0,
                     "end_weight": -40.0
                 },
                 'p_foot_clearance': {    # reward name
-                    "start_weight": -20.0,
-                    "end_weight": -80.0
+                    "start_weight": -4.0,
+                    "end_weight": -5.0
                 },
                 'rew_stability': {    # reward name
                     "start_weight": 0.5,

@@ -374,19 +374,25 @@ class RewardsCfg:
                                      ".*right_ankle_roll_link"])},
     )
     p_hipry = RewardTermCfg(
-        func=reward_collect.reward_jpos_yaw_rool,
-        weight=0.1,
+        func=reward_collect.reward_penalize_joint,
+        weight=0.2,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
-                joint_names=[ ".*_hip_roll_joint", ".*_hip_yaw_joint"])
+                joint_names=[ ".*_hip_roll_joint", ".*_hip_yaw_joint"]),
+                "diff_range": 0.05,
+                "diff_std": 0.1,
+                "penalize_weight": - 2
                 },
     )
     p_shoulderp = RewardTermCfg(
-        func=reward_collect.reward_jpos_yaw_rool,
-        weight=0.08,
+        func=reward_collect.reward_penalize_joint,
+        weight=0.15,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
-                joint_names=[ ".*_shoulder_pitch_joint"])
+                joint_names=[ ".*_shoulder_pitch_joint"]),
+                "diff_range": 0.03,
+                "diff_std": 0.1,
+                "penalize_weight": - 2
                 },
     )
     p_waistrpy = RewardTermCfg(
@@ -394,31 +400,43 @@ class RewardsCfg:
         weight=0.25,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
-                joint_names=[ "waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"])
+                joint_names=[ "waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"]),
+                "diff_range": 0,
+                "diff_std": 0.03,
+                "penalize_weight": -8
                 },
     )
     p_shoulderry = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.15,
+        weight=0.2,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
-                joint_names=[ ".*_shoulder_roll_joint", ".*_shoulder_yaw_joint"])
+                joint_names=[ ".*_shoulder_roll_joint", ".*_shoulder_yaw_joint"]),
+                "diff_range": 0,
+                "diff_std": 0.03,
+                "penalize_weight": -4
                 },
     )
     p_elbow = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.15,
+        weight=0.25,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
-                joint_names=[ ".*_elbow_joint"])
+                joint_names=[ ".*_elbow_joint"]),
+                "diff_range": 0.03,
+                "diff_std": 0.05,
+                "penalize_weight": -6
                 },
     )
     p_wristrpy = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.18,
+        weight=0.3,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
-                joint_names=[ ".*_wrist_roll_joint", ".*_wrist_pitch_joint", ".*_wrist_yaw_joint"])
+                joint_names=[ ".*_wrist_roll_joint", ".*_wrist_pitch_joint", ".*_wrist_yaw_joint"]),
+                "diff_range": 0.03,
+                "diff_std": 0.05,
+                "penalize_weight": -5
                 },
     )
 
@@ -437,7 +455,30 @@ class RewardsCfg:
     )
     p_torques = RewardTermCfg(
         func=reward_collect.penalize_torques_l2,
-        weight=-0.001, params={"asset_cfg": SceneEntityCfg("robot")}
+        weight=-0.001, params={"asset_cfg":
+                               SceneEntityCfg("robot",
+                               joint_names=[ ".*_hip_pitch_joint",
+                                             ".*_hip_roll_joint",
+                                             ".*_hip_yaw_joint",
+                                             ".*_knee_joint",
+                                             ".*_ankle_pitch_joint",
+                                             ".*_ankle_roll_joint",
+                                             ".*_shoulder_pitch_joint"]
+                                              )}
+    )
+    p_torques_upper = RewardTermCfg(
+        func=reward_collect.penalize_torques_l2,
+        weight=-0.5, params={"asset_cfg": SceneEntityCfg("robot",
+                               joint_names=[ "waist_yaw_joint",
+                                             "waist_roll_joint",
+                                             "waist_pitch_joint",
+                                             ".*_shoulder_roll_joint",
+                                             ".*_shoulder_yaw_joint",
+                                             ".*_elbow_joint",
+                                             ".*_wrist_roll_joint",
+                                             ".*_wrist_pitch_joint",
+                                             ".*_wrist_yaw_joint"]
+                                             )}
     )
     p_torque_limits = RewardTermCfg(
         func=reward_collect.penalize_torque_limits,

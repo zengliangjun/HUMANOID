@@ -12,7 +12,7 @@ class RewardsCfg:
                 "phase_name": "phase_command"}
     )
     reward_jpos_yaw_rool = RewardTermCfg(
-        func=reward_collect.reward_jpos_yaw_rool,
+        func=reward_collect.reward_penalize_joint,
         weight=0.5,
         params={"asset_cfg": SceneEntityCfg("robot",
                 joint_names=[".*left_leg_roll_joint",
