@@ -30,6 +30,7 @@ reward_ori_gravity = humanoid_rewards.upright_posture_bonus            # Bonus f
 # Height-based rewards/penalties.
 penalize_height_flat_or_rayl2 = isaaclab_rewards.base_height_l2         # L2 penalty on base height error (flat/ray).
 penalize_height_base2feet = base.penalize_base_height                   # Penalty for mismatch in base-to-feet height.
+rp_height_upper = base.reward_penalize_height_upper
 reward_height_base2feet_phase = base_phase.reward_base_height           # Reward based on phase consistency between base and feet height.
 
 # Velocity tracking rewards/penalties.

@@ -10,14 +10,14 @@ class RewardsCfg:
     rew_lin_xy_exp = RewardTermCfg(
         func=reward_collect.reward_lin_xy_exp,
         weight=5,
-        params={"std": 0.5,
+        params={"std": 0.35,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
     rew_ang_z_exp = RewardTermCfg(
         func=reward_collect.reward_ang_z_exp,
         weight=3,
-        params={"std": 0.3,
+        params={"std": 0.25,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
@@ -30,7 +30,8 @@ class RewardsCfg:
     rew_motion_hard = RewardTermCfg(
         func=reward_collect.reward_motion_hard,
         weight=3,
-        params={"command_name": "base_velocity",
+        params={"std": 0.25,
+                "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
 
@@ -375,7 +376,7 @@ class RewardsCfg:
     )
     p_hipry = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.2,
+        weight=0.1,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[ ".*_hip_roll_joint", ".*_hip_yaw_joint"]),
@@ -386,7 +387,7 @@ class RewardsCfg:
     )
     p_shoulderp = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.15,
+        weight=0.10,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[ ".*_shoulder_pitch_joint"]),
@@ -397,46 +398,46 @@ class RewardsCfg:
     )
     p_waistrpy = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.15,
+        weight=0.2,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[ "waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"]),
                 "diff_range": 0,
                 "diff_std": 0.03,
-                "penalize_weight": -20
+                "penalize_weight": -0.5
                 },
     )
     p_shoulderry = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.1,
+        weight=0.15,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[ ".*_shoulder_roll_joint", ".*_shoulder_yaw_joint"]),
                 "diff_range": 0,
                 "diff_std": 0.03,
-                "penalize_weight": -10
+                "penalize_weight": -0.5
                 },
     )
     p_elbow = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.15,
+        weight=0.1,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[ ".*_elbow_joint"]),
                 "diff_range": 0.03,
                 "diff_std": 0.05,
-                "penalize_weight": -10
+                "penalize_weight": -2
                 },
     )
     p_wristrpy = RewardTermCfg(
         func=reward_collect.reward_penalize_joint,
-        weight=0.15,
+        weight=0.2,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                 joint_names=[ ".*_wrist_roll_joint", ".*_wrist_pitch_joint", ".*_wrist_yaw_joint"]),
-                "diff_range": 0.03,
-                "diff_std": 0.05,
-                "penalize_weight": -8
+                "diff_range": 0,
+                "diff_std": 0.03,
+                "penalize_weight": -0.5
                 },
     )
 
@@ -536,5 +537,5 @@ class RewardsCfg:
     # -------------------- Episode Penalty --------------------
     p_termination = RewardTermCfg(
         func=reward_collect.penalize_eps_terminated,
-        weight=-500,
+        weight=-300,
     )

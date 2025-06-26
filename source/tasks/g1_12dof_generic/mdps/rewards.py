@@ -94,7 +94,7 @@ class RewardsCfg:
     )
     base_orientation_penalty = RewardTermCfg(
         func=reward_collect.reward_ori_euler_gravity_b,
-        weight=-5.0, #-2.0,
+        weight=1.0,
         params={"asset_cfg": SceneEntityCfg("robot")}
     )
 

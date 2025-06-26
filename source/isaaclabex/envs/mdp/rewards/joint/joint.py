@@ -26,7 +26,7 @@ def reward_penalize_joint(env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     diff_range = 0.1,
     diff_std = 0.2,
-    penalize_weight = 0.5
+    penalize_weight = - 0.5
     ):
     """
     Calculates the reward for keeping joint positions close to default positions, with a focus
@@ -38,5 +38,5 @@ def reward_penalize_joint(env: ManagerBasedRLEnv,
 
     diff_full = torch.norm(diff_full, dim=1) / math.sqrt(len(asset_cfg.joint_ids))
     diff = torch.clamp(diff_full - diff_range, 0, 50)
-    return torch.exp(- diff / diff_std) - penalize_weight * diff_full
+    return torch.exp(- diff / diff_std) + penalize_weight * diff_full / diff_std
 

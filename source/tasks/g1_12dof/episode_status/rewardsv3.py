@@ -244,7 +244,8 @@ class RewardsCfg:
         func=reward_collect.penalize_height_base2feet,
         weight=-40.0, params={
             "target_height": 0.78,  # Adjusting for the foot clearance
-            "asset_cfg": SceneEntityCfg("robot")}
+            "asset_cfg": SceneEntityCfg("robot",
+                         body_names=".*_ankle_roll_link")}
     )
     # feet
     p_foot_slide = RewardTermCfg(
