@@ -12,16 +12,14 @@ class G129dofObsStatisticCfgV0(RslRlOnPolicyRunnerCfg):
 
     policy = mi_modules_cfg.MIEncodeActorCriticCfg(
         class_name = "MIERecurrentActorCritic",
-        init_noise_std=0.8,
-        actor_hidden_dims=[256, 256],
-        critic_hidden_dims=[256, 256],
+        init_noise_std=1,
+        actor_hidden_dims=[512, 256, 128],
+        critic_hidden_dims=[512, 256, 128],
         activation="elu",
-        policy_groups= ["policy", "action_statistics"],
-        critic_groups= ["action_statistics",
-                        "critic", "pos_statistics"],
+        policy_groups= ["policy", "action_statistics", "pos_statistics"],
+        critic_groups= ["policy", "action_statistics", "pos_statistics"],
         encode_groups= [
-            "policy", "action_statistics",
-            "critic", "pos_statistics"
+            "policy", "action_statistics", "pos_statistics"
         ],
     )
 
@@ -42,17 +40,15 @@ class G129dofObsStatisticCfgV0(RslRlOnPolicyRunnerCfg):
     )
 
     def __post_init__(self):
-        self.policy.encode_policy_hidden_dims = [96]
-        self.policy.encode_action_statistics_hidden_dims = [96]
-
-        self.policy.encode_critic_hidden_dims = [96]
-        self.policy.encode_pos_statistics_hidden_dims = [96]
+        self.policy.encode_policy_hidden_dims = [192]
+        self.policy.encode_action_statistics_hidden_dims = [64]
+        self.policy.encode_pos_statistics_hidden_dims = [64]
 
         self.policy.rnn_type='lstm'
-        self.policy.rnn_hidden_size=256
+        self.policy.rnn_hidden_size=448
         self.policy.rnn_num_layers=1
 
         self.algorithm.class_name = "MIPPO"
-        self.algorithm.entropy_ranges = (1.5, 10)  # 目标熵值范围(最小,最大)
+        self.algorithm.entropy_ranges = (3, 36)  # 目标熵值范围(最小,最大)
         self.algorithm.entropy_coef_factor = 1.05  # 熵系数调整幅度
         self.algorithm.entropy_coef_scale = 10  # 熵系数缩放因子

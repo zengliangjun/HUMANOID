@@ -15,10 +15,6 @@ class CurriculumCfg:
             'start_steps': 0,
             'end_steps': 1500000,
             "curriculums": {
-                'p_action_rate': {    # reward name
-                    "start_weight": -0.004,
-                    "end_weight": -0.1
-                },
                 'p_action_smoothness': {    # reward name
                     "start_weight": -0.0004,
                     "end_weight": -0.01
@@ -31,12 +27,20 @@ class CurriculumCfg:
                     "start_weight": -5e-5,
                     "end_weight": -1e-3
                 },
+                'p_torque_limits': {    # reward name
+                    "start_weight": -1e-3,
+                    "end_weight": -1e-1
+                },
+                'p_pos_limits': {    # reward name
+                    "start_weight": -1e-2,
+                    "end_weight": -20.0
+                },
                 'p_width': {    # reward name
                     "start_weight": -3.0,
                     "end_weight": -10
                 },
                 'p_orientation': {    # reward name
-                    "start_weight": -6,
+                    "start_weight": -3,
                     "end_weight": -20
                 },
                 'p_height': {    # reward name

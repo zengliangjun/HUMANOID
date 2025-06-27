@@ -9,14 +9,14 @@ class RewardsCfg:
     # -- task
     rew_lin_xy_exp = RewardTermCfg(
         func=reward_collect.reward_lin_xy_exp,
-        weight=5,
+        weight=5 * 1.5,
         params={"std": 0.35,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
     rew_ang_z_exp = RewardTermCfg(
         func=reward_collect.reward_ang_z_exp,
-        weight=3,
+        weight=3 * 1.2,
         params={"std": 0.25,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
@@ -38,7 +38,7 @@ class RewardsCfg:
     #
     rew_pitch_total2zero = RewardTermCfg(
         func=reward_collect.rew_pitch_total2zero,
-        weight=0.4,
+        weight=0.4 * 1.2,
         params={"asset_cfg":
                 SceneEntityCfg("robot",
                     joint_names=[
@@ -54,7 +54,7 @@ class RewardsCfg:
 
     rew_mean_hipp = RewardTermCfg(
         func=reward_collect.rew_mean_self,
-        weight=0.3,
+        weight=0.3 * 3,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_pitch_joint",
@@ -67,7 +67,7 @@ class RewardsCfg:
 
     rew_mean_knee = RewardTermCfg(
         func=reward_collect.rew_mean_self,
-        weight=0.3,
+        weight=0.3 * 3,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_knee_joint",
@@ -81,7 +81,7 @@ class RewardsCfg:
     # shoulder
     rew_mean_shoulderp_zero = RewardTermCfg(
         func=reward_collect.rew_mean_zero,
-        weight=0.1,
+        weight=0.1 * 2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_shoulder_pitch_joint",
@@ -92,7 +92,7 @@ class RewardsCfg:
     )
     rew_mean_ankler_zero = RewardTermCfg(
         func=reward_collect.rew_mean_zero_nostep,
-        weight=0.08,
+        weight=0.08 * 1.2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_ankle_roll_joint","right_ankle_roll_joint",
@@ -103,7 +103,7 @@ class RewardsCfg:
     )
     rew_mean_hipr_zero = RewardTermCfg(
         func=reward_collect.rew_mean_zero_nostep,
-        weight=0.08,
+        weight=0.08 * 2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_roll_joint",  "right_hip_roll_joint",
@@ -114,7 +114,7 @@ class RewardsCfg:
     )
     rew_mean_hipy_zero = RewardTermCfg(
         func=reward_collect.rew_mean_zero_nostep,
-        weight=0.08,
+        weight=0.08 * 2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
@@ -123,7 +123,7 @@ class RewardsCfg:
                 "std": 0.03
                 }
     )
-    """
+
     rew_mean_waistrpy_zero = RewardTermCfg(
         func=reward_collect.rew_mean_zero_nosymmetry,
         weight=0.24,
@@ -201,11 +201,11 @@ class RewardsCfg:
                 "std": 0.02
                 }
     )
-    """
+
     # shoulder
     rew_shoulderp_self = RewardTermCfg(
         func=reward_collect.rew_variance_self_noencourage,
-        weight=0.15,
+        weight=0.15 * 1.2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_shoulder_pitch_joint",
@@ -219,7 +219,7 @@ class RewardsCfg:
 
     rew_hipp_self = RewardTermCfg(
         func=reward_collect.rew_variance_self,
-        weight=0.3,
+        weight=0.3 * 2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_pitch_joint",
@@ -233,7 +233,7 @@ class RewardsCfg:
 
     rew_knee_self = RewardTermCfg(
         func=reward_collect.rew_variance_self,
-        weight=0.3,
+        weight=0.3 * 2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_knee_joint",
@@ -246,7 +246,7 @@ class RewardsCfg:
     )
     rew_ankler_zero = RewardTermCfg(
         func=reward_collect.rew_variance_zero,
-        weight=0.08,
+        weight=0.08 * 1.2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_ankle_roll_joint","right_ankle_roll_joint",
@@ -258,7 +258,7 @@ class RewardsCfg:
 
     rew_hipr_zero = RewardTermCfg(
         func=reward_collect.rew_variance_zero,
-        weight=0.08,
+        weight=0.08 * 2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_roll_joint",  "right_hip_roll_joint",
@@ -270,7 +270,7 @@ class RewardsCfg:
 
     rew_hipy_zero = RewardTermCfg(
         func=reward_collect.rew_variance_zero,
-        weight=0.08,
+        weight=0.08 * 2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
@@ -280,7 +280,7 @@ class RewardsCfg:
                 },
     )
     #
-    """
+
     rew_waistrpy_zero = RewardTermCfg(
         func=reward_collect.rew_variance_zero_nosymmetry,
         weight=0.24,
@@ -305,7 +305,7 @@ class RewardsCfg:
     )
     rew_shouldery_zero = RewardTermCfg(
         func=reward_collect.rew_variance_zero,
-        weight=0.08,
+        weight=0.2,
         params={"asset_cfg": SceneEntityCfg("robot",
                     joint_names=[
                         "left_shoulder_yaw_joint",   "right_shoulder_yaw_joint",
@@ -358,7 +358,7 @@ class RewardsCfg:
                 "std": 0.001
                 },
     )
-    """
+
     rew_step_vv_mv = RewardTermCfg(
         func=reward_collect.rew_step_vv_mv,
         weight=0.1,
@@ -504,7 +504,10 @@ class RewardsCfg:
                                      ".*right_knee_link"])
             },
     )
-
+    reward_orientation = RewardTermCfg(
+        func=reward_collect.reward_ori_euler_gravity_b,
+        weight=1, params={"asset_cfg": SceneEntityCfg("robot")}
+    )
     p_orientation = RewardTermCfg(
         func=reward_collect.penalize_ori_l2,
         weight=-10, params={"asset_cfg": SceneEntityCfg("robot")}
@@ -513,7 +516,17 @@ class RewardsCfg:
         func=reward_collect.penalize_height_base2feet,
         weight=-40.0, params={
             "target_height": 0.78,  # Adjusting for the foot clearance
-            "asset_cfg": SceneEntityCfg("robot")}
+            "asset_cfg": SceneEntityCfg("robot",
+                         body_names=".*_ankle_roll_link")}
+    )
+    rp_height_upper = RewardTermCfg(
+        func=reward_collect.rp_height_upper,
+        weight=0.25, params={
+            "target_height": 0.46018,  # Adjusting for the foot clearance
+            "error_std": 0.025,
+            "penalize_weight": -1.5,
+            "asset_cfg": SceneEntityCfg("robot",
+                         body_names="mid360_link")}
     )
     # feet
     p_foot_slide = RewardTermCfg(
@@ -538,4 +551,49 @@ class RewardsCfg:
     p_termination = RewardTermCfg(
         func=reward_collect.penalize_eps_terminated,
         weight=-300,
+    )
+    p_uncontacts = RewardTermCfg(
+        func=reward_collect.penalize_undesired_contacts,
+        weight=-1,
+        params={
+            'threshold': 5,
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=[
+                                'pelvis',
+                                'imu_in_pelvis',
+                                'left_hip_pitch_link',
+                                'left_hip_roll_link',
+                                'left_hip_yaw_link',
+                                'left_knee_link',
+                                'pelvis_contour_link',
+                                'right_hip_pitch_link',
+                                'right_hip_roll_link',
+                                'right_hip_yaw_link',
+                                'right_knee_link',
+                                'waist_yaw_link',
+                                'waist_roll_link',
+                                'torso_link',
+                                'd435_link',
+                                'head_link',
+                                'imu_in_torso',
+                                'left_shoulder_pitch_link',
+                                'left_shoulder_roll_link',
+                                'left_shoulder_yaw_link',
+                                'left_elbow_link',
+                                'left_wrist_roll_link',
+                                'left_wrist_pitch_link',
+                                'left_wrist_yaw_link',
+                                'left_rubber_hand',
+                                'logo_link',
+                                'mid360_link',
+                                'right_shoulder_pitch_link',
+                                'right_shoulder_roll_link',
+                                'right_shoulder_yaw_link',
+                                'right_elbow_link',
+                                'right_wrist_roll_link',
+                                'right_wrist_pitch_link',
+                                'right_wrist_yaw_link',
+                                'right_rubber_hand'
+            ])
+
+        }
     )
