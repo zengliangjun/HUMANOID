@@ -12,7 +12,7 @@ class CurriculumCfg:
         func=events.range_with_degree,
         params={
             "degree": 0.000015,
-            "down_up_lengths":[400, 750],
+            "down_up_lengths":[300, 450],
             "scale_range": [0, 1],
             "manager_name": "event",
             "curriculums": {
@@ -98,7 +98,7 @@ class CurriculumCfg:
         func=adaptive.scale_with_degree,
         params={
             "degree": 0.000015,
-            "down_up_lengths":[400, 750],
+            "down_up_lengths":[750, 840],
             "scale_range": [0, 1],
             "manager_name": "reward",
             "curriculums": {
@@ -155,7 +155,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.08, 0.10 * 1.6],
             "manager_name": "reward",
             "term_name": "rew_mean_ankler_zero",
@@ -166,7 +166,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.06, 0.06 * 2],
             "manager_name": "reward",
             "term_name": "rew_mean_hipr_zero",
@@ -177,7 +177,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.03, 0.06 * 2],
             "manager_name": "reward",
             "term_name": "rew_mean_hipy_zero",
@@ -188,7 +188,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.03, 0.06 * 2],
             "manager_name": "reward",
             "term_name": "rew_mean_waistrpy_zero",
@@ -223,7 +223,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.006, 0.01 * 2.5],
             "manager_name": "reward",
             "term_name": "rew_ankler_zero",
@@ -234,7 +234,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.003, 0.008 * 2.5],
             "manager_name": "reward",
             "term_name": "rew_hipr_zero",
@@ -245,7 +245,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.003, 0.008 * 3],
             "manager_name": "reward",
             "term_name": "rew_hipy_zero",
@@ -256,7 +256,7 @@ class CurriculumCfg:
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
-            "down_up_lengths": [260, 850],
+            "down_up_lengths": [300, 600],
             "value_range": [0.003, 0.008 * 3],
             "manager_name": "reward",
             "term_name": "rew_waistrpy_zero",
