@@ -190,6 +190,8 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         # called super
 
         super()._reset_idx(env_ids)
+        info = {"Train/average_episode_length": self.average_episode_length}
+        self.extras["log"].update(info)
 
         # -- statistics manager
         info = self.statistics_manager.reset(env_ids)
