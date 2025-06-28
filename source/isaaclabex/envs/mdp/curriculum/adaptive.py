@@ -100,6 +100,7 @@ class curriculum_with_degree(ManagerTermBase):
         if update:
             # 限制值在有效范围内
             value = np.clip(value, self.value_range[0], self.value_range[1])
+            value = float(value)
 
             # 如果值有变化，更新配置
             if value != self.cur_value:
@@ -157,6 +158,8 @@ class scale_with_degree(ManagerTermBase):
             param_name = dicts["param_name"]
             value = dicts[f"start_{param_name}"] + \
                         (dicts[f"end_{param_name}"] - dicts[f"start_{param_name}"]) * scale
+
+            value = float(value)
 
             if hasattr(term_cfg, param_name):
                 setattr(term_cfg, param_name, value)

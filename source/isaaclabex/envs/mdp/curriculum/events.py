@@ -33,14 +33,14 @@ def _calcute_curriculum_step(_scale, cfg: EventTermCfg, curriculum_dicts: dict):
                 for key, start_range, in subitem.start_range.items():
                     end_range = subitem.end_range[key]
                     cfg.params[curriculum_name][key] = (
-                    (end_range[0] - start_range[0]) * _scale + start_range[0],
-                    (end_range[1] - start_range[1]) * _scale + start_range[1],
+                    float((end_range[0] - start_range[0]) * _scale + start_range[0]),
+                    float((end_range[1] - start_range[1]) * _scale + start_range[1]),
                 )
 
             else:
                 cfg.params[curriculum_name] = (
-                    (subitem.end_range[0] - subitem.start_range[0]) * _scale + subitem.start_range[0],
-                    (subitem.end_range[1] - subitem.start_range[1]) * _scale + subitem.start_range[1],
+                    float((subitem.end_range[0] - subitem.start_range[0]) * _scale + subitem.start_range[0]),
+                    float((subitem.end_range[1] - subitem.start_range[1]) * _scale + subitem.start_range[1]),
                 )
 
 
