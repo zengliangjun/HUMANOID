@@ -12,7 +12,7 @@ class CurriculumCfg:
         func=events.range_with_degree,
         params={
             "degree": 0.000015,
-            "down_up_lengths":[400, 750],
+            "down_up_lengths":[350, 450],
             "scale_range": [0, 1],
             "manager_name": "event",
             "curriculums": {
@@ -97,22 +97,22 @@ class CurriculumCfg:
     p_reward_steps = CurriculumTermCfg(
         func=adaptive.scale_with_degree,
         params={
-            "degree": 0.000015,
-            "down_up_lengths":[400, 750],
+            "degree": 0.0000015,
+            "down_up_lengths":[350, 840],
             "scale_range": [0, 1],
             "manager_name": "reward",
             "curriculums": {
-                'p_action_rate': {    # reward name
+                'p_action_rate': {    # reward name  -0.01
                     "param_name": "weight",
                     "start_weight": -0.01,
                     "end_weight": -0.1
                 },
-                'p_action_smoothness': {    # reward name
+                'p_action_smoothness': {    # reward name  -0.002
                     "param_name": "weight",
                     "start_weight": -0.001,
                     "end_weight": -0.02
                 },
-                'p_torques': {    # reward name
+                'p_torques': {    # reward name   -1e-5
                     "param_name": "weight",
                     "start_weight": -0.0001,
                     "end_weight": -0.001
@@ -144,8 +144,8 @@ class CurriculumCfg:
     rewm_ankler_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
-            "degree": - 0.00003,
-            "down_up_lengths": [600, 850],
+            "degree": - 0.000003,
+            "down_up_lengths": [300, 650],
             "value_range": [0.08, 0.10 * 1.6],
             "manager_name": "reward",
             "term_name": "rew_mean_ankler_zero",
@@ -155,8 +155,8 @@ class CurriculumCfg:
     rewm_hipr_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
-            "degree": - 0.00003,
-            "down_up_lengths": [600, 850],
+            "degree": - 0.000003,
+            "down_up_lengths": [300, 650],
             "value_range": [0.06, 0.06 * 2],
             "manager_name": "reward",
             "term_name": "rew_mean_hipr_zero",
@@ -166,8 +166,8 @@ class CurriculumCfg:
     rewm_hipy_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
-            "degree": - 0.00003,
-            "down_up_lengths": [600, 850],
+            "degree": - 0.000003,
+            "down_up_lengths": [300, 650],
             "value_range": [0.03, 0.06 * 2],
             "manager_name": "reward",
             "term_name": "rew_mean_hipy_zero",
@@ -201,8 +201,8 @@ class CurriculumCfg:
     r_ankler_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
-            "degree": - 0.00003,
-            "down_up_lengths": [600, 850],
+            "degree": - 0.000003,
+            "down_up_lengths": [300, 650],
             "value_range": [0.006, 0.01 * 2.5],
             "manager_name": "reward",
             "term_name": "rew_ankler_zero",
@@ -212,8 +212,8 @@ class CurriculumCfg:
     r_hipr_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
-            "degree": - 0.00003,
-            "down_up_lengths": [600, 850],
+            "degree": - 0.000003,
+            "down_up_lengths": [300, 650],
             "value_range": [0.003, 0.008 * 2.5],
             "manager_name": "reward",
             "term_name": "rew_hipr_zero",
@@ -223,8 +223,8 @@ class CurriculumCfg:
     r_hipy_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
-            "degree": - 0.00003,
-            "down_up_lengths": [600, 850],
+            "degree": - 0.000003,
+            "down_up_lengths": [300, 650],
             "value_range": [0.003, 0.008 * 3],
             "manager_name": "reward",
             "term_name": "rew_hipy_zero",

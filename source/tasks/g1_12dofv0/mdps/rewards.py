@@ -203,10 +203,10 @@ class RewardsCfg:
                 },
     )
 
-    # action
+    # action -0.01
     p_action_rate = RewardTermCfg(
         func=reward_collect.penalize_action_rate_l2, weight=-0.1)
-    # action
+    # action -0.002
     p_action_smoothness = RewardTermCfg(
         func=reward_collect.penalize_action_smoothness,
         weight=-0.02,
