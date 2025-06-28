@@ -5,7 +5,7 @@ import isaaclab.sim as sim_utils
 from isaaclab.actuators import IdealPDActuatorCfg, ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
 
-UNITREE_GO129_CFG = ArticulationCfg(
+UNITREE_GO115_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
         usd_path=f"{_ASSETS_ROOT}/robots/usd/g115dof/g1_15dof.usd",
         activate_contact_sensors=True,
