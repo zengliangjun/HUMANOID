@@ -34,3 +34,4 @@ def curriculum_with_steps(
                      (curriculum_dicts["end_weight"] - curriculum_dicts["start_weight"]) * scale
 
     return torch.tensor(scale, device=env.device)
+

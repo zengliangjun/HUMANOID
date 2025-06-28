@@ -1,8 +1,7 @@
 from isaaclab.utils import configclass
 from isaaclab.managers import CurriculumTermCfg
-from isaaclabex.envs.mdp.curriculum import events
 from isaaclab_tasks.manager_based.locomotion.velocity import mdp
-from isaaclabex.envs.mdp.curriculum import rewards
+from isaaclabex.envs.mdp.curriculum import adaptive, events
 
 @configclass
 class CurriculumCfg:
@@ -10,52 +9,65 @@ class CurriculumCfg:
     terrain_levels = CurriculumTermCfg(func=mdp.terrain_levels_vel)
 
     penalize_with_steps = CurriculumTermCfg(
-        func=rewards.curriculum_with_steps,
+        func=adaptive.scale_with_degree,
         params={
-            'start_steps': 0,
-            'end_steps': 3000000,
+            'degree': 0.00002,
+            'down_up_lengths': [300, 800],
+            "scale_range": [0, 1],
+            "manager_name": "reward",
             "curriculums": {
                 'p_action_rate': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -0.004,
                     "end_weight": -0.1
                 },
                 'p_action_smoothness': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -0.0004,
                     "end_weight": -0.01
                 },
                 'p_torques': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -1e-6,
                     "end_weight": -4e-3
                 },
                 'p_torques_upper': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -5e-5,
                     "end_weight": -1e-3
                 },
                 'p_torque_limits': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -1e-3,
                     "end_weight": -1e-1
                 },
                 'p_pos_limits': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -1e-2,
                     "end_weight": -20.0
                 },
                 'p_width': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -3.0,
                     "end_weight": -10
                 },
                 'p_orientation': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -3,
                     "end_weight": -20
                 },
                 'p_height': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -3.0,
                     "end_weight": -40.0
                 },
                 'p_foot_clearance': {    # reward name
+                    "param_name": "weight",
                     "start_weight": -1.0,
                     "end_weight": -5.0
                 },
                 'rew_stability': {    # reward name
+                    "param_name": "weight",
                     "start_weight": 0.5,
                     "end_weight": 3
                 }
@@ -64,10 +76,12 @@ class CurriculumCfg:
     )
 
     events_with_steps = CurriculumTermCfg(
-        func=events.curriculum_with_steps,
+        func=events.range_with_degree,
         params={
-            'start_steps': 0,
-            'end_steps': 1500000,
+            'degree': 0.00002,
+            'down_up_lengths': [300, 800],
+            "scale_range": [0, 1],
+            "manager_name": "event",
             "curriculums": {
                 'startup_material': {    # event name
                     "static_friction_range": events.EventCurriculumStepItem(
