@@ -61,7 +61,7 @@ class RewardsCfg:
                         "right_hip_pitch_joint"]),
                 "pos_statistics_name": "pos",
                 "std": 0.25,
-                "diff_scale": 4
+                "diff_scale": 1.5
                 }
     )
 
@@ -74,7 +74,7 @@ class RewardsCfg:
                         "right_knee_joint"]),
                 "pos_statistics_name": "pos",
                 "std": 0.25,
-                "diff_scale": 4
+                "diff_scale": 1.5
                 }
     )
 
@@ -86,7 +86,7 @@ class RewardsCfg:
                         "left_ankle_roll_joint","right_ankle_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.10
+                "std": 0.10 * 1.2
                 }
     )
     rew_mean_hipr_zero = RewardTermCfg(
@@ -97,7 +97,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.06
+                "std": 0.06 * 1.5
                 }
     )
     rew_mean_hipy_zero = RewardTermCfg(
@@ -108,7 +108,7 @@ class RewardsCfg:
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.03
+                "std": 0.03 * 1.5
                 }
     )
 
@@ -122,7 +122,7 @@ class RewardsCfg:
                         ]),
                 "pos_statistics_name": "pos",
                 "std": 0.09,
-                "diff_scale": 4,
+                "diff_scale": 1.2,
                 }
     )
 
@@ -136,7 +136,7 @@ class RewardsCfg:
                         ]),
                 "pos_statistics_name": "pos",
                 "std": 0.09,
-                "diff_scale": 4,
+                "diff_scale": 1.2,
                 }
     )
 
@@ -148,7 +148,7 @@ class RewardsCfg:
                         "left_ankle_roll_joint","right_ankle_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.008
+                "std": 0.01 * 2.5
                 },
     )
 
@@ -160,7 +160,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.003
+                "std": 0.008 * 2.5
                 },
     )
 
@@ -172,7 +172,7 @@ class RewardsCfg:
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.003
+                "std": 0.008 * 3
                 },
     )
 
@@ -199,7 +199,7 @@ class RewardsCfg:
                 joint_names=[ ".*_hip_roll_joint", ".*_hip_yaw_joint"]),
                 "diff_range": 0.05,
                 "diff_std": 0.1,
-                "penalize_weight": - 2
+                "penalize_weight": - 0.2
                 },
     )
 
