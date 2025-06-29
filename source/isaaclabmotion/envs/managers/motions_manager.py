@@ -48,6 +48,18 @@ class MotionsTerm(ManagerTermBase):
     """
     extend org info
     """
+    def resolve_motion_bodies(self, name_keys: str | Sequence[str], preserve_order: bool = True) -> tuple[list[int], list[str]]:
+        import isaaclab.utils.string as string_utils
+        return string_utils.resolve_matching_names(name_keys, self.motion_body_names, preserve_order)
+
+    def resolve_extend_bodies(self, name_keys: str | Sequence[str], preserve_order: bool = True) -> tuple[list[int], list[str]]:
+        import isaaclab.utils.string as string_utils
+        return string_utils.resolve_matching_names(name_keys, self.extend_body_names, preserve_order)
+
+    @property
+    def motion_body_names(self):
+        return self._motion_body_names
+
     @property
     def extend_body_names(self):
         return self._extend_body_names
@@ -98,14 +110,17 @@ class MotionsTerm(ManagerTermBase):
 class MotionsManager(ManagerBase):
 
     _env: ManagerBasedEnv
-    _motions: MotionsTerm
-    _motions_name: str
-    _motions_cfg: MotionsTermCfg
+    _motions: MotionsTerm = None
+    _motions_name: str = None
+    _motions_cfg: MotionsTermCfg = None
     def __init__(self, cfg: object, env: ManagerBasedEnv):
         super().__init__(cfg, env)
 
     def __str__(self) -> str:
         """Returns: A string representation for the command manager."""
+        if self._motions_name is None:
+            return "<MotionsManager> no active terms.\n"
+
         msg = f"<MotionsManager> contains {len(self._motions_name)} active terms.\n"
         msg += "\n"
         return msg
@@ -134,11 +149,15 @@ class MotionsManager(ManagerBase):
         if env_ids is None:
             env_ids = slice(None)
 
-        self._motions.reset(env_ids=env_ids)
+        if self._motions is not None:
+            self._motions.reset(env_ids=env_ids)
 
         return {}
 
     def compute(self, isplay: bool = False) -> torch.Tensor:
+        if self._motions is None:
+            return torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+
         reset_time_outs = self._motions.termination_compute()
         self._motions.extend_compute()
         if isplay:
@@ -178,7 +197,9 @@ class MotionsManager(ManagerBase):
             self._motions_cfg = term_cfg
 
     def motion_ref(self, step: int):
+        assert None != self._motions
         return self._motions.motion_ref(step)
 
     def motion_times(self, step: int):
+        assert None != self._motions
         return self._motions.motion_times(step)

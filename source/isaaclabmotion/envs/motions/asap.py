@@ -135,6 +135,7 @@ class ASAPMotions(MotionsTerm):
         self._extend_body_ang_vel = torch.zeros_like(self._extend_body_pos)
         self._extend_body_lin_vel = torch.zeros_like(self._extend_body_pos)
 
+        self._motion_body_names = cfg.params["body_names"] + self._extend_body_names
 
     def motion_ref(self, step: int):
         """

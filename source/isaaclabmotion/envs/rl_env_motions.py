@@ -1,21 +1,19 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
-# needed to import for allowing type-hinting: np.ndarray | None
 from __future__ import annotations
 
 import gymnasium as gym
 import torch
-from isaaclab.envs import ManagerBasedRLEnv
+from collections.abc import Sequence
+from isaaclab.envs.common import VecEnvObs
 
 from isaaclab.envs.common import VecEnvStepReturn
-from isaaclabex.envs.rl_env_exts_cfg import ManagerBasedRLExtendsCfg
-from isaaclabex.envs.managers import constraint_manager, statistics_manager
-from collections.abc import Sequence
 
-class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
+from isaaclabex.envs import rl_env_exts
+
+from isaaclabmotion.envs.managers import motions_manager
+from isaaclabmotion.envs import rl_env_motions_cfg
+
+
+class RLMotionsENV(rl_env_exts.ManagerBasedRLEnv_Extends):
     """
     Extended reinforcement learning environment with additional manager functionalities,
     including termination constraints and reward penalty adjustments.
@@ -26,24 +24,11 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         max_iterations_steps (int): Total allowed steps computed from configuration.
         termination_manager: Manager that handles termination constraints.
     """
-    cfg : ManagerBasedRLExtendsCfg
+    cfg : rl_env_motions_cfg.RLMotionsENVCfg
 
-    def __init__(self, cfg: ManagerBasedRLExtendsCfg, render_mode: str | None = None, **kwargs):
-        """
-        Initialize the extended RL environment.
+    def __init__(self, cfg: rl_env_motions_cfg.RLMotionsENVCfg, render_mode: str | None = None, **kwargs):
+        super(RLMotionsENV, self).__init__(cfg=cfg, render_mode = render_mode, **kwargs)
 
-        Parameters:
-            cfg (ManagerBasedRLExtendsCfg): Environment configuration.
-            render_mode (str | None): Render mode to be used, if any.
-            **kwargs: Additional keyword arguments.
-        """
-        super(ManagerBasedRLEnv_Extends, self).__init__(cfg=cfg, render_mode = render_mode, **kwargs)
-        '''
-        for reward penalty curriculum
-        '''
-        # Initialize variables for reward penalty and curriculum
-        self.average_episode_length = torch.tensor(0, device=self.device, dtype=torch.long)
-        self.max_iterations_steps = cfg.num_steps_per_env * cfg.max_iterations
 
     def load_managers(self):
         """
@@ -52,11 +37,22 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         This method first loads base managers, then initializes the termination manager
         using constraints provided in the configuration.
         """
+        self.motions_manager = motions_manager.MotionsManager(self.cfg.motions, self)
+        print("[INFO] Event Manager: ", self.event_manager)
 
-        self.statistics_manager = statistics_manager.StatisticsManager(self.cfg.statistics, self)
-        super(ManagerBasedRLEnv_Extends, self).load_managers()
-        # Initialize termination manager with constraints from config
-        self.termination_manager = constraint_manager.ConstraintManager(self.cfg.terminations, self)
+        super(RLMotionsENV, self).load_managers()
+
+    def reset(
+        self, seed: int | None = None, env_ids: Sequence[int] | None = None, options: dict[str, Any] | None = None
+    ) -> tuple[VecEnvObs, dict]:
+
+        if env_ids is None:
+            env_ids = torch.arange(self.num_envs, dtype=torch.int64, device=self.device)
+
+        self.episode_length_buf[env_ids] = 0
+        self.motions_manager.reset(env_ids)
+        result = super(RLMotionsENV, self).reset(seed, env_ids, options)
+        return result
 
     def _super_step(self, action: torch.Tensor) -> VecEnvStepReturn:
         """Execute one time-step of the environment's dynamics and reset terminated environments.
@@ -111,6 +107,11 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         self.reset_buf = self.termination_manager.compute()
         self.reset_terminated = self.termination_manager.terminated
         self.reset_time_outs = self.termination_manager.time_outs
+
+        # -- motions computation
+        reset_time_outs = self.motions_manager.compute()
+        self.reset_buf |= reset_time_outs
+        self.reset_time_outs |= reset_time_outs
 
         # -- statistics computation
         self.statistics_manager.compute()
@@ -172,28 +173,7 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras
 
     def _reset_idx(self, env_ids: Sequence[int]):
-        """
-        Reset specific environments and update the average episode length.
-
-        Parameters:
-            env_ids (Sequence[int]): List of environment indices to reset.
-        """
-        num = len(env_ids)
-        # Calculate the current average episode length for the selected environments
-        current_average_episode_length = torch.mean(self.episode_length_buf[env_ids], dtype=torch.float)
-
-        num_compute_average_epl = self.cfg.num_compute_average_epl
-        # Update the running average using a weighted average formula
-        self.average_episode_length = self.average_episode_length * (1 - num / num_compute_average_epl) \
-                                     + current_average_episode_length * (num / num_compute_average_epl)
-
-        # called super
-
         super()._reset_idx(env_ids)
-        info = {"Train/average_episode_length": self.average_episode_length}
-        self.extras["log"].update(info)
 
-        # -- statistics manager
-        info = self.statistics_manager.reset(env_ids)
+        info = self.motions_manager.reset(env_ids)
         self.extras["log"].update(info)
-
