@@ -23,7 +23,7 @@ class RewardsCfg:
     )
     rew_motion_speed = RewardTermCfg(
         func=reward_collect.reward_motion_speed,
-        weight=1,
+        weight=2.5,
         params={"command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )

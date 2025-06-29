@@ -32,8 +32,9 @@ def rew_pitch_total2zero(
     reward1 = torch.exp(-total1)
 
     hip_ids = asset_cfg.joint_ids[:2]
-    invalid_flag0 = pose[:, hip_ids[0]] > 0
-    invalid_flag1 = pose[:, hip_ids[1]] > 0
+    vel = asset.data.joint_vel[:, hip_ids]
+    invalid_flag0 = vel[:, 0] > 0
+    invalid_flag1 = vel[:, 1] > 0
     reward0[invalid_flag0] = 0
     reward1[invalid_flag1] = 0
 
