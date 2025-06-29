@@ -23,7 +23,7 @@ class RewardsCfg:
     )
     rew_motion_speed = RewardTermCfg(
         func=reward_collect.reward_motion_speed,
-        weight=3,
+        weight=1,
         params={"command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
@@ -86,7 +86,7 @@ class RewardsCfg:
                         "left_ankle_roll_joint","right_ankle_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.10 * 1.2
+                "std": 0.12
                 }
     )
     rew_mean_hipr_zero = RewardTermCfg(
@@ -97,7 +97,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.06 * 1.5
+                "std": 0.09
                 }
     )
     rew_mean_hipy_zero = RewardTermCfg(
@@ -108,7 +108,7 @@ class RewardsCfg:
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.03 * 1.5
+                "std": 0.05
                 }
     )
 
@@ -148,7 +148,7 @@ class RewardsCfg:
                         "left_ankle_roll_joint","right_ankle_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.01 * 2.5
+                "std": 0.09
                 },
     )
 
@@ -160,7 +160,7 @@ class RewardsCfg:
                         "left_hip_roll_joint",  "right_hip_roll_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.008 * 2.5
+                "std": 0.03
                 },
     )
 
@@ -172,7 +172,7 @@ class RewardsCfg:
                         "left_hip_yaw_joint",   "right_hip_yaw_joint",
                                 ]),
                 "pos_statistics_name": "pos",
-                "std": 0.008 * 3
+                "std": 0.03
                 },
     )
 

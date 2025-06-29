@@ -105,17 +105,17 @@ class CurriculumCfg:
                 'p_action_rate': {    # reward name  -0.01
                     "param_name": "weight",
                     "start_weight": -0.01,
-                    "end_weight": -0.1
+                    "end_weight": -0.04
                 },
                 'p_action_smoothness': {    # reward name  -0.002
                     "param_name": "weight",
                     "start_weight": -0.001,
-                    "end_weight": -0.02
+                    "end_weight": -0.007
                 },
                 'p_torques': {    # reward name   -1e-5
                     "param_name": "weight",
                     "start_weight": -0.0001,
-                    "end_weight": -0.001
+                    "end_weight": -0.0006
                 },
                 'p_width': {    # reward name
                     "param_name": "weight",
@@ -135,12 +135,58 @@ class CurriculumCfg:
                 'p_foot_clearance': {    # reward name
                     "param_name": "weight",
                     "start_weight": -20.0,
-                    "end_weight": -80.0
+                    "end_weight": -30.0
                 }
             }
         }
     )
 
+    rmean_hipp = CurriculumTermCfg(
+        func=adaptive.curriculum_with_degree,
+        params={
+            "degree": - 0.00004,
+            "down_up_lengths": [600, 850],
+            "value_range": [0.19, 0.25 * 1.2],
+            "manager_name": "reward",
+            "term_name": "rew_mean_hipp",
+            "param_name": "std"
+        }
+    )
+    rmean_knee = CurriculumTermCfg(
+        func=adaptive.curriculum_with_degree,
+        params={
+            "degree": - 0.00004,
+            "down_up_lengths": [600, 900],
+            "value_range": [0.19, 0.25 * 1.2],
+            "manager_name": "reward",
+            "term_name": "rew_mean_knee",
+            "param_name": "std"
+        }
+    )
+    r_hipp = CurriculumTermCfg(
+        func=adaptive.curriculum_with_degree,
+        params={
+            "degree": 0.00004,
+            "down_up_lengths": [600, 850],
+            "value_range": [0.9, 1.6],
+            "manager_name": "reward",
+            "term_name": "rew_hipp_self",
+            "param_name": "diff_scale"
+        }
+    )
+    r_knee = CurriculumTermCfg(
+        func=adaptive.curriculum_with_degree,
+        params={
+            "degree": 0.00004,
+            "down_up_lengths": [600, 850],
+            "value_range": [0.9, 1.6],
+            "manager_name": "reward",
+            "term_name": "rew_knee_self",
+            "param_name": "diff_scale"
+        }
+    )
+
+    """
     rewm_ankler_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
@@ -174,30 +220,6 @@ class CurriculumCfg:
             "param_name": "std"
         }
     )
-    """
-    r_hipp = CurriculumTermCfg(
-        func=adaptive.curriculum_with_degree,
-        params={
-            "degree": 0.00004,
-            "down_up_lengths": [600, 850],
-            "value_range": [0.04, 0.09 * 1.5],
-            "manager_name": "reward",
-            "term_name": "rew_hipp_self",
-            "param_name": "std"
-        }
-    )
-    r_knee = CurriculumTermCfg(
-        func=adaptive.curriculum_with_degree,
-        params={
-            "degree": 0.00004,
-            "down_up_lengths": [600, 900],
-            "value_range": [0.04, 0.09 * 1.5],
-            "manager_name": "reward",
-            "term_name": "rew_knee_self",
-            "param_name": "std"
-        }
-    )
-    """
     r_ankler_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
@@ -231,3 +253,4 @@ class CurriculumCfg:
             "param_name": "std"
         }
     )
+    """
