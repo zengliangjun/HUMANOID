@@ -9,6 +9,7 @@ feet_contact_status = privileged_feet.feet_contact_status
 feet_contact_forces = privileged_feet.feet_contact_forces
 feet_pos = privileged_feet.feet_pos
 
+body_coms = privileged_body.body_coms
 body_mass = privileged_body.body_mass
 push_force = privileged_body.push_force
 push_torque = privileged_body.push_torque

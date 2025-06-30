@@ -4,6 +4,19 @@ from isaaclab.managers import SceneEntityCfg
 import torch
 from isaaclab.assets import Articulation, RigidObject
 
+def body_coms(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
+    '''
+    rigid_body_mass = ObsTerm(
+            func=body_coms,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
+            noise=Unoise(n_min=-0.1, n_max=0.1),
+        )
+
+    '''
+    asset: RigidObject = env.scene[asset_cfg.name]
+    coms = asset.root_physx_view.get_coms()
+    return coms.to(env.device)
+
 def body_mass(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
     rigid_body_mass = ObsTerm(
@@ -14,8 +27,8 @@ def body_mass(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
 
     '''
     asset: RigidObject = env.scene[asset_cfg.name]
-    masses = asset.root_physx_view.get_masses()
-    return masses.to(env.device)
+    scales = asset.root_physx_view.get_masses() / asset.data.default_mass
+    return scales.to(env.device)
 
 def push_force(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''

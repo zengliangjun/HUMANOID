@@ -27,7 +27,7 @@ def joint_stiffness(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Te
 
     '''
     asset: Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_stiffness
+    return asset.data.joint_stiffness / asset.data.default_joint_stiffness
 
 def joint_damping(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
@@ -39,7 +39,19 @@ def joint_damping(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tens
 
     '''
     asset: Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_damping
+    return asset.data.joint_damping / asset.data.default_joint_damping
+
+def joint_friction_coeff(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
+    '''
+    joint_stiffness = ObsTerm(
+            func=joint_stiffness,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
+            noise=Unoise(n_min=-0.1, n_max=0.1),
+        )
+
+    '''
+    asset: Articulation = env.scene[asset_cfg.name]
+    return asset.data.joint_friction_coeff[:, asset_cfg.joint_ids]
 
 def joint_torques(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
