@@ -26,7 +26,7 @@ class Base(ManagerTermBase):
         self.asset: Articulation = env.scene[asset_cfg.name]
         self.body_ids = asset_cfg.body_ids
 
-class obs_body_body_pos(Base):
+class obs_body_pos(Base):
     """Base class for joint statistics calculation with common functionality."""
 
     def __init__(self, cfg: ObservationTermCfg, env: ManagerBasedEnv):

@@ -37,6 +37,7 @@ class Base(ManagerTermBase):
 
     @property
     def obs_motions_bodyids(self):
+        # TODO
         return self._obs_motions_bodyids
 
 class obs_diff_rbpos(Base):
