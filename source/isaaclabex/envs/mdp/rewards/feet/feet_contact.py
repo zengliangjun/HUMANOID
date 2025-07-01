@@ -106,3 +106,11 @@ def penalty_feet_airborne(env: ManagerBasedRLEnv,
 
 # The reward and penalty functions include detailed parameter and inline documentation.
 
+
+def penalize_both_feet_in_air(env: ManagerBasedRLEnv,
+    sensor_cfg: SceneEntityCfg, threshold: float = 1e-3) -> torch.Tensor:
+
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    feet_in_air = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2] <= 1.0
+
+    return torch.all(feet_in_air, dim=1).float()

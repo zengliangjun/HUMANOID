@@ -137,6 +137,7 @@ Action Penalties:
 Penalties to enforce smoothness and regularity in the agent's actions.
 """
 penalize_action_rate_l2 = isaaclab_rewards.action_rate_l2                  # L2 penalty on the rate of change of actions.
+penalize_action_rate2_l2 = actions.action_rate2_l2
 penalize_action_rate_norm = spot_rewards.action_smoothness_penalty         # Norm penalty to smooth action changes.
 penalize_action_smoothness = actions.penalize_action_smoothness            # Direct smoothness penalty for actions.
 penalize_action_l2 = isaaclab_rewards.action_l2                            # L2 penalty on action magnitude.
@@ -151,8 +152,9 @@ reward_air_time_phase = feet_phase.reward_feet_air_time                    # Pha
 reward_air_time_biped = loc_rewards.feet_air_time_positive_biped           # Reward for biped air time.
 reward_air_time2 = spot_rewards.air_time_reward                            # Alternative air time reward.
 penalize_airborne = feet_contact.penalty_feet_airborne                      # Penalty for feet being airborne too long.
+penalize_both_feet_in_air = feet_contact.penalize_both_feet_in_air
 penalize_air_time_variance = spot_rewards.air_time_variance_penalty           # Penalty based on variability in air time.
-
+penalize_max_feet_height_before_contact = feet_contact.penalize_max_feet_height_before_contact
 # Slide penalties.
 penalize_slide = loc_rewards.feet_slide                                    # Penalty for feet sliding.
 penalize_slide_threshold = feet.penalize_feet_slide                         # Penalty applied at sliding threshold.
@@ -161,8 +163,8 @@ penalty_stumble = feet_contact.penalty_feet_stumble                         # Pe
 reward_clearance = spot_rewards.foot_clearance_reward                      # Reward for adequate foot clearance.
 reward_clearance_phase = feet_phase.reward_feet_clearance                   # Phase-based clearance reward.
 penalize_clearance = feet.penalize_foot_clearance                           # Penalty for insufficient clearance.
-
 penalize_statistics_clearance = feet_statisticsv3.penalize_footclearance
+penalize_feet_orientation = feet.penalize_feet_orientation
 # Gait reward.
 GaitReward = spot_rewards.GaitReward                                       # Reward for achieving desired gait pattern.
 

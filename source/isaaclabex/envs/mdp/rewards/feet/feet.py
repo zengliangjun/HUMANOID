@@ -1,13 +1,53 @@
 from __future__ import annotations
+from collections.abc import Sequence
 
 import torch
 from typing import TYPE_CHECKING
 from isaaclab.sensors import ContactSensor
-from isaaclab.managers import SceneEntityCfg
-from isaaclab.assets import RigidObject
+from isaaclab.managers import SceneEntityCfg, ManagerTermBase, RewardTermCfg
+from isaaclab.assets import RigidObject, Articulation
+import isaaclab.utils.math as math_utils
 
 if TYPE_CHECKING:
-    from isaaclab.envs import ManagerBasedRLEnv
+    from isaaclab.envs import ManagerBasedRLEnv, ManagerBasedEnv
+
+class penalize_max_feet_height_before_contact(ManagerTermBase):
+    """Base class for joint statistics calculation with common functionality."""
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedEnv):
+        super().__init__(cfg, env)
+
+        len = len(cfg.params["sensor_cfg"].body_ids)
+        self._feet_max_height_in_air = torch.zeros((self.num_envs, len), dtype = torch.float32, device= self.device)
+
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
+        self._feet_max_height_in_air[env_ids] = 0
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg,
+        sensor_cfg: SceneEntityCfg,
+        target_height: float = 0.25) -> torch.Tensor:
+
+        asset: RigidObject = env.scene[asset_cfg.name]
+        contact_sensor: ContactSensor = env.scene[sensor_cfg.name]
+
+        first_contact = contact_sensor.compute_first_contact(self._env.step_dt)[:, sensor_cfg.body_ids]
+
+        feet_in_air = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2] <= 1.0
+
+        feet_height = asset.data.body_pos_w[:, asset_cfg.body_ids, 2]
+
+        self._feet_max_height_in_air = torch.max(self._feet_max_height_in_air, feet_height)
+        feet_max_height = torch.sum(
+            (torch.clamp_min(target_height - self._feet_max_height_in_air, 0))
+            * first_contact,
+            dim=1,
+        )  # reward only on first contact with the ground
+        self._feet_max_height_in_air *= feet_in_air
+        return feet_max_height
+
 
 def penalize_foot_clearance(
     env: ManagerBasedRLEnv,
@@ -68,3 +108,23 @@ def penalize_feet_slide(
     # Compute norm of velocity for each foot and apply penalty only when contact is detected.
     reward = torch.sum(body_vel.norm(dim=-1) * contacts, dim=1)
     return reward
+
+
+def penalize_feet_orientation(
+    env,
+    sensor_cfg: SceneEntityCfg,
+    contacts_threshold: float = 5,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
+    """
+    Computes the penalty on feet orientation to make no x and y projected gravity.
+
+    This function is adapted from _reward_feet_ori in legged_gym.
+
+    Returns:
+        torch.Tensor: A float tensor of shape (num_envs) representing the computed penalty for each environment.
+    """
+    asset: Articulation = env.scene[asset_cfg.name]
+    quat = asset.data.body_quat_w[:, asset_cfg.body_ids]
+    gravity = math_utils.quat_rotate_inverse(quat, asset.data.GRAVITY_VEC_W)
+
+    return torch.sum(torch.sum(torch.square(gravity[..., :2]), dim=-1) ** 0.5, , dim=-1)

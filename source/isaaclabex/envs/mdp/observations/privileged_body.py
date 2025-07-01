@@ -13,9 +13,9 @@ def body_coms(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
         )
 
     '''
-    asset: RigidObject = env.scene[asset_cfg.name]
-    coms = asset.root_physx_view.get_coms()
-    return coms.to(env.device)
+    asset: Articulation = env.scene[asset_cfg.name]
+    coms = asset.data.com_pos_b[:, asset_cfg.body_ids]
+    return coms
 
 def body_mass(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
@@ -27,8 +27,8 @@ def body_mass(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
 
     '''
     asset: RigidObject = env.scene[asset_cfg.name]
-    scales = asset.root_physx_view.get_masses() / asset.data.default_mass
-    return scales.to(env.device)
+    scales = asset.root_physx_view.get_masses().to(env.device) / asset.data.default_mass
+    return scales[:, asset_cfg.body_ids]
 
 def push_force(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
@@ -53,17 +53,3 @@ def push_torque(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor
     '''
     asset: RigidObject | Articulation = env.scene[asset_cfg.name]
     return asset.data.root_ang_vel_w
-
-def frictions(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
-    '''
-    rigid_body_mass = ObsTerm(
-            func=push_force,
-            params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
-            noise=Unoise(n_min=-0.1, n_max=0.1),
-        )
-
-    '''
-    asset: RigidObject | Articulation = env.scene[asset_cfg.name]
-    material = asset.root_physx_view.get_material_properties()
-    return material[:, :, 0]
-

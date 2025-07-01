@@ -52,3 +52,9 @@ class penalize_action_smoothness(ManagerTermBase):
         # Update previous previous action for the next iteration.
         self.prev_prev_action[...] = env.action_manager.prev_action
         return term_1 + term_2 + term_3
+
+def action_rate2_l2(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),) -> torch.Tensor:
+    """Penalize the rate of change of the actions using L2 squared kernel."""
+    diff = env.action_manager.action - env.action_manager.prev_action
+    diff = diff[:, asset_cfg.joint_ids]
+    return torch.sum(torch.square(diff), dim=1)
