@@ -28,7 +28,7 @@ class TerminationsCfg:
     orientation = TerminationTermCfg(
         func=body.orientation_xywiththreshold,
         params={"asset_cfg": SceneEntityCfg("robot"), "xy_threshold": 0.7})
-
+    """
     contact = TerminationTermCfg(
         func=mdp.illegal_contact,
         params={"sensor_cfg":
@@ -41,6 +41,10 @@ class TerminationsCfg:
                     ".*_knee_link"
                 ]), "threshold": 1.0},
     )
+    """
+    height = TerminationTermCfg(
+        func=mdp.root_height_below_minimum,
+        params={"minimum_height": 0.4})
 
     distance = TerminationTermCfg(
         func=mbody.terminate_by_reference_motion_distance,
@@ -51,7 +55,7 @@ class TerminationsCfg:
                 "extend_body_names": [
                         "left_hand_link",
                         "right_hand_link",
-                        "head_link"
+                        #"head_link"
                     ]},
     )
 

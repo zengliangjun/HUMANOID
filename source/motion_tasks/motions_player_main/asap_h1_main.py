@@ -44,10 +44,10 @@ body_vel torch.Size([16, 20, 3])
 body_ang_vel torch.Size([16, 20, 3])
 
 # Extended links
-rg_pos_t torch.Size([16, 23, 3])
-rg_rot_t torch.Size([16, 23, 4])
-body_vel_t torch.Size([16, 23, 3])
-body_ang_vel_t torch.Size([16, 23, 3])
+rg_pos_t torch.Size([16, 22, 3])
+rg_rot_t torch.Size([16, 22, 4])
+body_vel_t torch.Size([16, 22, 3])
+body_ang_vel_t torch.Size([16, 22, 3])
 
 # JOINT
 dof_pos torch.Size([16, 19])

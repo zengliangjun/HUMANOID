@@ -11,10 +11,10 @@ from isaaclab.managers.scene_entity_cfg import SceneEntityCfg
 
 OMNIH2OH1_CFG = MotionsTermCfg(
     func = ASAPMotions,
-    resample_interval_s = 25,
+    resample_interval_s = 1000,
     assert_cfg = SceneEntityCfg("robot"),
-    # motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/stable_punch.pkl",
-    motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl",
+    motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/stable_punch.pkl",
+    # motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl",
     params = {
         "mjcf_file": f"{_ASSETS_ROOT}/motions/asap/omnih2o/h1.xml",
         "extend_config": [
@@ -30,12 +30,12 @@ OMNIH2OH1_CFG = MotionsTermCfg(
                 "pos": [0.3, 0.0, 0.0],
                 "rot": [1.0, 0.0, 0.0, 0.0]
             },
-            {
-                "joint_name": "head_link",
-                "parent_name": "pelvis",
-                "pos": [0.0, 0.0, 0.75],
-                "rot": [1.0, 0.0, 0.0, 0.0]
-            }
+            #{
+            #    "joint_name": "head_link",
+            #    "parent_name": "pelvis",
+            #    "pos": [0.0, 0.0, 0.75],
+            #    "rot": [1.0, 0.0, 0.0, 0.0]
+            #}
         ],
         "body_names": [
               'pelvis',

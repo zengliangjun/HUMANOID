@@ -45,7 +45,7 @@ class ObservationsCfg:
             }, clip = (-18, 18)
         )
         frictions = ObservationTermCfg(
-            func=privileged.frictions,
+            func=privileged.joint_friction_coeff,
             params={
                 "asset_cfg": SceneEntityCfg("robot")
             }, clip = (-18, 18)

@@ -50,7 +50,9 @@ class obs_body_pos(Base):
         root_pos_extend = root_pos.unsqueeze(-2)
         local_body_pos = body_pos - root_pos_extend
 
-        body_pos_lb = math_utils.quat_rotate_inverse(self.asset.data.root_quat_w[:, None, :], local_body_pos)
+        quat_w = self.asset.data.root_quat_w[:, None, :].repeat((1, local_body_pos.shape[1], 1))
+
+        body_pos_lb = math_utils.quat_rotate_inverse(quat_w, local_body_pos)
         return body_pos_lb.flatten(1)
 
 class obs_body_rotwxyz(Base):
@@ -71,7 +73,9 @@ class obs_body_rotwxyz(Base):
             extend_rot = self.motions.extend_body_rot_wxyz[:, self.extend_body_ids]
             rot_wxyz = torch.cat((rot_wxyz, extend_rot), dim = 1)
 
-        rot_lb = math_utils.quat_error_magnitude(self.asset.data.root_quat_w[:, None, :], rot_wxyz)
+        quat_w = self.asset.data.root_quat_w[:, None, :].repeat((1, rot_wxyz.shape[1], 1))
+
+        rot_lb = math_utils.quat_error_magnitude(quat_w, rot_wxyz)
         return rot_lb.flatten(1)
 
 class obs_body_lin_vel(Base):
@@ -93,7 +97,9 @@ class obs_body_lin_vel(Base):
             extend_vel = self.motions.extend_body_lin_vel[:, self.extend_body_ids]
             lin_vel = torch.cat((lin_vel, extend_vel), dim = 1)
 
-        lin_vel_lb = math_utils.quat_rotate_inverse(self.asset.data.root_quat_w[:, None, :], lin_vel)
+        quat_w = self.asset.data.root_quat_w[:, None, :].repeat((1, lin_vel.shape[1], 1))
+
+        lin_vel_lb = math_utils.quat_rotate_inverse(quat_w, lin_vel)
         return lin_vel_lb.flatten(1)
 
 class obs_body_ang_vel(Base):
@@ -110,10 +116,12 @@ class obs_body_ang_vel(Base):
         extend_body_names: Sequence[str] = None
     ) -> torch.Tensor:
 
-        ang_vel = self.asset.data.body_lin_ang_w[:, asset_cfg.body_ids]
+        ang_vel = self.asset.data.body_ang_vel_w[:, asset_cfg.body_ids]
         if extend_body_names != None and len(extend_body_names) > 0:
             extend_ang = self.motions.extend_body_ang_vel[:, self.extend_body_ids]
             ang_vel = torch.cat((ang_vel, extend_ang), dim = 1)
 
-        ang_vel_lb = math_utils.quat_rotate_inverse(self.asset.data.root_quat_w[:, None, :], ang_vel)
+        quat_w = self.asset.data.root_quat_w[:, None, :].repeat((1, ang_vel.shape[1], 1))
+
+        ang_vel_lb = math_utils.quat_rotate_inverse(quat_w, ang_vel)
         return ang_vel_lb.flatten(1)

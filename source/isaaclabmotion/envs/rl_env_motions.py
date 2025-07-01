@@ -38,7 +38,7 @@ class RLMotionsENV(rl_env_exts.ManagerBasedRLEnv_Extends):
         using constraints provided in the configuration.
         """
         self.motions_manager = motions_manager.MotionsManager(self.cfg.motions, self)
-        print("[INFO] Event Manager: ", self.event_manager)
+        print("[INFO] Motion Manager: ", self.motions_manager)
 
         super(RLMotionsENV, self).load_managers()
 

@@ -271,4 +271,4 @@ class ConstraintManager(TerminationManager):
             self._term_names.append(term_name)
             self._term_cfgs.append(term_cfg)
             if isinstance(term_cfg.func, ManagerTermBase):
-                self._class_constraint_cfgs.append(term_cfg)
+                self._class_term_cfgs.append(term_cfg)

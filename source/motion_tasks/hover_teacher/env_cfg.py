@@ -7,7 +7,7 @@ from isaaclabex.terrains.config import rough_low_level_cfg
 from isaaclabmotion.envs import rl_env_motions_cfg
 from isaaclabmotion.assets.motions import asap_omnih2oh1
 
-from .mdps  import mdps, obs, events, rewards
+from .mdps  import mdps, obs, events, rewards, curriculum
 
 @configclass
 class MotionsCfg:
@@ -26,6 +26,7 @@ class OMNIH2OH1Cfg(rl_env_motions_cfg.RLMotionsENVCfg):
     rewards = rewards.RewardsCfg()
     terminations = mdps.TerminationsCfg()
     events = events.EventCfg()
+    curriculum = curriculum.CurriculumCfg()
 
     motions = MotionsCfg()
 
@@ -60,6 +61,10 @@ class OMNIH2OH1Cfg(rl_env_motions_cfg.RLMotionsENVCfg):
         else:
             if self.scene.terrain.terrain_generator is not None:
                 self.scene.terrain.terrain_generator.curriculum = False
+
+        # motion settings
+        self.motions.omnih2o.step_dt = self.decimation * self.sim.dt
+        self.motions.omnih2o.random_sample = True
 
 @configclass
 class OMNIH2OH1Cfg_PLAY(OMNIH2OH1Cfg):

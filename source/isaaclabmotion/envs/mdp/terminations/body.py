@@ -34,7 +34,7 @@ class Base(ManagerTermBase):
         else:
             motion_names = asset_cfg.body_names
 
-        if "extend_body_names" in cfg.params:
+        if "extend_body_names" in cfg.params and cfg.params["extend_body_names"] is not None:
             motion_names += cfg.params["extend_body_names"]
 
         self._motions_bodyids, _ = self.motions.resolve_motion_bodies(motion_names)
@@ -59,6 +59,7 @@ class terminate_by_reference_motion_distance(Base):
         asset_cfg: SceneEntityCfg,
         motions_name: str,
         max_ref_motion_dist: float,
+        extend_body_names: list = None,
         training_mode: bool = True
         ) -> torch.Tensor:
             """
@@ -89,15 +90,15 @@ class terminate_by_reference_motion_distance(Base):
 
             if training_mode:
                 # Check if any distance exceeds the threshold
-                exceeds_threshold = torch.any(distance > max_ref_motion_dist, dim=-1, keepdim=True)
+                exceeds_threshold = torch.any(distance > max_ref_motion_dist, dim=-1)
             else:
                 # Check if the mean distance exceeds the threshold
-                mean_distance = distance.mean(dim=-1, keepdim=True)
-                exceeds_threshold = torch.any(mean_distance > max_ref_motion_dist, dim=-1, keepdim=True)
+                mean_distance = distance.mean(dim=-1)
+                exceeds_threshold = mean_distance > max_ref_motion_dist
 
             if not hasattr(env, "recovery_counters"):
                 return exceeds_threshold
 
             # If in recovery, ensure we only terminate if not in recovery mode
-            in_recovery = env.recovery_counters[:, None] > 0
+            in_recovery = env.recovery_counters > 0
             return torch.logical_and(exceeds_threshold, ~in_recovery)

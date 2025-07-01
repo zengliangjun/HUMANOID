@@ -7,10 +7,10 @@ from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
 import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 
-from isaaclabmotion.envs.mdps.observations import body, motions
+from isaaclabmotion.envs.mdp.observations import body, motions
 from isaaclabex.envs.mdp.observations import privileged
 
-bodyparams = {
+bodyparams={
     "asset_cfg": SceneEntityCfg("robot",
         body_names= [
             'pelvis',
@@ -42,7 +42,7 @@ bodyparams = {
     "extend_body_names": [
         "left_hand_link",
         "right_hand_link",
-        "head_link"
+        #"head_link"
     ]
 }
 
@@ -137,43 +137,43 @@ class ObservationsCfg:
     class CriticCfg(ObservationGroupCfg):
         p_coms = ObservationTermCfg(
             func=privileged.body_coms,
-            params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
+            params={"asset_cfg": SceneEntityCfg("robot")},
             scale = 1)
 
         p_frictions = ObservationTermCfg(
             func=privileged.joint_friction_coeff,
             params = {
                 "asset_cfg": SceneEntityCfg("robot",
-                                body_names= [
+                                joint_names = [
                                     'left_ankle_joint',
                                     'right_ankle_joint',
                                 ])
-                                    }
+            },
             scale = 1)
 
         p_stiffness = ObservationTermCfg(
             func=privileged.joint_stiffness,
             params = {
                 "asset_cfg": SceneEntityCfg("robot")
-                                    }
+            },
             scale = 0.08)
 
         p_damping = ObservationTermCfg(
             func=privileged.joint_damping,
             params = {
                 "asset_cfg": SceneEntityCfg("robot")
-                                    }
+            },
             scale = 0.25)
 
         p_forces = ObservationTermCfg(
             func=privileged.feet_contact_forces,
             params = {
-                "asset_cfg": SceneEntityCfg("robot",
+                "sensor_cfg": SceneEntityCfg("contact_forces",
                                 body_names= [
                                     'left_ankle_link',
                                     'right_ankle_link',
                                     ])
-                                    },
+            },
             scale = 0.05)
 
         p_mass = ObservationTermCfg(
@@ -206,7 +206,7 @@ class ObservationsCfg:
                                     'right_shoulder_yaw_link',
                                     'right_elbow_link'
                                 ])
-                                    }
+            },
             scale = 0.3)
 
         def __post_init__(self):

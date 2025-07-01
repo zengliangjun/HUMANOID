@@ -148,7 +148,7 @@ class scale_with_degree(ManagerTermBase):
         name = cfg.params["manager_name"]
         self.manager: ManagerBase = env.__getattribute__(f"{name}_manager")
 
-        self.scale = 0
+        self.scale = cfg.params["scale"]
         self._update(self.scale)
 
     def _update(self, scale):
@@ -177,6 +177,7 @@ class scale_with_degree(ManagerTermBase):
         scale_range: Union[list, tuple],
         manager_name: str,
         curriculums: dict,
+        scale: float = 0,
     ) -> torch.Tensor:
 
         update = True

@@ -83,8 +83,8 @@ def push_by_setting_velocity_with_recovery_counters(
     # set the velocities into the physics simulation
     asset.write_root_velocity_to_sim(vel_w, env_ids=env_ids)
 
-    if hasattr(env, "recovery_counters") and env.cfg.recovery_count != -1:
+    if hasattr(env, "recovery_counters") and recovery_count != -1:
         reset = env.recovery_counters[env_ids].clone()
-        reset[...] = env.cfg.recovery_count
+        reset[...] = recovery_count
         env.recovery_counters[env_ids] = torch.max(env.recovery_counters[env_ids], reset)
 

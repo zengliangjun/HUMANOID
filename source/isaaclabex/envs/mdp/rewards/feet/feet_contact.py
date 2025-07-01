@@ -1,13 +1,53 @@
 from __future__ import annotations
+from collections.abc import Sequence
 
 import torch
 from typing import TYPE_CHECKING
 
+from isaaclab.assets import RigidObject, Articulation
 from isaaclab.sensors import ContactSensor
-from isaaclab.managers import SceneEntityCfg
+from isaaclab.managers import SceneEntityCfg, ManagerTermBase, RewardTermCfg
 
 if TYPE_CHECKING:
-    from isaaclab.envs import ManagerBasedRLEnv
+    from isaaclab.envs import ManagerBasedRLEnv, ManagerBasedEnv
+
+
+class penalize_max_feet_height_before_contact(ManagerTermBase):
+    """Base class for joint statistics calculation with common functionality."""
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedEnv):
+        super().__init__(cfg, env)
+
+        size = len(cfg.params["sensor_cfg"].body_ids)
+        self._feet_max_height_in_air = torch.zeros((self.num_envs, size), dtype = torch.float32, device= self.device)
+
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
+        self._feet_max_height_in_air[env_ids] = 0
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        asset_cfg: SceneEntityCfg,
+        sensor_cfg: SceneEntityCfg,
+        target_height: float = 0.25) -> torch.Tensor:
+
+        asset: RigidObject = env.scene[asset_cfg.name]
+        contact_sensor: ContactSensor = env.scene[sensor_cfg.name]
+
+        first_contact = contact_sensor.compute_first_contact(self._env.step_dt)[:, sensor_cfg.body_ids]
+
+        feet_in_air = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2] <= 1.0
+
+        feet_height = asset.data.body_pos_w[:, asset_cfg.body_ids, 2]
+
+        self._feet_max_height_in_air = torch.max(self._feet_max_height_in_air, feet_height)
+        feet_max_height = torch.sum(
+            (torch.clamp_min(target_height - self._feet_max_height_in_air, 0))
+            * first_contact,
+            dim=1,
+        )  # reward only on first contact with the ground
+        self._feet_max_height_in_air *= feet_in_air
+        return feet_max_height
 
 def reward_feet_forces_z(env: ManagerBasedRLEnv,
    sensor_cfg: SceneEntityCfg, threshold: float = 500, max_forces: float = 400) -> torch.Tensor:
@@ -108,9 +148,9 @@ def penalty_feet_airborne(env: ManagerBasedRLEnv,
 
 
 def penalize_both_feet_in_air(env: ManagerBasedRLEnv,
-    sensor_cfg: SceneEntityCfg, threshold: float = 1e-3) -> torch.Tensor:
+    sensor_cfg: SceneEntityCfg, threshold: float = 1) -> torch.Tensor:
 
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    feet_in_air = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2] <= 1.0
+    feet_in_air = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2] <= threshold
 
     return torch.all(feet_in_air, dim=1).float()

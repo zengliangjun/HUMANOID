@@ -2,7 +2,7 @@ from isaaclab.utils import configclass
 from isaaclab.managers import RewardTermCfg, SceneEntityCfg
 
 from isaaclabex.envs.mdp.rewards import reward_collect
-from isaaclabmotion.envs.mdps.rewards import motions_body, motions_joints, motions_foot
+from isaaclabmotion.envs.mdp.rewards import motions_body, motions_joints, motions_foot
 
 bnames= [
             'pelvis',
@@ -36,7 +36,7 @@ mname = "omnih2o"
 ebnames = [
         "left_hand_link",
         "right_hand_link",
-        "head_link"
+        #"head_link"
     ]
 
 
@@ -158,44 +158,46 @@ class RewardsCfg:
     )
     p_jvel_limits = RewardTermCfg(
         func=reward_collect.penalize_jvel_limits,
-        weight=-50.0, params={"asset_cfg": SceneEntityCfg("robot")}
-    )
-    p_jvel_limits = RewardTermCfg(
-        func=reward_collect.penalize_jvel_limits,
-        weight=-50.0, params={"asset_cfg": SceneEntityCfg("robot")}
+        weight=-50.0, params={
+            "soft_ratio": 1.0,
+            "asset_cfg": SceneEntityCfg("robot")}
     )
     p_termination = RewardTermCfg(
         func=reward_collect.penalize_eps_terminated,
         weight=-250,
     )
     p_cforces = RewardTermCfg(
-        func=reward_collect.penalize_forces,
-        weight=-250,
+        func=reward_collect.penalize_forces2,
+        weight=-0.75,
         params={
+            "threshold": 500,
+            "max_over_penalize_forces": 400,
             "sensor_cfg": SceneEntityCfg("contact_forces",
-                body_names='*_ankle_link')}
+                body_names='.*_ankle_link')}
     )
     p_stumble = RewardTermCfg(
         func=reward_collect.penalty_stumble,
         weight=-1000.0,
         params={
             "sensor_cfg": SceneEntityCfg("contact_forces",
-                body_names='*_ankle_link')}
+                body_names='.*_ankle_link')}
     )
     p_slippage = RewardTermCfg(
         func=reward_collect.penalize_slide_threshold,
         weight=-37.5,
         params={
-            "threshold": 1,
+            "contacts_threshold": 1,
+            "asset_cfg": SceneEntityCfg("robot",
+                body_names='.*_ankle_link'),
             "sensor_cfg": SceneEntityCfg("contact_forces",
-                body_names='*_ankle_link')}
+                body_names='.*_ankle_link')}
     )
     p_feet_ori = RewardTermCfg(
         func=reward_collect.penalize_feet_orientation,
-        weight=-37.5,
+        weight=-62.5,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_forces",
-                body_names='*_ankle_link')}
+            "asset_cfg": SceneEntityCfg("robot",
+                body_names='.*_ankle_link')}
     )
     rew_air_time = RewardTermCfg(
         func=motions_foot.reward_motion_feet_air_time,
@@ -203,17 +205,17 @@ class RewardsCfg:
         params={
                 "motions_name": mname,
                 "threshold": 0.25,
-                "sensor_cfg": SceneEntityCfg("contact_forces", body_names="*_ankle_link")},
+                "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_link")},
     )
     p_both_air = RewardTermCfg(
         func=reward_collect.penalize_both_feet_in_air,
         weight=-200.0,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="*_ankle_link")},
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_link")},
     )
     p_feet_height = RewardTermCfg(
         func=reward_collect.penalize_max_feet_height_before_contact,
         weight=-2500.0,
         params={
-            "asset_cfg": SceneEntityCfg("robot"),
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names="*_ankle_link")}
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_link"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_link")}
     )

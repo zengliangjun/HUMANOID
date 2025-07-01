@@ -24,11 +24,7 @@ def orientation_xywiththreshold(
     asset: RigidObject = env.scene[asset_cfg.name]
     abs_projected_gravity = torch.abs(asset.data.projected_gravity_b)
 
-    return torch.any(
-        torch.logical_or(
-            abs_projected_gravity[:, 0].unsqueeze(1) > xy_threshold,
-            abs_projected_gravity[:, 1].unsqueeze(1) > xy_threshold,
-        ),
-        dim=1,
-        keepdim=True,
-    )
+    return torch.logical_or(
+            abs_projected_gravity[:, 0] > xy_threshold,
+            abs_projected_gravity[:, 1] > xy_threshold,
+        )

@@ -15,7 +15,7 @@ def body_coms(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
     asset: Articulation = env.scene[asset_cfg.name]
     coms = asset.data.com_pos_b[:, asset_cfg.body_ids]
-    return coms
+    return coms.flatten(1)
 
 def body_mass(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
@@ -27,7 +27,7 @@ def body_mass(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
 
     '''
     asset: RigidObject = env.scene[asset_cfg.name]
-    scales = asset.root_physx_view.get_masses().to(env.device) / asset.data.default_mass
+    scales = asset.root_physx_view.get_masses().to(env.device) / asset.data.default_mass.to(env.device)
     return scales[:, asset_cfg.body_ids]
 
 def push_force(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:

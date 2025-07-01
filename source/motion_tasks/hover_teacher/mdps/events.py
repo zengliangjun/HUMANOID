@@ -50,7 +50,8 @@ class EventCfg:
         interval_range_s=(3.0, 6.0),
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
-            "coms_distribution_params": (torch.tensor([-0.1, -0.1, -0.1]), torch.tensor([0.1, 0.1, 0.1])),
+            #"coms_distribution_params": (torch.tensor([-0.1, -0.1, -0.1]), torch.tensor([0.1, 0.1, 0.1])),
+            "coms_distribution_params": (-0.1, 0.1),
             "operation": "add",
             "distribution": "uniform",
         },
