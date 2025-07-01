@@ -27,6 +27,10 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         termination_manager: Manager that handles termination constraints.
     """
     cfg : ManagerBasedRLExtendsCfg
+    average_episode_length: torch.Tensor
+    max_iterations_steps: int
+
+    recovery_counters: torch.Tensor
 
     def __init__(self, cfg: ManagerBasedRLExtendsCfg, render_mode: str | None = None, **kwargs):
         """
@@ -44,6 +48,8 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         # Initialize variables for reward penalty and curriculum
         self.average_episode_length = torch.tensor(0, device=self.device, dtype=torch.long)
         self.max_iterations_steps = cfg.num_steps_per_env * cfg.max_iterations
+
+        self.recovery_counters = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
 
     def load_managers(self):
         """
@@ -107,6 +113,7 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         # -- update env counters (used for curriculum generation)
         self.episode_length_buf += 1  # step in current episode (per env)
         self.common_step_counter += 1  # total step (common for all envs)
+
         # -- check terminations
         self.reset_buf = self.termination_manager.compute()
         self.reset_terminated = self.termination_manager.terminated
@@ -163,7 +170,12 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
             VecEnvStepReturn: A tuple containing observation buffer, reward buffer,
                               termination flags, timeout flags, and additional extras.
         """
+        # Update recovery counters
+        self.recovery_counters -= 1
+        torch.clamp_min_(self.recovery_counters, 0)
+
         # super(ManagerBasedRLEnv_Extends, self).step(action)
+
         self._super_step(action)
 
         # Apply reward constraint to ensure non-negative values if flag is set
@@ -186,6 +198,8 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         # Update the running average using a weighted average formula
         self.average_episode_length = self.average_episode_length * (1 - num / num_compute_average_epl) \
                                      + current_average_episode_length * (num / num_compute_average_epl)
+
+        self.recovery_counters[env_ids] = 0
 
         # called super
 

@@ -95,8 +95,9 @@ class terminate_by_reference_motion_distance(Base):
                 mean_distance = distance.mean(dim=-1, keepdim=True)
                 exceeds_threshold = torch.any(mean_distance > max_ref_motion_dist, dim=-1, keepdim=True)
 
-            if in_recovery is None:
+            if not hasattr(env, "recovery_counters"):
                 return exceeds_threshold
 
             # If in recovery, ensure we only terminate if not in recovery mode
+            in_recovery = env.recovery_counters[:, None] > 0
             return torch.logical_and(exceeds_threshold, ~in_recovery)
