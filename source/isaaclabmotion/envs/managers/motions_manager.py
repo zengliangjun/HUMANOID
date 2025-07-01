@@ -132,6 +132,16 @@ class MotionsManager(ManagerBase):
     def active_terms(self) -> list[str] | dict[str, list[str]]:
         return [self._motions_name]
 
+    def compute(self, isplay: bool = False) -> torch.Tensor:
+        if self._motions is None:
+            return torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+
+        reset_time_outs = self._motions.termination_compute()
+        self._motions.extend_compute()
+        if isplay:
+            self._motions.step_play()
+        return reset_time_outs
+
     """
     Operations.
     """
@@ -153,16 +163,6 @@ class MotionsManager(ManagerBase):
             self._motions.reset(env_ids=env_ids)
 
         return {}
-
-    def compute(self, isplay: bool = False) -> torch.Tensor:
-        if self._motions is None:
-            return torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
-
-        reset_time_outs = self._motions.termination_compute()
-        self._motions.extend_compute()
-        if isplay:
-            self._motions.step_play()
-        return reset_time_outs
 
     def get_term(self, name: str) -> MotionsTerm:
         assert name == self._motions_name

@@ -7,7 +7,7 @@ from isaaclab.assets import Articulation
 
 from isaaclabmotion.envs.managers import motions_manager
 import isaaclab.utils.math as math_utils
-from extends.isaac_utils import rotations
+from extends.isaac_utils import rotations, torch_utils
 
 class Base(ManagerTermBase):
     """Base class for joint statistics calculation with common functionality."""
@@ -97,7 +97,8 @@ class obs_diff_rbquat(Base):
         diff_quat = math_utils.quat_error_magnitude(motions_quat_wxyz, quat)
         diff_rbquat = math_utils.quat_mul(math_utils.quat_inv(root_quat2), diff_quat)
         diff_rbquat = math_utils.quat_mul(diff_rbquat, root_quat2)
-        diff_rbquat = torch.norm(math_utils.axis_angle_from_quat(diff_rbquat), dim=-1)#torch.norm(diff_rbquat, dim = -1)
+        diff_rbquat = rotations.wxyz_to_xyzw(diff_rbquat)
+        diff_rbquat = torch_utils.quat_to_tan_norm(diff_rbquat)
 
         return diff_rbquat.flatten(1)
 
@@ -130,7 +131,7 @@ class obs_diff_rblin(Base):
         return diff_lin.flatten(1)
 
 
-class obs_diff_ang(Base):
+class obs_diff_rbang(Base):
 
     def __init__(self, cfg: ObservationTermCfg, env: ManagerBasedEnv):
         super().__init__(cfg, env)
@@ -201,6 +202,8 @@ class obs_diff_root_rbquat(Base):
         root_quat = self.asset.data.root_quat_w
 
         diff_root_rbquat = math_utils.quat_error_magnitude(root_quat, motions_root_quat_wxyz)
+        diff_root_rbquat = rotations.wxyz_to_xyzw(diff_root_rbquat)
+        diff_root_rbquat = torch_utils.quat_to_tan_norm(diff_root_rbquat)
         return diff_root_rbquat.flatten(1)
 
 class obs_motions_rbpos(Base):
@@ -245,4 +248,6 @@ class obs_motions_rbquat(Base):
         root_quat = self.asset.data.root_quat_w[:, None, :]
 
         motions_rbquat = math_utils.quat_error_magnitude(root_quat, motions_quat_wxyz)
+        motions_rbquat = rotations.wxyz_to_xyzw(motions_rbquat)
+        motions_rbquat = torch_utils.quat_to_tan_norm(motions_rbquat)
         return motions_rbquat.flatten(1)

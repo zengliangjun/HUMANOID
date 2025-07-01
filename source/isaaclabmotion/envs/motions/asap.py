@@ -155,27 +155,25 @@ class ASAPMotions(MotionsTerm):
             env_step_count = self._env._sim_step_counter // self._env.cfg.decimation
             return (env_step_count + step) * self._env.step_dt + self.start_times
 
-    def reset(self, env_ids: Sequence[int] | None = None) -> dict:
-        """
-        重置指定环境的运动起始时间。
-        """
-        if len(env_ids) == 0:
-            return {}
-
-        if self.cfg.random_sample:
-            self.start_times[env_ids] = self.motion_lib.sample_time(self.motion_ids[env_ids])
-        else:
-            self.start_times[env_ids] = 0
-
-        self.step_play(env_ids)
-        return {}
-
     def termination_compute(self) -> torch.Tensor:
         """
         检查当前运动是否需要重采样或重置。
         """
         current_time = self._env.episode_length_buf * self._env.step_dt + self.start_times
         reset_buf = current_time >= self.motion_len
+
+        # 定期重采样运动
+        if -1 != self.cfg.resample_interval_s and self._env.common_step_counter % self.resample_time_interval == 0:
+            reset_buf[:] = 1
+
+        return reset_buf
+
+    def reset(self, env_ids: Sequence[int] | None = None) -> dict:
+        """
+        重置指定环境的运动起始时间。
+        """
+        if len(env_ids) == 0:
+            return {}
 
         # 定期重采样运动
         if -1 != self.cfg.resample_interval_s and self._env.common_step_counter % self.resample_time_interval == 0:
@@ -188,9 +186,14 @@ class ASAPMotions(MotionsTerm):
             else:
                 self.start_times[...] = 0
 
-            reset_buf[:] = 1
 
-        return reset_buf
+        if self.cfg.random_sample:
+            self.start_times[env_ids] = self.motion_lib.sample_time(self.motion_ids[env_ids])
+        else:
+            self.start_times[env_ids] = 0
+
+        self.step_play(env_ids)
+        return {}
 
 
     def step_play(self, env_ids: Sequence[int] | None = None) -> torch.Tensor:

@@ -42,18 +42,6 @@ class RLMotionsENV(rl_env_exts.ManagerBasedRLEnv_Extends):
 
         super(RLMotionsENV, self).load_managers()
 
-    def reset(
-        self, seed: int | None = None, env_ids: Sequence[int] | None = None, options: dict[str, Any] | None = None
-    ) -> tuple[VecEnvObs, dict]:
-
-        if env_ids is None:
-            env_ids = torch.arange(self.num_envs, dtype=torch.int64, device=self.device)
-
-        self.episode_length_buf[env_ids] = 0
-        self.motions_manager.reset(env_ids)
-        result = super(RLMotionsENV, self).reset(seed, env_ids, options)
-        return result
-
     def _super_step(self, action: torch.Tensor) -> VecEnvStepReturn:
         """Execute one time-step of the environment's dynamics and reset terminated environments.
 
@@ -175,5 +163,6 @@ class RLMotionsENV(rl_env_exts.ManagerBasedRLEnv_Extends):
     def _reset_idx(self, env_ids: Sequence[int]):
         super()._reset_idx(env_ids)
 
+        # -- motions computation
         info = self.motions_manager.reset(env_ids)
         self.extras["log"].update(info)
