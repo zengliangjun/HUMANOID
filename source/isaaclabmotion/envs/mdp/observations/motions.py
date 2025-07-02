@@ -6,8 +6,10 @@ from isaaclab.managers import ManagerTermBase, ObservationTermCfg, SceneEntityCf
 from isaaclab.assets import Articulation
 
 from isaaclabmotion.envs.managers import motions_manager
-import isaaclab.utils.math as math_utils
-from extends.isaac_utils import rotations, torch_utils
+import isaaclab.utils.math as isaac_math_utils
+from extends.isaac_utils import math_utils, rotations, torch_utils
+
+DEBUG = False
 
 class Base(ManagerTermBase):
     """Base class for joint statistics calculation with common functionality."""
@@ -40,6 +42,13 @@ class Base(ManagerTermBase):
         # TODO
         return self._obs_motions_bodyids
 
+    def heading_inv_wxyz(self):
+        return self.motions.heading_inv_wxyz
+
+    def heading_wxyz(self):
+        return self.motions.heading_wxyz
+
+
 class obs_diff_rbpos(Base):
 
     def __init__(self, cfg: ObservationTermCfg, env: ManagerBasedEnv):
@@ -57,17 +66,34 @@ class obs_diff_rbpos(Base):
         ref_motions = self._obs_motion()
         motions_pos = ref_motions['rg_pos_t']
 
+        inv_wxyz = self.heading_inv_wxyz()
+        inv_wxyz2 = inv_wxyz[:, None, :]
 
-        root_quat = self.asset.data.root_quat_w
-        root_quat2 = root_quat[:, None, :]
         pos = self.asset.data.body_pos_w[: , self.motions.body_ids]
         pos = torch.cat((pos, self.motions.extend_body_pos), dim = 1)
 
         diff_pos = (motions_pos - pos)[:, self.obs_motions_bodyids]
 
-        root_quat2 = root_quat2.repeat((1, diff_pos.shape[1], 1))
+        inv_wxyz2 = inv_wxyz2.repeat((1, diff_pos.shape[1], 1))
 
-        diff_rbpos = math_utils.quat_rotate_inverse(root_quat2, diff_pos)
+        diff_rbpos = isaac_math_utils.quat_rotate(inv_wxyz2, diff_pos)
+
+        if DEBUG:
+            num_envs, num_bodies, _ = diff_pos.shape
+
+            root_rot = math_utils.convert_quat(self.asset.data.root_quat_w, to="xyzw")
+            heading_rot_inv = torch_utils.calc_heading_quat_inv(root_rot)  # xyzw
+            heading_rot_inv_expand = heading_rot_inv.unsqueeze(-2)
+            heading_rot_inv_expand = heading_rot_inv_expand.repeat((1, num_bodies, 1))
+            flat_heading_rot_inv = heading_rot_inv_expand.reshape(num_envs * num_bodies, 4)
+
+            diff_local_body_pos_flat = torch_utils.my_quat_rotate(
+                    flat_heading_rot_inv, diff_pos.view(-1, 3))  # input xyzw
+
+            diff_local_body_pos_flat = torch.reshape(diff_local_body_pos_flat, (num_envs, num_bodies, -1))
+
+            diff = diff_local_body_pos_flat - diff_rbpos
+
         return diff_rbpos.flatten(1)
 
 class obs_diff_rbquat(Base):
@@ -86,29 +112,66 @@ class obs_diff_rbquat(Base):
 
         ref_motions = self._obs_motion()
 
-        motions_quat_wxyz = rotations.xyzw_to_wxyz(ref_motions['rg_rot_t'])[:, self.obs_motions_bodyids]
+        ref_quat_wxyz = rotations.xyzw_to_wxyz(ref_motions['rg_rot_t'])[:, self.obs_motions_bodyids]
+
+        inv_wxyz = self.heading_inv_wxyz()
+        inv_wxyz2 = inv_wxyz[:, None, :]
+
+        heading_wxyz = self.heading_wxyz()
+        heading_wxyz2 = heading_wxyz[:, None, :]
+
+        quat_wxyz = self.asset.data.body_quat_w.clone()
+        quat_wxyz = quat_wxyz[: , self.motions.body_ids]
+        quat_wxyz = torch.cat((quat_wxyz, self.motions.extend_body_rot_wxyz), dim = 1)[:, self.obs_motions_bodyids]
+
+        inv_wxyz2 = inv_wxyz2.repeat((1, quat_wxyz.shape[1], 1))
+        heading_wxyz2 = heading_wxyz2.repeat((1, quat_wxyz.shape[1], 1))
+
+        diff_quat_wxyz = isaac_math_utils.quat_mul(ref_quat_wxyz, isaac_math_utils.quat_conjugate(quat_wxyz))
+        #diff_quat = isaac_math_utils.quat_error_magnitude(motions_quat_wxyz, quat)
+        diff_rbquat_wxyz = isaac_math_utils.quat_mul(inv_wxyz2, diff_quat_wxyz)
+        diff_rbquat_wxyz = isaac_math_utils.quat_mul(diff_rbquat_wxyz, heading_wxyz2)
+
+        diff_rbquat_xyzw = rotations.wxyz_to_xyzw(diff_rbquat_wxyz)
+
+        diff_rbquat_xyzw = torch.reshape(diff_rbquat_xyzw, (-1, diff_rbquat_xyzw.shape[-1]))
+        diff_norm = torch_utils.quat_to_tan_norm(diff_rbquat_xyzw)
+        diff_norm = torch.reshape(diff_norm, (quat_wxyz.shape[0], -1))
+
+        if DEBUG:
+            num_envs, num_bodies, _ = ref_quat_wxyz.shape
+
+            root_rot = math_utils.convert_quat(self.asset.data.root_quat_w, to="xyzw")
+            heading_rot_inv = torch_utils.calc_heading_quat_inv(root_rot)  # xyzw
+            heading_rot_inv_expand = heading_rot_inv.unsqueeze(-2)
+            heading_rot_inv_expand = heading_rot_inv_expand.repeat((1, num_bodies, 1))
+            flat_heading_rot_inv = heading_rot_inv_expand.reshape(num_envs * num_bodies, 4)
 
 
-        root_quat = self.asset.data.root_quat_w
-        root_quat2 = root_quat[:, None, :]
+            heading_rot = torch_utils.calc_heading_quat(root_rot)  # xyzw
+            heading_rot_expand = heading_rot.unsqueeze(-2).repeat((1, num_bodies, 1))
 
-        quat = self.asset.data.body_quat_w.clone()
-        quat = quat[: , self.motions.body_ids]
-        quat = torch.cat((quat, self.motions.extend_body_rot_wxyz), dim = 1)[:, self.obs_motions_bodyids]
+            ##
+            diff_global_body_rot = math_utils.quat_mul(
+                                        ref_quat_wxyz,
+                                        math_utils.quat_conjugate(quat_wxyz),
+                                    )  # input wxyz out wxyz
+            diff_local_body_rot_flat = math_utils.quat_mul(
+                    math_utils.quat_mul(
+                        math_utils.convert_quat(flat_heading_rot_inv, to="wxyz"),
+                        diff_global_body_rot.view(-1, 4)
+                    ),
+                    math_utils.convert_quat(heading_rot_expand.view(-1, 4), to="wxyz"),
+            )  # Need to be change of basis  # input wxyz
 
-        root_quat2 = root_quat2.repeat((1, quat.shape[1], 1))
+            diff_local_body_rot_flat = math_utils.convert_quat(diff_local_body_rot_flat, to="xyzw")  # out xyzw
 
-        diff_quat = math_utils.quat_mul(motions_quat_wxyz, math_utils.quat_conjugate(quat))
-        #diff_quat = math_utils.quat_error_magnitude(motions_quat_wxyz, quat)
-        diff_rbquat = math_utils.quat_mul(math_utils.quat_inv(root_quat2), diff_quat)
-        diff_rbquat = math_utils.quat_mul(diff_rbquat, root_quat2)
-        diff_rbquat = rotations.wxyz_to_xyzw(diff_rbquat)
+            diff_norm2 = torch_utils.quat_to_tan_norm(diff_local_body_rot_flat)
+            diff_norm2 = torch.reshape(diff_norm2, (num_envs, -1))
 
-        diff_rbquat = torch.reshape(diff_rbquat, (-1, diff_rbquat.shape[-1]))
-        diff_rbquat = torch_utils.quat_to_tan_norm(diff_rbquat)
-        diff_rbquat = torch.reshape(diff_rbquat, (quat.shape[0], -1))
+            diff = diff_norm - diff_norm2
 
-        return diff_rbquat
+        return diff_norm
 
 
 class obs_diff_rblin(Base):
@@ -128,18 +191,35 @@ class obs_diff_rblin(Base):
         ref_motions = self._obs_motion()
         motions_lin = ref_motions['body_vel_t']
 
+        inv_wxyz = self.heading_inv_wxyz()
+        inv_wxyz2 = inv_wxyz[:, None, :]
 
-        root_quat = self.asset.data.root_quat_w
-        root_quat2 = root_quat[:, None, :]
         lin = self.asset.data.body_lin_vel_w[: , self.motions.body_ids]
         lin = torch.cat((lin, self.motions.extend_body_lin_vel), dim = 1)
 
         diff_lin = (motions_lin - lin)[:, self.obs_motions_bodyids]
 
-        root_quat2 = root_quat2.repeat((1, diff_lin.shape[1], 1))
+        inv_wxyz2 = inv_wxyz2.repeat((1, diff_lin.shape[1], 1))
 
-        diff_lin = math_utils.quat_rotate_inverse(root_quat2, diff_lin)
-        return diff_lin.flatten(1)
+        diff_rblin = isaac_math_utils.quat_rotate(inv_wxyz2, diff_lin)
+
+        if DEBUG:
+            num_envs, num_bodies, _ = diff_lin.shape
+
+            root_rot = math_utils.convert_quat(self.asset.data.root_quat_w, to="xyzw")
+            heading_rot_inv = torch_utils.calc_heading_quat_inv(root_rot)  # xyzw
+            heading_rot_inv_expand = heading_rot_inv.unsqueeze(-2)
+            heading_rot_inv_expand = heading_rot_inv_expand.repeat((1, num_bodies, 1))
+            flat_heading_rot_inv = heading_rot_inv_expand.reshape(num_envs * num_bodies, 4)
+
+            diff_local_body_lin_flat = torch_utils.my_quat_rotate(
+                    flat_heading_rot_inv, diff_lin.view(-1, 3))  # input xyzw
+
+            diff_local_body_lin_flat = torch.reshape(diff_local_body_lin_flat, (num_envs, num_bodies, -1))
+
+            diff = diff_local_body_lin_flat - diff_rblin
+
+        return diff_rblin.flatten(1)
 
 
 class obs_diff_rbang(Base):
@@ -159,18 +239,35 @@ class obs_diff_rbang(Base):
         ref_motions = self._obs_motion()
         motions_ang = ref_motions['body_ang_vel_t']
 
+        inv_wxyz = self.heading_inv_wxyz()
+        inv_wxyz2 = inv_wxyz[:, None, :]
 
-        root_quat = self.asset.data.root_quat_w
-        root_quat2 = root_quat[:, None, :]
         ang = self.asset.data.body_ang_vel_w[: , self.motions.body_ids]
         ang = torch.cat((ang, self.motions.extend_body_ang_vel), dim = 1)
 
         diff_ang = (motions_ang - ang)[:, self.obs_motions_bodyids]
 
-        root_quat2 = root_quat2.repeat((1, diff_ang.shape[1], 1))
+        inv_wxyz2 = inv_wxyz2.repeat((1, diff_ang.shape[1], 1))
 
-        diff_ang = math_utils.quat_rotate_inverse(root_quat2, diff_ang)
-        return diff_ang.flatten(1)
+        diff_rbang = isaac_math_utils.quat_rotate(inv_wxyz2, diff_ang)
+
+        if DEBUG:
+            num_envs, num_bodies, _ = diff_ang.shape
+
+            root_rot = math_utils.convert_quat(self.asset.data.root_quat_w, to="xyzw")
+            heading_rot_inv = torch_utils.calc_heading_quat_inv(root_rot)  # xyzw
+            heading_rot_inv_expand = heading_rot_inv.unsqueeze(-2)
+            heading_rot_inv_expand = heading_rot_inv_expand.repeat((1, num_bodies, 1))
+            flat_heading_rot_inv = heading_rot_inv_expand.reshape(num_envs * num_bodies, 4)
+
+            diff_local_body_ang_flat = torch_utils.my_quat_rotate(
+                    flat_heading_rot_inv, diff_ang.view(-1, 3))  # input xyzw
+
+            diff_local_body_ang_flat = torch.reshape(diff_local_body_ang_flat, (num_envs, num_bodies, -1))
+
+            diff = diff_local_body_ang_flat - diff_rbang
+
+        return diff_rbang.flatten(1)
 
 class obs_diff_root_rbpos(Base):
 
@@ -187,13 +284,25 @@ class obs_diff_root_rbpos(Base):
     ) -> torch.Tensor:
 
         ref_motions = self._obs_motion()
-        motions_root_pos = ref_motions['root_pos']
+        ref_root_pos = ref_motions['root_pos']
 
-        root_quat = self.asset.data.root_quat_w
+        inv_wxyz = self.heading_inv_wxyz()
         root_pos = self.asset.data.root_pos_w
 
-        diff_root_pos = motions_root_pos - root_pos
-        diff_root_rbpos = math_utils.quat_rotate_inverse(root_quat, diff_root_pos)
+        diff_root_pos = ref_root_pos - root_pos
+        diff_root_rbpos = isaac_math_utils.quat_rotate(inv_wxyz, diff_root_pos)
+
+        if DEBUG:
+            num_envs, _ = diff_root_pos.shape
+
+            root_rot = math_utils.convert_quat(self.asset.data.root_quat_w, to="xyzw")
+            heading_rot_inv = torch_utils.calc_heading_quat_inv(root_rot)  # xyzw
+
+            diff_local_root = torch_utils.my_quat_rotate(
+                    heading_rot_inv, diff_root_pos.view(-1, 3))  # input xyzw
+
+            diff = diff_local_root - diff_root_rbpos
+
         return diff_root_rbpos.flatten(1)
 
 class obs_diff_root_rbquat(Base):
@@ -211,18 +320,23 @@ class obs_diff_root_rbquat(Base):
     ) -> torch.Tensor:
 
         ref_motions = self._obs_motion()
-        motions_root_quat_wxyz = rotations.xyzw_to_wxyz(ref_motions['root_rot'])
+        ref_root_wxyz = rotations.xyzw_to_wxyz(ref_motions['root_rot'])
 
         root_quat = self.asset.data.root_quat_w
 
-        diff_root_rbquat = math_utils.quat_mul(root_quat, math_utils.quat_conjugate(motions_root_quat_wxyz))
-        #diff_root_rbquat = math_utils.quat_error_magnitude(root_quat, motions_root_quat_wxyz)
-        diff_root_rbquat = rotations.wxyz_to_xyzw(diff_root_rbquat)
+        inv_wxyz = self.heading_inv_wxyz()
+        heading_wxyz = self.heading_wxyz()
 
-        diff_root_rbquat = torch.reshape(diff_root_rbquat, (-1, diff_root_rbquat.shape[-1]))
-        diff_root_rbquat = torch_utils.quat_to_tan_norm(diff_root_rbquat)
-        diff_root_rbquat = torch.reshape(diff_root_rbquat, (root_quat.shape[0], -1))
-        return diff_root_rbquat
+        diff_quat_wxyz = isaac_math_utils.quat_mul(ref_root_wxyz, isaac_math_utils.quat_conjugate(root_quat))
+
+        diff_rbquat_wxyz = isaac_math_utils.quat_mul(inv_wxyz, diff_quat_wxyz)
+        diff_rbquat_wxyz = isaac_math_utils.quat_mul(diff_rbquat_wxyz, heading_wxyz)
+
+        diff_rbquat_xyzw = rotations.wxyz_to_xyzw(diff_rbquat_wxyz)
+        #
+        diff_norm = torch_utils.quat_to_tan_norm(diff_rbquat_xyzw)
+
+        return diff_norm
 
 class obs_motions_rbpos(Base):
 
@@ -238,16 +352,20 @@ class obs_motions_rbpos(Base):
     ) -> torch.Tensor:
 
         ref_motions = self._obs_motion()
-        motions_pos = ref_motions['rg_pos_t']
+        ref_pos = ref_motions['rg_pos_t']
 
-        root_quat = self.asset.data.root_quat_w[:, None, :]
+        #
+        inv_wxyz = self.heading_inv_wxyz()
+        inv_wxyz2 = inv_wxyz[:, None, :]
+
+        #
         root_pos = self.asset.data.root_pos_w[:, None, :]
-
         diff_pos = (motions_pos - root_pos)
 
-        root_quat = root_quat.repeat((1, diff_pos.shape[1], 1))
+        #
+        inv_wxyz2 = inv_wxyz2.repeat((1, diff_pos.shape[1], 1))
 
-        motions_rbpos = math_utils.quat_rotate_inverse(root_quat, diff_pos)
+        motions_rbpos = isaac_math_utils.quat_rotate(inv_wxyz2, diff_pos)
         return motions_rbpos.flatten(1)
 
 class obs_motions_rbquat(Base):
@@ -264,16 +382,31 @@ class obs_motions_rbquat(Base):
     ) -> torch.Tensor:
 
         ref_motions = self._obs_motion()
-        motions_quat_wxyz = rotations.xyzw_to_wxyz(ref_motions['rg_rot_t'][:, self.obs_motions_bodyids])
+        ref_quat_wxyz = rotations.xyzw_to_wxyz(ref_motions['rg_rot_t'][:, self.obs_motions_bodyids])
 
-        root_quat = self.asset.data.root_quat_w[:, None, :]
-        root_quat = root_quat.repeat((1, motions_quat_wxyz.shape[1], 1))
+        inv_wxyz = self.heading_inv_wxyz()
+        inv_wxyz2 = inv_wxyz[:, None, :]
 
-        motions_rbquat = math_utils.quat_mul(root_quat, math_utils.quat_conjugate(motions_quat_wxyz))
-        #motions_rbquat = math_utils.quat_error_magnitude(root_quat, motions_quat_wxyz)
-        motions_rbquat = rotations.wxyz_to_xyzw(motions_rbquat)
+        heading_wxyz = self.heading_wxyz()
+        heading_wxyz2 = heading_wxyz[:, None, :]
 
-        motions_rbquat = torch.reshape(motions_rbquat, (-1, motions_rbquat.shape[-1]))
-        motions_rbquat = torch_utils.quat_to_tan_norm(motions_rbquat)
-        motions_rbquat = torch.reshape(motions_rbquat, (root_quat.shape[0], -1))
-        return motions_rbquat
+        quat_wxyz = self.asset.data.body_quat_w.clone()
+        quat_wxyz = quat_wxyz[: , self.motions.body_ids]
+        quat_wxyz = torch.cat((quat_wxyz, self.motions.extend_body_rot_wxyz), dim = 1)[:, self.obs_motions_bodyids]
+
+
+        inv_wxyz2 = inv_wxyz2.repeat((1, ref_quat_wxyz.shape[1], 1))
+        heading_wxyz2 = heading_wxyz2.repeat((1, ref_quat_wxyz.shape[1], 1))
+
+
+        ref_quat_wxyz = isaac_math_utils.quat_mul(ref_quat_wxyz, isaac_math_utils.quat_conjugate(quat_wxyz))
+
+        ref_rbquat_wxyz = isaac_math_utils.quat_mul(inv_wxyz2, ref_quat_wxyz)
+        ref_rbquat_wxyz = isaac_math_utils.quat_mul(diff_rbquat_wxyz, heading_wxyz2)
+
+        ref_rbquat = rotations.wxyz_to_xyzw(ref_rbquat_wxyz)
+
+        ref_rbquat = torch.reshape(ref_rbquat, (-1, ref_rbquat.shape[-1]))
+        ref_norm = torch_utils.quat_to_tan_norm(ref_rbquat)
+        ref_norm = torch.reshape(ref_norm, (inv_wxyz.shape[0], -1))
+        return ref_norm

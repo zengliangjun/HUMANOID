@@ -7,7 +7,7 @@ from isaaclab.assets import Articulation
 
 from isaaclabmotion.envs.managers import motions_manager
 import isaaclab.utils.math as isaac_math_utils
-from extends,isaac_utils import math_utils, torch_utils, rotations
+from extends.isaac_utils import math_utils, torch_utils, rotations
 
 DEBUG = False
 
@@ -29,10 +29,8 @@ class Base(ManagerTermBase):
         self.asset: Articulation = env.scene[asset_cfg.name]
         self.body_ids = asset_cfg.body_ids
 
-    def heading_quat_inv_wxyz(self):
-        root_rot = math_utils.convert_quat(self.asset.data.root_quat_w, to="xyzw")
-        heading_rot_inv = torch_utils.calc_heading_quat_inv(root_rot)  # xyzw
-        return math_utils.convert_quat(heading_rot_inv, to="wxyz")
+    def heading_inv_wxyz(self):
+        return self.motions.heading_inv_wxyz
 
 
 class obs_body_pos(Base):
@@ -59,7 +57,7 @@ class obs_body_pos(Base):
         root_pos_extend = root_pos.unsqueeze(-2)
         local_body_pos = body_pos - root_pos_extend
 
-        inv_wxyz = self.heading_quat_inv_wxyz()[:, None, :].repeat((1, local_body_pos.shape[1], 1))
+        inv_wxyz = self.heading_inv_wxyz()[:, None, :].repeat((1, local_body_pos.shape[1], 1))
 
         body_pos_lb = isaac_math_utils.quat_rotate(inv_wxyz, local_body_pos)
 
@@ -97,7 +95,7 @@ class obs_body_rotwxyz(Base):
             extend_rot = self.motions.extend_body_rot_wxyz[:, self.extend_body_ids]
             bodyrot_wxyz = torch.cat((bodyrot_wxyz, extend_rot), dim = 1)
 
-        quatinv_wxyz = self.heading_quat_inv_wxyz()[:, None, :].repeat((1, bodyrot_wxyz.shape[1], 1))
+        quatinv_wxyz = self.heading_inv_wxyz()[:, None, :].repeat((1, bodyrot_wxyz.shape[1], 1))
 
         lbody_wxyz = isaac_math_utils.quat_mul(quatinv_wxyz, bodyrot_wxyz)
         lbody_xyzw = rotations.wxyz_to_xyzw(lbody_wxyz)
@@ -147,7 +145,7 @@ class obs_body_lin_vel(Base):
             extend_vel = self.motions.extend_body_lin_vel[:, self.extend_body_ids]
             lin_vel = torch.cat((lin_vel, extend_vel), dim = 1)
 
-        inv_wxyz = self.heading_quat_inv_wxyz()[:, None, :].repeat((1, lin_vel.shape[1], 1))
+        inv_wxyz = self.heading_inv_wxyz()[:, None, :].repeat((1, lin_vel.shape[1], 1))
 
         lin_vel_lb = isaac_math_utils.quat_rotate(inv_wxyz, lin_vel)
 
@@ -187,7 +185,7 @@ class obs_body_ang_vel(Base):
             extend_ang = self.motions.extend_body_ang_vel[:, self.extend_body_ids]
             ang_vel = torch.cat((ang_vel, extend_ang), dim = 1)
 
-        inv_wxyz = self.heading_quat_inv_wxyz()[:, None, :].repeat((1, ang_vel.shape[1], 1))
+        inv_wxyz = self.heading_inv_wxyz()[:, None, :].repeat((1, ang_vel.shape[1], 1))
 
         ang_vel_lb = isaac_math_utils.quat_rotate(inv_wxyz, ang_vel)
 

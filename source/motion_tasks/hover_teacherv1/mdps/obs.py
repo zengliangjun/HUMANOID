@@ -107,6 +107,7 @@ class ObservationsCfg:
             params = bodyparams,
             scale = 1.2, noise=mdiff_rbang_noise_scale)
         # root
+        """
         mdiff_root_rbpos = ObservationTermCfg(
             func=motions.obs_diff_root_rbpos,
             params = bodyparams,
@@ -116,7 +117,9 @@ class ObservationsCfg:
             func=motions.obs_diff_root_rbquat,
             params = bodyparams,
             scale = 1.2, noise=mdiff_root_rbquat_noise_scale)
+        """
         # motions
+        """
         m_rbpos = ObservationTermCfg(
             func=motions.obs_motions_rbpos,
             params = bodyparams,
@@ -126,7 +129,7 @@ class ObservationsCfg:
             func=motions.obs_motions_rbquat,
             params = bodyparams,
             scale = 0.5, noise=m_rbquat_noise_scale)
-
+        """
         actions = ObservationTermCfg(func=mdp.last_action)
 
         def __post_init__(self):
