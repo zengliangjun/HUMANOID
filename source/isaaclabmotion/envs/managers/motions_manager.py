@@ -60,6 +60,14 @@ class MotionsTerm(ManagerTermBase):
     def body_ids(self):
         return self._body_ids
 
+    @property
+    def heading_wxyz(self):
+        return self._heading_wxyz
+
+    @property
+    def heading_inv_wxyz(self):
+        return self._heading_inv_wxyz
+
     """
     extend org info
     """

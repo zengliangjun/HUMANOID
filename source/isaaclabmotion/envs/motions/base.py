@@ -8,8 +8,8 @@ from isaaclabmotion.envs.managers.motions_manager import MotionsTerm
 from isaaclab.managers.scene_entity_cfg import SceneEntityCfg
 from isaaclab.assets import Articulation
 
-#import isaaclab.utils.math as math_utils
-from extends.isaac_utils import rotations
+#import isaaclab.utils.math as isaac_math_utils
+from extends.isaac_utils import math_utils, torch_utils, rotations
 
 if TYPE_CHECKING:
     from isaaclabmotion.envs.env_motions import ManagerMotionsEnv
@@ -90,6 +90,9 @@ class MotionsBase(MotionsTerm):
         self._extend_body_lin_vel = torch.zeros_like(self._extend_body_pos)
 
         self._motion_body_names = cfg.params["body_names"] + self._extend_body_names
+
+        self._heading_wxyz = torch.zeros_like(asset.data.root_quat_w)
+        self._heading_inv_wxyz = torch.zeros_like(asset.data.root_quat_w)
 
     def motion_ref(self, step: int):
         """
@@ -218,6 +221,15 @@ class MotionsBase(MotionsTerm):
         angular_contribution = torch.cross(self._extend_body_ang_vel, self._extend_body_parent_poses, dim=2)
         _extend_curr_vel = asset.data.body_lin_vel_w[:, self._extend_body_parent_ids] + angular_contribution
         self._extend_body_lin_vel[...] = _extend_curr_vel
+
+
+        ################### INV root Heading rot #####################
+        root_xyzw = math_utils.convert_quat(asset.data.root_quat_w, to="xyzw")
+        heading_inv = torch_utils.calc_heading_quat_inv(root_xyzw)  # xyzw
+        self._heading_inv_wxyz[...] = math_utils.convert_quat(heading_inv, to="wxyz")
+
+        heading = torch_utils.calc_heading_quat(root_xyzw)
+        self._heading_wxyz[...] = math_utils.convert_quat(heading, to="wxyz")
 
         if False:
             extend_count = len(self.extend_body_names)
