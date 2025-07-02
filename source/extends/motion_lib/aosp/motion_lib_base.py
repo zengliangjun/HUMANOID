@@ -5,6 +5,8 @@ import joblib
 import torch
 import random
 
+from extends.isaac_utils import torch_utils
+from scipy.spatial.transform import Rotation as sRot
 from extends.motion_lib.aosp.motion_utils.flags import flags
 from extends.motion_lib.aosp.skeleton import SkeletonTree
 
@@ -384,7 +386,7 @@ class MotionLibBase():
                 #from isaacgym.torch_utils import calc_heading_quat_inv
                 #from scipy.spatial.transform import Rotation as sRot
                 start_root_rot = sRot.from_rotvec(pose_aa[0, 0])
-                heading_inv_rot = sRot.from_quat(calc_heading_quat_inv(torch.from_numpy(start_root_rot.as_quat()[None, ])))
+                heading_inv_rot = sRot.from_quat(torch_utils.calc_heading_quat_inv(torch.from_numpy(start_root_rot.as_quat()[None, ])))
                 heading_delta = sRot.from_quat(target_heading) * heading_inv_rot
                 pose_aa[:, 0] = torch.tensor((heading_delta * sRot.from_rotvec(pose_aa[:, 0])).as_rotvec())
 

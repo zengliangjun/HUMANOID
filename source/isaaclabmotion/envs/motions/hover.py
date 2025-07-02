@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from extends.motion_lib.aosp import motion_lib_robot
+from extends.motion_lib.hover import motion_lib_robot
 from . import base
 
 if TYPE_CHECKING:
@@ -9,11 +9,11 @@ if TYPE_CHECKING:
     from isaaclabmotion.envs.managers.term_cfg import MotionsTermCfg
 
 
-class ASAPMotions(base.MotionsBase):
+class HOVERMotions(base.MotionsBase):
 
     def _init_motion_lib(self):
         # 构建运动库配置
-        libcfg = motion_lib_robot.ASAPMotionlibCfg(
+        libcfg = motion_lib_robot.HOVERMotionlibCfg(
             num_envs = self.num_envs,
             device = self.device,
             step_dt = self._env.step_dt,
@@ -25,4 +25,4 @@ class ASAPMotions(base.MotionsBase):
         self.motion_lib = motion_lib_robot.MotionLibRobot(libcfg)
 
     def __init__(self, cfg: MotionsTermCfg, env: ManagerMotionsEnv):
-        super(ASAPMotions, self).__init__(cfg, env)
+        super(HOVERMotions, self).__init__(cfg, env)
