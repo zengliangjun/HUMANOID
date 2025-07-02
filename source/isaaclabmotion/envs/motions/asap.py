@@ -4,7 +4,7 @@ from dataclasses import MISSING
 from typing import TYPE_CHECKING
 from collections.abc import Sequence
 import torch
-from isaaclab.utils import configclass
+
 
 from isaaclabmotion.envs.managers.motions_manager import MotionsTerm
 from extends.motion_lib.aosp import motion_lib_robot
@@ -18,33 +18,6 @@ if TYPE_CHECKING:
     from isaaclabmotion.envs.env_motions import ManagerMotionsEnv
     from isaaclabmotion.envs.managers.term_cfg import MotionsTermCfg
 
-"""
-- joint_name: "left_hand_link"
-        parent_name: "left_elbow_link"
-        pos: [0.3, 0.0, 0.0]
-        rot: [1.0, 0.0, 0.0, 0.0]
-- joint_name: "right_hand_link"
-        parent_name: "right_elbow_link"
-        pos: [0.3, 0.0, 0.0]
-        rot: [1.0, 0.0, 0.0, 0.0]
-
-"""
-
-@configclass
-class ASAPMotionlibCfg:
-    """
-    配置类，用于存储ASAP运动库的相关参数。
-    """
-    num_envs: int = MISSING
-    device: str = MISSING
-    ##
-    step_dt: float = MISSING
-
-    motion_file: str = MISSING
-
-    mjcf_file: str = MISSING
-
-    extend_config: list = MISSING
 
 class ASAPMotions(MotionsTerm):
     """
@@ -64,7 +37,7 @@ class ASAPMotions(MotionsTerm):
         assert "joint_names" in self.cfg.params
 
         # 构建运动库配置
-        libcfg = ASAPMotionlibCfg(
+        libcfg = motion_lib_robot.ASAPMotionlibCfg(
             num_envs = self.num_envs,
             device = self.device,
             step_dt = self._env.step_dt,

@@ -1,5 +1,40 @@
+from __future__ import annotations
+from dataclasses import MISSING
+
 from extends.motion_lib.aosp.motion_lib_base import MotionLibBase
 from extends.motion_lib.aosp.torch_humanoid_batch import Humanoid_Batch
+from isaaclab.utils import configclass
+
+@configclass
+class ASAPMotionlibCfg:
+    """
+    配置类，用于存储ASAP运动库的相关参数。
+    """
+    num_envs: int = MISSING
+    device: str = MISSING
+    ##
+    step_dt: float = MISSING
+
+    motion_file: str = MISSING
+
+    mjcf_file: str = MISSING
+
+    extend_config: list = MISSING
+
+
+"""
+- joint_name: "left_hand_link"
+        parent_name: "left_elbow_link"
+        pos: [0.3, 0.0, 0.0]
+        rot: [1.0, 0.0, 0.0, 0.0]
+- joint_name: "right_hand_link"
+        parent_name: "right_elbow_link"
+        pos: [0.3, 0.0, 0.0]
+        rot: [1.0, 0.0, 0.0, 0.0]
+
+"""
+
+
 class MotionLibRobot(MotionLibBase):
     def __init__(self, config):
 
