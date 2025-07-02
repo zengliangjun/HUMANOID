@@ -111,7 +111,7 @@ class MotionLibBase():
         masterfoot_conifg = None
         min_length = -1
         im_eval = False
-        multi_thread = False
+        multi_thread = config.multi_thread
 
         self._device = device
         self.mesh_parsers = None

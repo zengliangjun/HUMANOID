@@ -37,6 +37,8 @@ class HOVERMotionlibCfg:
 
     extend_config: list = MISSING
 
+    multi_thread: bool = False
+
 """
 - joint_name: "left_hand_link"
         parent_name: "left_elbow_link"
