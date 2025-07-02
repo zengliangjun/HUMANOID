@@ -53,20 +53,12 @@ class MotionsTerm(ManagerTermBase):
             self._debug_vis_handle = None
 
     @property
-    def bodyAssetToMotionIds(self):
-        return self._bodyAssetToMotionIds
+    def joint_ids(self):
+        return self._joint_ids
 
     @property
-    def jointMotionToAssetIds(self):
-        return self._jointMotionToAssetIds
-
-    @property
-    def jointids(self):
-        return self._jointids
-
-    @property
-    def bodyids(self):
-        return self._bodyids
+    def body_ids(self):
+        return self._body_ids
 
     """
     extend org info

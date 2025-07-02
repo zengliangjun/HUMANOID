@@ -33,7 +33,7 @@ class Base(ManagerTermBase):
         self._obs_motions_bodyids, _ = self.motions.resolve_motion_bodies(motion_names)
 
     def _obs_motion(self) -> dict:
-        return self.motions.motion_ref(0)
+        return self.motions.motion_ref(1)
 
     @property
     def obs_motions_bodyids(self):
@@ -60,7 +60,7 @@ class obs_diff_rbpos(Base):
 
         root_quat = self.asset.data.root_quat_w
         root_quat2 = root_quat[:, None, :]
-        pos = self.asset.data.body_pos_w[: , self.motions.bodyAssetToMotionIds]
+        pos = self.asset.data.body_pos_w[: , self.motions.body_ids]
         pos = torch.cat((pos, self.motions.extend_body_pos), dim = 1)
 
         diff_pos = (motions_pos - pos)[:, self.obs_motions_bodyids]
@@ -93,7 +93,7 @@ class obs_diff_rbquat(Base):
         root_quat2 = root_quat[:, None, :]
 
         quat = self.asset.data.body_quat_w.clone()
-        quat = quat[: , self.motions.bodyAssetToMotionIds]
+        quat = quat[: , self.motions.body_ids]
         quat = torch.cat((quat, self.motions.extend_body_rot_wxyz), dim = 1)[:, self.obs_motions_bodyids]
 
         root_quat2 = root_quat2.repeat((1, quat.shape[1], 1))
@@ -131,7 +131,7 @@ class obs_diff_rblin(Base):
 
         root_quat = self.asset.data.root_quat_w
         root_quat2 = root_quat[:, None, :]
-        lin = self.asset.data.body_lin_vel_w[: , self.motions.bodyAssetToMotionIds]
+        lin = self.asset.data.body_lin_vel_w[: , self.motions.body_ids]
         lin = torch.cat((lin, self.motions.extend_body_lin_vel), dim = 1)
 
         diff_lin = (motions_lin - lin)[:, self.obs_motions_bodyids]
@@ -162,7 +162,7 @@ class obs_diff_rbang(Base):
 
         root_quat = self.asset.data.root_quat_w
         root_quat2 = root_quat[:, None, :]
-        ang = self.asset.data.body_ang_vel_w[: , self.motions.bodyAssetToMotionIds]
+        ang = self.asset.data.body_ang_vel_w[: , self.motions.body_ids]
         ang = torch.cat((ang, self.motions.extend_body_ang_vel), dim = 1)
 
         diff_ang = (motions_ang - ang)[:, self.obs_motions_bodyids]

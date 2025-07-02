@@ -80,7 +80,7 @@ class terminate_by_reference_motion_distance(Base):
             ref_motions = self._terminate_motion()
             motions_pos = ref_motions['rg_pos_t']
 
-            pos = self.asset.data.body_pos_w[: , self.motions.bodyAssetToMotionIds]
+            pos = self.asset.data.body_pos_w[: , self.motions.body_ids]
             pos = torch.cat((pos, self.motions.extend_body_pos), dim = 1)
 
             diff_pos = (motions_pos - pos)[:, self.motions_bodyids]

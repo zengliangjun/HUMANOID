@@ -56,7 +56,7 @@ class reward_track_body_lin_vel(Base):
         ref_motions = self._reward_motion()
         motions_lin = ref_motions['body_vel_t']
 
-        lin = self.asset.data.body_lin_vel_w[: , self.motions.bodyAssetToMotionIds]
+        lin = self.asset.data.body_lin_vel_w[: , self.motions.body_ids]
         lin = torch.cat((lin, self.motions.extend_body_lin_vel), dim = 1)
 
         diff_lin = (motions_lin - lin)[:, self.reward_motions_bodyids]
@@ -81,7 +81,7 @@ class reward_track_body_ang_vel(Base):
         ref_motions = self._reward_motion()
         motions_ang = ref_motions['body_ang_vel_t']
 
-        ang = self.asset.data.body_ang_vel_w[: , self.motions.bodyAssetToMotionIds]
+        ang = self.asset.data.body_ang_vel_w[: , self.motions.body_ids]
         ang = torch.cat((ang, self.motions.extend_body_ang_vel), dim = 1)
 
         diff_ang = (motions_ang - ang)[:, self.reward_motions_bodyids]
@@ -106,7 +106,7 @@ class reward_track_body_pos(Base):
         ref_motions = self._reward_motion()
         motions_pos = ref_motions['rg_pos_t']
 
-        pos = self.asset.data.body_pos_w[: , self.motions.bodyAssetToMotionIds]
+        pos = self.asset.data.body_pos_w[: , self.motions.body_ids]
         pos = torch.cat((pos, self.motions.extend_body_pos), dim = 1)
 
         diff_pos = (motions_pos - pos)[:, self.reward_motions_bodyids]
@@ -130,7 +130,7 @@ class reward_track_body_quat(Base):
         ref_motions = self._reward_motion()
         motions_quat_wxyz = rotations.xyzw_to_wxyz(ref_motions['rg_rot_t'])[:, self.reward_motions_bodyids]
 
-        quat = self.asset.data.body_quat_w[: , self.motions.bodyAssetToMotionIds]
+        quat = self.asset.data.body_quat_w[: , self.motions.body_ids]
         quat = torch.cat((quat, self.motions.extend_body_rot_wxyz), dim = 1)[:, self.reward_motions_bodyids]
 
         diff_quat = math_utils.quat_error_magnitude(motions_quat_wxyz, quat)

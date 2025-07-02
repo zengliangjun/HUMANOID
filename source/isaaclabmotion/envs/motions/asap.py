@@ -98,23 +98,9 @@ class ASAPMotions(MotionsTerm):
         asset: Articulation = self._env.scene[assert_cfg.name]
         self.asset = asset
 
-        bodyAssetToMotionIds = []
-        for name in body_names:
-            # 资产body名称到运动body名称的索引映射
-            bodyAssetToMotionIds.append(asset.body_names.index(name))
-
-        jointMotionToAssetIds = []
-        for name in asset.joint_names:
-            # 运动joint名称到资产joint名称的索引映射
-            jointMotionToAssetIds.append(joint_names.index(name))
-
-        self._bodyAssetToMotionIds = bodyAssetToMotionIds
         ##
-        self._jointMotionToAssetIds = jointMotionToAssetIds
-
-        ##
-        self._jointids, self._jointnames = asset.find_joints(joint_names, preserve_order=True)
-        self._bodyids, self._body_names = asset.find_bodies(body_names, preserve_order=True)
+        self._joint_ids, self._joint_names = asset.find_joints(joint_names, preserve_order=True)
+        self._body_ids, self._body_names = asset.find_bodies(body_names, preserve_order=True)
 
         ## extend
         # 扩展body名称列表，添加额外的关节
@@ -211,8 +197,8 @@ class ASAPMotions(MotionsTerm):
 
         dof_pos = ref_motions['dof_pos'][env_ids]
         dof_vel = ref_motions['dof_vel'][env_ids]
-        dof_pos = dof_pos#[:, self.jointMotionToAssetIds]
-        dof_vel = dof_vel#[:, self.jointMotionToAssetIds]
+        dof_pos = dof_pos
+        dof_vel = dof_vel
 
         actions = torch.cat((dof_pos, dof_vel), dim = -1)
 
@@ -225,11 +211,11 @@ class ASAPMotions(MotionsTerm):
         pose = torch.cat((root_pos, root_rot), dim = -1)
         vel = torch.cat((root_vel, root_ang_vel), dim = -1)
 
-        #asset.set_joint_position_target(target = dof_pos, joint_ids=self.jointids, env_ids = env_ids)
-        #asset.set_joint_velocity_target(target = dof_vel, joint_ids=self.jointids, env_ids = env_ids)
+        #asset.set_joint_position_target(target = dof_pos, joint_ids=self.joint_ids, env_ids = env_ids)
+        #asset.set_joint_velocity_target(target = dof_vel, joint_ids=self.joint_ids, env_ids = env_ids)
         asset.write_joint_state_to_sim(position=dof_pos,
                                        velocity=dof_vel,
-                                       joint_ids=self.jointids,
+                                       joint_ids=self.joint_ids,
                                        env_ids = env_ids)
         asset.write_root_pose_to_sim(root_pose = pose, env_ids = env_ids)
         asset.write_root_velocity_to_sim(root_velocity = vel, env_ids = env_ids)
@@ -296,28 +282,28 @@ class ASAPMotions(MotionsTerm):
 
 
             rg_pos = self.prev_motions["rg_pos"]
-            bpos = asset.data.body_pos_w[: , self.bodyAssetToMotionIds]
+            bpos = asset.data.body_pos_w[: , self.body_ids]
             diff_bpos = rg_pos - bpos
 
 
             rb_rot = rotations.xyzw_to_wxyz(self.prev_motions["rb_rot"])
-            brot = asset.data.body_quat_w[: , self.bodyAssetToMotionIds]
+            brot = asset.data.body_quat_w[: , self.body_ids]
             diff_brot = rb_rot - brot
 
             body_vel = self.prev_motions["body_vel"]
-            bvel = asset.data.body_lin_vel_w[: , self.bodyAssetToMotionIds]
+            bvel = asset.data.body_lin_vel_w[: , self.body_ids]
             diff_bvel = body_vel - bvel
 
             body_ang = self.prev_motions["body_ang_vel"]
-            bang = asset.data.body_ang_vel_w[: , self.bodyAssetToMotionIds]
+            bang = asset.data.body_ang_vel_w[: , self.body_ids]
             diff_bang = body_ang - bang
 
-            dof_pos = self.prev_motions["dof_pos"][:, self.jointMotionToAssetIds]
-            jpos = asset.data.joint_pos
+            dof_pos = self.prev_motions["dof_pos"]
+            jpos = asset.data.joint_pos[: , self.joint_ids]
             diff_jpos = dof_pos - jpos
 
-            dof_vel = self.prev_motions["dof_vel"][:, self.jointMotionToAssetIds]
-            jvel = asset.data.joint_vel
+            dof_vel = self.prev_motions["dof_vel"]
+            jvel = asset.data.joint_vel[: , self.joint_ids]
             diff_jvel = dof_vel - jvel
 
             print(">>>")

@@ -37,9 +37,9 @@ class reward_track_joint_positions(Base):
     ) -> torch.Tensor:
 
         ref_motions = self._reward_motion()
-        motions_dof_pos = ref_motions['dof_pos'][:, self.motions.jointMotionToAssetIds]
+        motions_dof_pos = ref_motions['dof_pos']
 
-        dof_pos = self.asset.data.joint_pos
+        dof_pos = self.asset.data.joint_pos[:, self.motions.joint_ids]
 
         diff = (motions_dof_pos - dof_pos)[:, asset_cfg.joint_ids]
         diff_squared = torch.mean(torch.square(diff), dim=1)
@@ -60,9 +60,9 @@ class reward_track_joint_velocities(Base):
     ) -> torch.Tensor:
 
         ref_motions = self._reward_motion()
-        motions_dof_pos = ref_motions['dof_vel'][:, self.motions.jointMotionToAssetIds]
+        motions_dof_pos = ref_motions['dof_vel']
 
-        dof_pos = self.asset.data.joint_vel
+        dof_pos = self.asset.data.joint_vel[:, self.motions.joint_ids]
 
         diff = (motions_dof_pos - dof_pos)[:, asset_cfg.joint_ids]
         diff_squared = torch.mean(torch.square(diff), dim=1)
