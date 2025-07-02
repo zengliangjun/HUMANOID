@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import inspect
+import weakref
+import omni.kit.app
+
 import torch
 from typing import TYPE_CHECKING
 from collections.abc import Sequence
@@ -37,6 +41,17 @@ class MotionsTerm(ManagerTermBase):
         self.motion_len = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device, requires_grad=False)
         self.start_times = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device, requires_grad=False)
 
+        # add handle for debug visualization (this is set to a valid handle inside set_debug_vis)
+        self._debug_vis_handle = None
+        # set initial state of debug visualization
+        self.set_debug_vis(self.cfg.debug_vis)
+
+    def __del__(self):
+        """Unsubscribe from the callbacks."""
+        if self._debug_vis_handle:
+            self._debug_vis_handle.unsubscribe()
+            self._debug_vis_handle = None
+
     @property
     def bodyAssetToMotionIds(self):
         return self._bodyAssetToMotionIds
@@ -44,6 +59,14 @@ class MotionsTerm(ManagerTermBase):
     @property
     def jointMotionToAssetIds(self):
         return self._jointMotionToAssetIds
+
+    @property
+    def jointids(self):
+        return self._jointids
+
+    @property
+    def bodyids(self):
+        return self._bodyids
 
     """
     extend org info
@@ -106,6 +129,70 @@ class MotionsTerm(ManagerTermBase):
     @property
     def extend_body_lin_vel(self):
         return self._extend_body_lin_vel
+
+
+    """
+    DEBUG VIS
+    """
+    @property
+    def has_debug_vis_implementation(self) -> bool:
+        """Whether the command generator has a debug visualization implemented."""
+        # check if function raises NotImplementedError
+        source_code = inspect.getsource(self._set_debug_vis_impl)
+        return "NotImplementedError" not in source_code
+
+    """
+    Operations.
+    """
+
+    def set_debug_vis(self, debug_vis: bool) -> bool:
+        """Sets whether to visualize the command data.
+
+        Args:
+            debug_vis: Whether to visualize the command data.
+
+        Returns:
+            Whether the debug visualization was successfully set. False if the command
+            generator does not support debug visualization.
+        """
+        # check if debug visualization is supported
+        if not self.has_debug_vis_implementation:
+            return False
+        # toggle debug visualization objects
+        self._set_debug_vis_impl(debug_vis)
+        # toggle debug visualization handles
+        if debug_vis:
+            # create a subscriber for the post update event if it doesn't exist
+            if self._debug_vis_handle is None:
+                app_interface = omni.kit.app.get_app_interface()
+                self._debug_vis_handle = app_interface.get_post_update_event_stream().create_subscription_to_pop(
+                    lambda event, obj=weakref.proxy(self): obj._debug_vis_callback(event)
+                )
+        else:
+            # remove the subscriber if it exists
+            if self._debug_vis_handle is not None:
+                self._debug_vis_handle.unsubscribe()
+                self._debug_vis_handle = None
+        # return success
+        return True
+
+    def _set_debug_vis_impl(self, debug_vis: bool):
+        """Set debug visualization into visualization objects.
+
+        This function is responsible for creating the visualization objects if they don't exist
+        and input ``debug_vis`` is True. If the visualization objects exist, the function should
+        set their visibility into the stage.
+        """
+        raise NotImplementedError(f"Debug visualization is not implemented for {self.__class__.__name__}.")
+
+    def _debug_vis_callback(self, event):
+        """Callback for debug visualization.
+
+        This function calls the visualization objects and sets the data to visualize into them.
+        """
+        raise NotImplementedError(f"Debug visualization is not implemented for {self.__class__.__name__}.")
+
+
 
 class MotionsManager(ManagerBase):
 

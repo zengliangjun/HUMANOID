@@ -74,7 +74,7 @@ class OMNIH2OH1EnvCfg(env_motions_cfg.ManagerMotionsCfg):
 
         # general settings
         self.decimation = 4        ##
-        self.episode_length_s = 5#20.0
+        self.episode_length_s = 20.0
         # simulation settings
         self.sim.dt = 0.005        ## 1 / 200
         self.sim.render_interval = self.decimation
@@ -88,5 +88,7 @@ class OMNIH2OH1EnvCfg(env_motions_cfg.ManagerMotionsCfg):
         if hasattr(self.scene, "contact_forces") and self.scene.contact_forces is not None:
             self.scene.contact_forces.update_period = self.sim.dt
 
+        self.motions.omnih2o.motion_file = f"{asap_omnih2oh1._ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl"
         self.motions.omnih2o.step_dt = self.decimation * self.sim.dt
         self.motions.omnih2o.random_sample = True
+        self.motions.omnih2o.debug_vis = True

@@ -96,6 +96,7 @@ class ASAPMotions(MotionsTerm):
 
         assert_cfg: SceneEntityCfg = cfg.assert_cfg
         asset: Articulation = self._env.scene[assert_cfg.name]
+        self.asset = asset
 
         bodyAssetToMotionIds = []
         for name in body_names:
@@ -108,7 +109,12 @@ class ASAPMotions(MotionsTerm):
             jointMotionToAssetIds.append(joint_names.index(name))
 
         self._bodyAssetToMotionIds = bodyAssetToMotionIds
+        ##
         self._jointMotionToAssetIds = jointMotionToAssetIds
+
+        ##
+        self._jointids, self._jointnames = asset.find_joints(joint_names, preserve_order=True)
+        self._bodyids, self._body_names = asset.find_bodies(body_names, preserve_order=True)
 
         ## extend
         # 扩展body名称列表，添加额外的关节
@@ -205,8 +211,8 @@ class ASAPMotions(MotionsTerm):
 
         dof_pos = ref_motions['dof_pos'][env_ids]
         dof_vel = ref_motions['dof_vel'][env_ids]
-        dof_pos = dof_pos[:, self.jointMotionToAssetIds]
-        dof_vel = dof_vel[:, self.jointMotionToAssetIds]
+        dof_pos = dof_pos#[:, self.jointMotionToAssetIds]
+        dof_vel = dof_vel#[:, self.jointMotionToAssetIds]
 
         actions = torch.cat((dof_pos, dof_vel), dim = -1)
 
@@ -219,8 +225,12 @@ class ASAPMotions(MotionsTerm):
         pose = torch.cat((root_pos, root_rot), dim = -1)
         vel = torch.cat((root_vel, root_ang_vel), dim = -1)
 
-        asset.set_joint_position_target(target = dof_pos, env_ids = env_ids)
-        asset.set_joint_velocity_target(target = dof_vel, env_ids = env_ids)
+        #asset.set_joint_position_target(target = dof_pos, joint_ids=self.jointids, env_ids = env_ids)
+        #asset.set_joint_velocity_target(target = dof_vel, joint_ids=self.jointids, env_ids = env_ids)
+        asset.write_joint_state_to_sim(position=dof_pos,
+                                       velocity=dof_vel,
+                                       joint_ids=self.jointids,
+                                       env_ids = env_ids)
         asset.write_root_pose_to_sim(root_pose = pose, env_ids = env_ids)
         asset.write_root_velocity_to_sim(root_velocity = vel, env_ids = env_ids)
 
@@ -311,3 +321,73 @@ class ASAPMotions(MotionsTerm):
             diff_jvel = dof_vel - jvel
 
             print(">>>")
+
+    """
+    DEBUG VIS
+    """
+    def _set_debug_vis_impl(self, debug_vis: bool):
+        # set visibility of markers
+        # note: parent only deals with callbacks. not their visibility
+        if debug_vis:
+            import isaaclab.sim as sim_utils
+            from isaaclab.markers import VisualizationMarkers, VisualizationMarkersCfg
+
+            # create markers if necessary for the first tome
+            if not hasattr(self, "rfbody_markers"):
+                REF_BODY_CFG = VisualizationMarkersCfg(
+                    prim_path="/Visuals/motion/rfbody",
+                    markers={
+                        "rfbody": sim_utils.SphereCfg(
+                            radius=0.03,
+                            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.3, 0.3, 0.3)),
+                        )
+                    })
+                REF_EXTEND_CFG = VisualizationMarkersCfg(
+                    prim_path="/Visuals/motion/rfextend",
+                    markers={
+                        "rfextend": sim_utils.SphereCfg(
+                            radius=0.03,
+                            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.8, 0.3, 0.3)),
+                        )
+                    })
+                EXTEND_CFG = VisualizationMarkersCfg(
+                    prim_path="/Visuals/motion/extend",
+                    markers={
+                        "extend": sim_utils.CuboidCfg(
+                            size=[0.06, 0.064, 0.07],
+                            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.3, 0.8, 0.3)),
+                        ),
+                    })
+                # -- goal
+                self.rfbody_markers = VisualizationMarkers(REF_BODY_CFG)
+                self.rfextend_markers = VisualizationMarkers(REF_EXTEND_CFG)
+                self.extend_markers = VisualizationMarkers(EXTEND_CFG)
+
+
+            # set their visibility to true
+            self.rfbody_markers.set_visibility(True)
+            self.rfextend_markers.set_visibility(True)
+            self.extend_markers.set_visibility(True)
+        else:
+            if hasattr(self, "rfbody_markers"):
+                self.rfbody_markers.set_visibility(False)
+                self.rfextend_markers.set_visibility(False)
+                self.extend_markers.set_visibility(False)
+
+    def _debug_vis_callback(self, event):
+        # check if robot is initialized
+        # note: this is needed in-case the robot is de-initialized. we can't access the data
+        if not self.asset.is_initialized:
+            return
+
+        ref_motions = self.motion_ref(1)
+
+        motions_pos = ref_motions['rg_pos_t']
+
+        rfbody = torch.reshape(motions_pos[:, : - len(self.extend_body_names)], (-1, 3))
+        rfextend = torch.reshape(motions_pos[:, - len(self.extend_body_names): ], (-1, 3))
+        extend = self.extend_body_pos.view(-1, 3)
+
+        self.rfbody_markers.visualize(rfbody)
+        self.rfextend_markers.visualize(rfextend)
+        self.extend_markers.visualize(extend)

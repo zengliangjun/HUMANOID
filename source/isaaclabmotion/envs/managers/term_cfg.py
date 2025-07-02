@@ -33,3 +33,6 @@ class MotionsTermCfg(ManagerTermBaseCfg):
     resample_interval_s: float = -1  # 重新采样间隔， -1 表示不调整
 
     params: dict[str, Any] = MISSING  # 其他参数
+
+    debug_vis: bool = False
+    """Whether to visualize debug information. Defaults to False."""
