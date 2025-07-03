@@ -65,28 +65,7 @@ class curriculum_with_degree(ManagerTermBase):
         else:
             raise Exception(f"未知参数: {self.param_name}")
 
-    def __call__(
-        self,
-        env: ManagerBasedRLEnv_Extends,
-        env_ids: Sequence[int],
-        degree: float,
-        down_up_lengths: Union[list, tuple],
-        value_range: Union[list, tuple],
-        manager_name: str,
-        term_name: str,
-        param_name: str
-    ) -> torch.Tensor:
-        """
-        执行参数调整逻辑
-
-        根据当前episode长度决定是否调整参数值:
-        - 小于阈值: 减少参数值
-        - 大于阈值: 增加参数值
-        - 在阈值范围内: 不调整
-
-        返回:
-            调整后的参数值(tensor)
-        """
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
 
         update = True
         # 根据episode长度决定调整方向
@@ -111,6 +90,28 @@ class curriculum_with_degree(ManagerTermBase):
 
                 self.cur_value = value  # 更新当前值
 
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv_Extends,
+        env_ids: Sequence[int],
+        degree: float,
+        down_up_lengths: Union[list, tuple],
+        value_range: Union[list, tuple],
+        manager_name: str,
+        term_name: str,
+        param_name: str
+    ) -> torch.Tensor:
+        """
+        执行参数调整逻辑
+
+        根据当前episode长度决定是否调整参数值:
+        - 小于阈值: 减少参数值
+        - 大于阈值: 增加参数值
+        - 在阈值范围内: 不调整
+
+        返回:
+            调整后的参数值(tensor)
+        """
         return torch.tensor(self.cur_value, device=self._env.device)
 
 
@@ -168,17 +169,7 @@ class scale_with_degree(ManagerTermBase):
             else:
                 raise Exception(f"未知参数: {param_name}")
 
-    def __call__(
-        self,
-        env: ManagerBasedRLEnv_Extends,
-        env_ids: Sequence[int],
-        degree: float,
-        down_up_lengths: Union[list, tuple],
-        scale_range: Union[list, tuple],
-        manager_name: str,
-        curriculums: dict,
-        scale: float = 0,
-    ) -> torch.Tensor:
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
 
         update = True
 
@@ -200,5 +191,17 @@ class scale_with_degree(ManagerTermBase):
                 self._update(scale)
 
                 self.scale = scale  # 更新当前值
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv_Extends,
+        env_ids: Sequence[int],
+        degree: float,
+        down_up_lengths: Union[list, tuple],
+        scale_range: Union[list, tuple],
+        manager_name: str,
+        curriculums: dict,
+        scale: float = 0,
+    ) -> torch.Tensor:
 
         return torch.tensor(self.scale, device=self._env.device)

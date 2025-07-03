@@ -112,17 +112,7 @@ class range_with_degree(ManagerTermBase):
             term_cfg: ManagerTermBaseCfg = self.manager.get_term_cfg(name)
             _calcute_curriculum_step(scale, term_cfg, dicts)
 
-    def __call__(
-        self,
-        env: ManagerBasedRLEnv_Extends,
-        env_ids: Sequence[int],
-        degree: float,
-        down_up_lengths: Union[list, tuple],
-        scale_range: Union[list, tuple],
-        manager_name: str,
-        curriculums: dict,
-        scale: float = 0,
-    ) -> torch.Tensor:
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
 
         update = True
 
@@ -144,5 +134,17 @@ class range_with_degree(ManagerTermBase):
                 self._update(scale)
 
                 self.scale = scale  # 更新当前值
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv_Extends,
+        env_ids: Sequence[int],
+        degree: float,
+        down_up_lengths: Union[list, tuple],
+        scale_range: Union[list, tuple],
+        manager_name: str,
+        curriculums: dict,
+        scale: float = 0,
+    ) -> torch.Tensor:
 
         return torch.tensor(self.scale, device=self._env.device)
