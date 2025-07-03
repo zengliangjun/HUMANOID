@@ -12,7 +12,7 @@ class OMNIH2OH1CfgV0(RslRlOnPolicyRunnerCfg):
     experiment_name = experiment_name
     empirical_normalization = False
     policy = mi_modules_cfg.MIEncodeActorCriticCfg(
-        class_name = "MIERecurrentActorCritic",
+        class_name = "MIEActorCritic",
         init_noise_std=1,
         actor_hidden_dims=[512, 256, 128],
         critic_hidden_dims=[512, 256, 128],
@@ -41,9 +41,9 @@ class OMNIH2OH1CfgV0(RslRlOnPolicyRunnerCfg):
     )
 
     def __post_init__(self):
-        self.policy.rnn_type='lstm'
-        self.policy.rnn_hidden_size=512
-        self.policy.rnn_num_layers=1
+        #self.policy.rnn_type='lstm'
+        #self.policy.rnn_hidden_size=512
+        #self.policy.rnn_num_layers=1
 
         self.policy.encode_policy_hidden_dims = [768]
         self.policy.encode_critic_hidden_dims = [128]

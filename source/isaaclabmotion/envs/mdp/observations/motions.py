@@ -360,7 +360,7 @@ class obs_motions_rbpos(Base):
 
         #
         root_pos = self.asset.data.root_pos_w[:, None, :]
-        diff_pos = (motions_pos - root_pos)
+        diff_pos = (ref_pos - root_pos)
 
         #
         inv_wxyz2 = inv_wxyz2.repeat((1, diff_pos.shape[1], 1))
@@ -402,7 +402,7 @@ class obs_motions_rbquat(Base):
         ref_quat_wxyz = isaac_math_utils.quat_mul(ref_quat_wxyz, isaac_math_utils.quat_conjugate(quat_wxyz))
 
         ref_rbquat_wxyz = isaac_math_utils.quat_mul(inv_wxyz2, ref_quat_wxyz)
-        ref_rbquat_wxyz = isaac_math_utils.quat_mul(diff_rbquat_wxyz, heading_wxyz2)
+        ref_rbquat_wxyz = isaac_math_utils.quat_mul(ref_rbquat_wxyz, heading_wxyz2)
 
         ref_rbquat = rotations.wxyz_to_xyzw(ref_rbquat_wxyz)
 

@@ -105,7 +105,7 @@ class RewardsCfg:
 
         params={"sigma": 0.03,
                 "motions_name": motions_name,
-                "asset_cfg": SceneEntityCfg("robot", body_names= []),
+                "asset_cfg": SceneEntityCfg("robot", body_names= "pelvis"),
                 "extend_body_names": extend_body_names },
     )
 
