@@ -58,7 +58,7 @@ class CurriculumCfg:
         params={
             "degree": 0.00001,
             "down_up_lengths":[50, 125],
-            "scale": 0.18,
+            "scale": 0.5,
             "scale_range": [0.18, 1],
             "manager_name": "reward",
             "curriculums": {
