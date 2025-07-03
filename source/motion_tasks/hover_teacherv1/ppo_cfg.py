@@ -8,7 +8,7 @@ experiment_name = "hover_hoverh1"
 class OMNIH2OH1CfgV0(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
     max_iterations = 10000000
-    save_interval = 1000
+    save_interval = 500
     experiment_name = experiment_name
     empirical_normalization = False
     policy = mi_modules_cfg.MIEncodeActorCriticCfg(
@@ -21,14 +21,14 @@ class OMNIH2OH1CfgV0(RslRlOnPolicyRunnerCfg):
         critic_groups= ["policy",
                         "critic"],
         encode_groups= [
-            "policy", "critic",
+            # "policy", "critic",
         ],
     )
     algorithm = RslRlPpoAlgorithmCfg(
         class_name="MIPPO",
         value_loss_coef=1.0,
         use_clipped_value_loss=True,
-        clip_param=0.1,
+        clip_param=0.2,
         entropy_coef=0.005,
         num_learning_epochs=5,
         num_mini_batches=4,

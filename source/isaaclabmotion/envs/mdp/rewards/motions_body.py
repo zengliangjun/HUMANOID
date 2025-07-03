@@ -21,7 +21,7 @@ class Base(ManagerTermBase):
         self.asset: Articulation = env.scene[asset_cfg.name]
 
         if asset_cfg.body_names is None or len(asset_cfg.body_names) == 0:
-            motion_names = self.asset.body_names
+            motion_names = []
         else:
             motion_names = asset_cfg.body_names
 

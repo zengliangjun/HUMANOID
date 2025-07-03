@@ -96,13 +96,12 @@ class RLMotionsENV(rl_env_exts.ManagerBasedRLEnv_Extends):
         self.reset_terminated = self.termination_manager.terminated
         self.reset_time_outs = self.termination_manager.time_outs
 
-        # -- motions computation
-        reset_time_outs = self.motions_manager.compute()
-        self.reset_buf |= reset_time_outs
-        self.reset_time_outs |= reset_time_outs
-
         # -- statistics computation
         self.statistics_manager.compute()
+
+        # -- motions computation
+        self.motions_manager.compute()
+
         # -- reward computation
         self.reward_buf = self.reward_manager.compute(dt=self.step_dt)
 
@@ -110,6 +109,7 @@ class RLMotionsENV(rl_env_exts.ManagerBasedRLEnv_Extends):
             # update observations for recording if needed
             self.obs_buf = self.observation_manager.compute()
             self.recorder_manager.record_post_step()
+
 
         # -- reset envs that terminated/timed-out and log the episode information
         reset_env_ids = self.reset_buf.nonzero(as_tuple=False).squeeze(-1)

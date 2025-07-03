@@ -152,6 +152,8 @@ class MotionsBase(MotionsTerm):
             self.start_times[env_ids] = 0
 
         self.step_play(env_ids)
+        self.extend_compute()
+
         return {}
 
 
@@ -175,6 +177,7 @@ class MotionsBase(MotionsTerm):
         root_vel = ref_motions['root_vel'][env_ids]                 # 7: 10
         root_ang_vel = ref_motions['root_ang_vel'][env_ids]         # 7: 10
 
+        root_pos[:, 2] += 0.04  # in case under the terrain
         pose = torch.cat((root_pos, root_rot), dim = -1)
         vel = torch.cat((root_vel, root_ang_vel), dim = -1)
 
@@ -342,7 +345,7 @@ class MotionsBase(MotionsTerm):
         if not self.asset.is_initialized:
             return
 
-        ref_motions = self.motion_ref(1)
+        ref_motions = self.motion_ref(0)
 
         motions_pos = ref_motions['rg_pos_t']
 

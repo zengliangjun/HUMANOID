@@ -4,7 +4,7 @@ import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 
 
 from isaaclabex.envs.mdp.terminations import body
-from isaaclabmotion.envs.mdp.terminations import body as mbody
+from isaaclabmotion.envs.mdp.terminations import body as mbody, motion_terminations
 
 @configclass
 class ActionsCfg:
@@ -23,6 +23,9 @@ extend_body_names = [
 class TerminationsCfg:
     """Termination terms for the MDP."""
 
+    time_out = TerminationTermCfg(func=mdp.time_out, time_out=True)
+    motion_termination = TerminationTermCfg(func=motion_terminations.motion_termination,
+                                            params = {"motions_name": motions_name},  time_out=True)
     """
     time_out = TerminationTermCfg(func=mdp.time_out, time_out=True)
 
@@ -48,16 +51,17 @@ class TerminationsCfg:
                     ".*_knee_link"
                 ]), "threshold": 1.0},
     )
-    """
     height = TerminationTermCfg(
         func=mdp.root_height_below_minimum,
         params={"minimum_height": 0.4})
+
+    """
 
     distance = TerminationTermCfg(
         func=mbody.terminate_by_reference_motion_distance,
         params={"asset_cfg": SceneEntityCfg("robot"),
                 "training_mode": True,
-                "max_ref_motion_dist": 1.5,
+                "max_ref_motion_dist": 0.5,
                 "motions_name": motions_name,
                 "extend_body_names": extend_body_names},
     )

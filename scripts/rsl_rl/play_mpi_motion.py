@@ -32,6 +32,7 @@ args_cli = parser.parse_args()
 if args_cli.video:
     args_cli.enable_cameras = True
 
+
 # launch omniverse app
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
@@ -130,9 +131,8 @@ def main():
     for name, value in obs.items():
         obs[name] = value.to(ppo_runner.device)
 
-
-
-    logger = Logger(env.unwrapped)
+    if args_cli.plot_logger:
+        logger = Logger(env.unwrapped)
 
     # simulate environment
     while simulation_app.is_running():

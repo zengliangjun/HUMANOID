@@ -8,6 +8,7 @@ from isaaclab.assets import Articulation
 from isaaclabmotion.envs.managers import motions_manager
 import isaaclab.utils.math as isaac_math_utils
 from extends.isaac_utils import math_utils, rotations, torch_utils
+import copy
 
 DEBUG = False
 
@@ -25,9 +26,9 @@ class Base(ManagerTermBase):
         self.asset: Articulation = env.scene[asset_cfg.name]
 
         if asset_cfg.body_names is None or len(asset_cfg.body_names) == 0:
-            motion_names = self.asset.body_names
+            motion_names = copy.deepcopy(self.asset.body_names)
         else:
-            motion_names = asset_cfg.body_names
+            motion_names = copy.deepcopy(asset_cfg.body_names)
 
         if "extend_body_names" in cfg.params:
             motion_names += cfg.params["extend_body_names"]
@@ -35,7 +36,7 @@ class Base(ManagerTermBase):
         self._obs_motions_bodyids, _ = self.motions.resolve_motion_bodies(motion_names)
 
     def _obs_motion(self) -> dict:
-        return self.motions.motion_ref(1)
+        return self.motions.motion_ref(0)
 
     @property
     def obs_motions_bodyids(self):
@@ -386,25 +387,10 @@ class obs_motions_rbquat(Base):
 
         inv_wxyz = self.heading_inv_wxyz()
         inv_wxyz2 = inv_wxyz[:, None, :]
-
-        heading_wxyz = self.heading_wxyz()
-        heading_wxyz2 = heading_wxyz[:, None, :]
-
-        quat_wxyz = self.asset.data.body_quat_w.clone()
-        quat_wxyz = quat_wxyz[: , self.motions.body_ids]
-        quat_wxyz = torch.cat((quat_wxyz, self.motions.extend_body_rot_wxyz), dim = 1)[:, self.obs_motions_bodyids]
-
-
         inv_wxyz2 = inv_wxyz2.repeat((1, ref_quat_wxyz.shape[1], 1))
-        heading_wxyz2 = heading_wxyz2.repeat((1, ref_quat_wxyz.shape[1], 1))
 
-
-        ref_quat_wxyz = isaac_math_utils.quat_mul(ref_quat_wxyz, isaac_math_utils.quat_conjugate(quat_wxyz))
-
-        ref_rbquat_wxyz = isaac_math_utils.quat_mul(inv_wxyz2, ref_quat_wxyz)
-        ref_rbquat_wxyz = isaac_math_utils.quat_mul(ref_rbquat_wxyz, heading_wxyz2)
-
-        ref_rbquat = rotations.wxyz_to_xyzw(ref_rbquat_wxyz)
+        ref_quat_wxyz = isaac_math_utils.quat_mul(inv_wxyz2, isaac_math_utils.quat_conjugate(ref_quat_wxyz))
+        ref_rbquat = rotations.wxyz_to_xyzw(ref_quat_wxyz)
 
         ref_rbquat = torch.reshape(ref_rbquat, (-1, ref_rbquat.shape[-1]))
         ref_norm = torch_utils.quat_to_tan_norm(ref_rbquat)

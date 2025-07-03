@@ -46,7 +46,7 @@ class RewardsCfg:
         func=motions_joints.reward_track_joint_positions,
         weight=32,
 
-        params={"sigma": 0.5,
+        params={"sigma": 0.05,
                 "motions_name": motions_name,
                 "asset_cfg": SceneEntityCfg("robot")},
     )
@@ -55,7 +55,7 @@ class RewardsCfg:
         func=motions_joints.reward_track_joint_velocities,
         weight=16,
 
-        params={"sigma": 1,
+        params={"sigma": 0.5,
                 "motions_name": motions_name,
                 "asset_cfg": SceneEntityCfg("robot")},
     )
@@ -65,9 +65,9 @@ class RewardsCfg:
         func=motions_body.reward_track_body_lin_vel,
         weight=8,
 
-        params={"sigma": 10,
+        params={"sigma": 1,
                 "motions_name": motions_name,
-                "asset_cfg": SceneEntityCfg("robot", body_names= bnames),
+                "asset_cfg": SceneEntityCfg("robot", body_names= bnames, preserve_order = True),
                 "extend_body_names": extend_body_names },
     )
 
@@ -75,9 +75,9 @@ class RewardsCfg:
         func=motions_body.reward_track_body_ang_vel,
         weight=8,
 
-        params={"sigma": 10,
+        params={"sigma": 1,
                 "motions_name": motions_name,
-                "asset_cfg": SceneEntityCfg("robot", body_names= bnames),
+                "asset_cfg": SceneEntityCfg("robot", body_names= bnames, preserve_order = True),
                 "extend_body_names": extend_body_names },
     )
 
@@ -85,9 +85,9 @@ class RewardsCfg:
         func=motions_body.reward_track_body_pos,
         weight=30.0 * 0.5,
 
-        params={"sigma": 0.5,
+        params={"sigma": 0.05,
                 "motions_name": motions_name,
-                "asset_cfg": SceneEntityCfg("robot", body_names= bnames[:11]),
+                "asset_cfg": SceneEntityCfg("robot", body_names= bnames[:11], preserve_order = True),
                 "extend_body_names": [] },
     )
     rew_track_upper_pos = RewardTermCfg(
@@ -96,8 +96,8 @@ class RewardsCfg:
 
         params={"sigma": 0.03,
                 "motions_name": motions_name,
-                "asset_cfg": SceneEntityCfg("robot", body_names= bnames[11:]),
-                "extend_body_names": extend_body_names },
+                "asset_cfg": SceneEntityCfg("robot", body_names= bnames[11:], preserve_order = True),
+                "extend_body_names": [] },
     )
     rew_track_vr_pos = RewardTermCfg(
         func=motions_body.reward_track_body_pos,
@@ -105,8 +105,17 @@ class RewardsCfg:
 
         params={"sigma": 0.03,
                 "motions_name": motions_name,
-                "asset_cfg": SceneEntityCfg("robot", body_names= "pelvis"),
+                "asset_cfg": SceneEntityCfg("robot"),
                 "extend_body_names": extend_body_names },
+    )
+
+    rew_stability= RewardTermCfg(
+        func=reward_collect.reward_stability,
+        weight=30.0,
+        params={"asset_cfg":
+                SceneEntityCfg("robot", body_names=[
+                                     ".*left_ankle_link",
+                                     ".*right_ankle_link"])},
     )
 
     #
@@ -214,6 +223,7 @@ class RewardsCfg:
         func=reward_collect.penalize_max_feet_height_before_contact,
         weight=-2500.0,
         params={
+            "target_height": 0.25,
             "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_link"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_link")}
     )
