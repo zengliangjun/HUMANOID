@@ -61,6 +61,10 @@ class MotionsTerm(ManagerTermBase):
         return self._body_ids
 
     @property
+    def motion2asset_joint_ids(self):
+        return self._motion2asset_joint_ids
+
+    @property
     def heading_wxyz(self):
         return self._heading_wxyz
 

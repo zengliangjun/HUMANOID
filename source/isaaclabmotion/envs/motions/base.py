@@ -7,6 +7,7 @@ import torch
 from isaaclabmotion.envs.managers.motions_manager import MotionsTerm
 from isaaclab.managers.scene_entity_cfg import SceneEntityCfg
 from isaaclab.assets import Articulation
+import isaaclab.utils.string as string_utils
 
 #import isaaclab.utils.math as isaac_math_utils
 from extends.isaac_utils import math_utils, torch_utils, rotations
@@ -61,6 +62,7 @@ class MotionsBase(MotionsTerm):
         self.asset = asset
 
         ##
+        self._motion2asset_joint_ids, _ = string_utils.resolve_matching_names(asset.joint_names, joint_names, preserve_order=True)
         self._joint_ids, self._joint_names = asset.find_joints(joint_names, preserve_order=True)
         self._body_ids, self._body_names = asset.find_bodies(body_names, preserve_order=True)
 
