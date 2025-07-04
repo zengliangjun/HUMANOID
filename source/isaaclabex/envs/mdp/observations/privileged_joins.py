@@ -53,7 +53,11 @@ def joint_friction_coeff(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> tor
 
     '''
     asset: Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_friction_coeff[:, asset_cfg.joint_ids]
+    if hasattr(asset.data, "joint_friction_coeff"):
+        return asset.data.joint_friction_coeff[:, asset_cfg.joint_ids]
+    else:
+        return asset.data.joint_friction[:, asset_cfg.joint_ids]
+
 
 def joint_torques(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
     '''
