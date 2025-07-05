@@ -52,3 +52,11 @@ class OMNIH2OH1CfgV0(RslRlOnPolicyRunnerCfg):
         self.algorithm.entropy_coef_factor = 1.05  # 熵系数调整幅度
         self.algorithm.entropy_coef_scale = 10  # 熵系数缩放因子
 
+
+@configclass
+class OMNIH2OH1CfgV1(OMNIH2OH1CfgV0):
+
+    def __post_init__(self):
+        super(OMNIH2OH1CfgV1, self).__post_init__()
+        self.experiment_name = "hover_hoverh1_v1"
+

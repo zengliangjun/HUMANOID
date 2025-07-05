@@ -27,6 +27,8 @@ class OMNIH2OH1Cfg(rl_env_motions_cfg.RLMotionsENVCfg):
 
     motions = MotionsCfg()
 
+    statistics = mdps.StatisticsCfg()
+
     def __post_init__(self):
         self.scene.height_scanner = None
         self.scene.terrain.terrain_type = "plane"
@@ -95,4 +97,7 @@ class OMNIH2OH1Cfg_PLAY(OMNIH2OH1Cfg):
         # self.motions.hoverh1.random_sample = False
         self.motions.hoverh1.debug_vis = True
 
-
+@configclass
+class OMNIH2OH1Cfg(OMNIH2OH1Cfg):
+    def __post_init__(self):
+        super().__post_init__()

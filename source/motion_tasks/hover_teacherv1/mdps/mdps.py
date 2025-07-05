@@ -6,6 +6,35 @@ import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclabex.envs.mdp.terminations import body
 from isaaclabmotion.envs.mdp.terminations import body as mbody, motion_terminations
 
+from isaaclabex.envs.managers import term_cfg
+from isaaclabmotion.envs.mdp.statistics import robotbody
+
+@configclass
+class StatisticsCfg:
+    rbpos_head_diff = term_cfg.StatisticsTermCfg(
+        func= robotbody.RBPosHeadDiff,
+        params={
+            "asset_cfg": SceneEntityCfg("robot"),
+            "motions_name": "hoverh1"
+        },
+
+        # episode_truncation = 80,
+        export_interval = 1000000
+    )
+    root_diff = term_cfg.StatisticsTermCfg(
+        func= robotbody.RBRootDiff,
+        params={
+            "asset_cfg": SceneEntityCfg("robot"),
+            "motions_name": "hoverh1"
+        },
+
+        # episode_truncation = 80,
+        export_interval = 1000000
+    )
+
+
+
+
 @configclass
 class ActionsCfg:
     """Action specifications for the MDP."""

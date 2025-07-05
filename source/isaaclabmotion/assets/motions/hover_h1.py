@@ -13,8 +13,8 @@ HOVERH1_CFG = MotionsTermCfg(
     func = HOVERMotions,
     resample_interval_s = 1000,
     assert_cfg = SceneEntityCfg("robot"),
-    motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/stable_punch.pkl",
-    # motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl",
+    # motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/stable_punch.pkl",
+    motion_file = f"{_ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl",
     params = {
         "multi_thread": False,
         "mjcf_file": f"{_ASSETS_ROOT}/motions/asap/omnih2o/hover_h1.xml",

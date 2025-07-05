@@ -60,9 +60,12 @@ class ManagerBasedRLEnv_Extends(ManagerBasedRLEnv):
         """
 
         self.statistics_manager = statistics_manager.StatisticsManager(self.cfg.statistics, self)
+        print("[INFO] Statistic Manager: ", self.statistics_manager)
+
         super(ManagerBasedRLEnv_Extends, self).load_managers()
         # Initialize termination manager with constraints from config
         self.termination_manager = constraint_manager.ConstraintManager(self.cfg.terminations, self)
+        print("[INFO] Constraint Manager: ", self.termination_manager)
 
     def _super_step(self, action: torch.Tensor) -> VecEnvStepReturn:
         """Execute one time-step of the environment's dynamics and reset terminated environments.

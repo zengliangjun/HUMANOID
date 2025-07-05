@@ -325,18 +325,10 @@ class obs_diff_root_rbquat(Base):
 
         root_quat = self.asset.data.root_quat_w
 
-        inv_wxyz = self.heading_inv_wxyz()
-        heading_wxyz = self.heading_wxyz()
-
         diff_quat_wxyz = isaac_math_utils.quat_mul(ref_root_wxyz, isaac_math_utils.quat_conjugate(root_quat))
-
-        diff_rbquat_wxyz = isaac_math_utils.quat_mul(inv_wxyz, diff_quat_wxyz)
-        diff_rbquat_wxyz = isaac_math_utils.quat_mul(diff_rbquat_wxyz, heading_wxyz)
-
-        diff_rbquat_xyzw = rotations.wxyz_to_xyzw(diff_rbquat_wxyz)
+        diff_quat_xyzw = rotations.wxyz_to_xyzw(diff_quat_wxyz)
         #
-        diff_norm = torch_utils.quat_to_tan_norm(diff_rbquat_xyzw)
-
+        diff_norm = torch_utils.quat_to_tan_norm(diff_quat_xyzw)
         return diff_norm
 
 class obs_motions_rbpos(Base):

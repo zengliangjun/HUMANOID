@@ -2,7 +2,7 @@ from isaaclab.utils import configclass
 from isaaclab.managers import RewardTermCfg, SceneEntityCfg
 
 from isaaclabex.envs.mdp.rewards import reward_collect
-from isaaclabmotion.envs.mdp.rewards import motions_body, motions_joints, motions_foot
+from isaaclabmotion.envs.mdp.rewards import motions_body, motions_joints, motions_foot, statistics
 
 bnames= [
             'pelvis',
@@ -60,7 +60,78 @@ class RewardsCfg:
                 "asset_cfg": SceneEntityCfg("robot")},
     )
 
-    # -- body_
+    # -- body
+    rew_mean_pos_headdiff = RewardTermCfg(
+        func=statistics.rew_mean_rbpos_headdiff,
+        weight=8,
+
+        params={"motions_name": "hoverh1",
+                "statistics_name": "rbpos_head_diff",
+                # "body_names": None,
+                "std":  0.05},
+    )
+    rew_var_pos_headdiff = RewardTermCfg(
+        func=statistics.rew_variance_rbpos_headdiff,
+        weight=8,
+
+        params={"motions_name": "hoverh1",
+                "statistics_name": "rbpos_head_diff",
+                # "body_names": None,
+                "std":  0.05},
+    )
+    rewmean_upper_headdiff = RewardTermCfg(
+        func=statistics.rew_mean_rbpos_headdiff,
+        weight=16,
+
+        params={"motions_name": "hoverh1",
+                "statistics_name": "rbpos_head_diff",
+                "body_names": bnames[:11] + extend_body_names,
+                "std":  0.05},
+    )
+    rewvar_upper_headdiff = RewardTermCfg(
+        func=statistics.rew_variance_rbpos_headdiff,
+        weight=16,
+
+        params={"motions_name": "hoverh1",
+                "statistics_name": "rbpos_head_diff",
+                "body_names": bnames[:11] + extend_body_names,
+                "std":  0.05},
+    )
+    rewmean_extend_headdiff = RewardTermCfg(
+        func=statistics.rew_mean_rbpos_headdiff,
+        weight=24,
+
+        params={"motions_name": "hoverh1",
+                "statistics_name": "rbpos_head_diff",
+                "body_names": extend_body_names,
+                "std":  0.05},
+    )
+    rewvar_extend_headdiff = RewardTermCfg(
+        func=statistics.rew_variance_rbpos_headdiff,
+        weight=24,
+
+        params={"motions_name": "hoverh1",
+                "statistics_name": "rbpos_head_diff",
+                "body_names": extend_body_names,
+                "std":  0.05},
+    )
+    rew_mean_rootdiff = RewardTermCfg(
+        func=statistics.rew_mean_root_headdiff,
+        weight=16,
+
+        params={"statistics_name": "root_diff",
+                "std":  0.05,
+                "z_weight": 3},
+    )
+    rew_var_rootdiff = RewardTermCfg(
+        func=statistics.rew_variance_root_headdiff,
+        weight=16,
+
+        params={"statistics_name": "root_diff",
+                "std":  0.15,
+                "z_weight": 3},
+    )
+
     rew_track_blin = RewardTermCfg(
         func=motions_body.reward_track_body_lin_vel,
         weight=8,
