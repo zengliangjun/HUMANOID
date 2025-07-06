@@ -1,23 +1,69 @@
+[![IsaacSim](https://img.shields.io/badge/IsaacSim-4.5.0-b.svg)](https://docs.isaacsim.omniverse.nvidia.com/4.5.0/index.html)
+
+[视频](https://www.bilibili.com/video/BV1rQK8zQEo2/?vd_source=2a13aee779bc6301268e18d749a04db4)
+
+[基于统计的强化学习控制--源起](https://zhuanlan.zhihu.com/p/1924906978565654310)
+
+[基于统计的强化学习控制--开篇](https://zhuanlan.zhihu.com/p/1925295102420579064)
+
+
+# Citation
+Please use the following bibtex if you find this repo helpful and would like to cite:
+
+```bibtex
+@misc{HUMANOID,
+  author = {liangjun},
+  title = {基于多粒度统计的机器人运动控制学习研究},
+  year = {2025},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/zengliangjun/HUMANOID}},
+}
+```
+
+```bibtex
+@misc{CARTPOLE,
+  author = {liangjun},
+  title = {基于统计的强化学习控制},
+  year = {2025},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/zengliangjun/SRL_CARTPOLE}},
+}
+```
+
+```
+@article{mittal2023orbit,
+   author={Mittal, Mayank and Yu, Calvin and Yu, Qinxi and Liu, Jingzhou and Rudin, Nikita and Hoeller, David and Yuan, Jia Lin and Singh, Ritvik and Guo, Yunrong and Mazhar, Hammad and Mandlekar, Ajay and Babich, Buck and State, Gavriel and Hutter, Marco and Garg, Animesh},
+   journal={IEEE Robotics and Automation Letters},
+   title={Orbit: A Unified Simulation Framework for Interactive Robot Learning Environments},
+   year={2023},
+   volume={8},
+   number={6},
+   pages={3740-3747},
+   doi={10.1109/LRA.2023.3270034}
+}
+```
+
+
+
 # 基于多粒度统计的机器人运动控制学习研究
 **作者**：  曾良军<sub>1</sub>，陈小波，费越<sub>1</sub>，陈宏力<sub>2</sub>
 
-1:复旦大学义乌研究院人工智能与多媒体实验室   
+1:复旦大学义乌研究院人工智能与多媒体实验室
 2:江西应用科技学院
 
-## 摘要
-本文提出了一种基于多粒度时空统计的机器人运动控制计算框架。该方法创新性地融合了短期相关(step-level)运动特征和长期(episode-level)行为模式分析，通过三级统计架构实现精细化的奖励信号生成。实验验证表明，相比传统方法具有以下优势：
-1. 训练效率提升显著：收敛速度加快35-50%，样本利用率提高40%
-2. 策略性能优越：在复杂地形通过率提升22%，运动能耗降低15%
-3. 系统鲁棒性强：对传感器噪声的容忍度提高3倍
-4. 参数适应性好：自动适应不同机器人形态和任务需求
 
-技术突破体现在：
-1) 首创"统计特征双通道"强化学习新范式
-2) 提出增量式Welford-Hybrid统计算法，计算效率提升80%
-3) 开发动态衰减系数的相似性评估模型
-4) 实现运动状态自适应的多模态奖励机制
+本文提出了一种基于统计特征的强化学习控制框架，通过实时计算运动状态的统计特性(均值、方差等)来增强传统强化学习算法。该方法采用双通道架构，分别将统计特征用于观测构建和奖励计算。本研究为强化学习控制提供了新的特征工程思路；相比传统方法具有以下优势：
+1. 策略性能优越：在复杂地形的训练时间和适应能力均表现得更好（无需额外传感器）。
+2. 系统鲁棒性强：统计对于噪声的天然过滤与规律提取能力。
+3. 系统具有良好的自适应能力，无需目前很方法中设定相位和步频信息。
+4. 本方法可自由扩展任一现有或将实现架构；并能提供助力。
 
-**关键词**：强化学习、关节控制、奖励塑造、运动统计学、自适应系统
+### 贡献
+1. 提出增量式多粒度统计特征体系
+2. 设计双通道统计RL架构
+3) 实现运动状态自适应的基于统计的奖励机制
 
 ## 1. 引言
 
@@ -27,29 +73,26 @@
 2. 状态表征能力不足限制策略性能
 3. 系统适应性差难以应对动态环境
 
-本文提出"统计特征双通道"新范式：
-```mermaid
-graph LR
-    S[原始数据] -->|统计处理| F[特征空间]
-    F -->|奖励通道| R[策略优化]
-    F -->|观测通道| O[状态表征]
-```
+目前止还没有基于历史状态用于奖励塑形的方面的实践；在己查阅资源中应该是在这个方向上第一个进行相关设计和实践。
 
-### 1.2 方法创新
-本文贡献包括：
-1. 提出"统计特征双通道"强化学习新范式
-2. 开发分层统计架构（图1）
+### 1.2 "统计特征双通道"新范式
+
 ```mermaid
-graph TD
-    A[原始数据] --> B[短期统计]
-    A --> C[长期统计]
-    B --> D[奖励计算]
-    C --> D
+graph TB
+    subgraph 原始状态
+        A[原始观测]
+    end
+    subgraph 统计状态
+        A --> B[Step级统计]
+        A --> C[Episode级统计]
+    end
+    subgraph 决策层
+        B --> D[策略网络]
+        C --> E[价值网络]
+        C --> D
+        B --> E
+    end
 ```
-- 建立基于统计相似性的奖励模型：
-  $$
-  R = \frac{1}{n}\sum_{i=1}^n \exp(-\frac{\|x_i-\mu_i\|}{\sigma})
-  $$
 
 ## 2. 方法论
 
@@ -58,7 +101,7 @@ graph TD
 
 1. **双重功能设计**：
    - 奖励计算：作为评估指标
-   - 状态表征：作为观测输入
+   - 状态表征：作为观测信号
    ```mermaid
    graph LR
      A[原始数据] --> B[统计特征]
@@ -69,16 +112,17 @@ graph TD
 2. 统计计算：
 采用改进的Welford算法实现实时统计：
 
-1. **均值更新**：
+   - **均值更新**：
    $$
    \Delta = x_t - \mu_{t-1} \\
    \mu_t = \mu_{t-1} + \Delta/t
    $$
 
-2. **方差更新**：
+   - **方差更新**：
    $$
    \sigma_t^2 = \frac{(t-1)\sigma_{t-1}^2 + \Delta(x_t-\mu_t)}{t}
    $$
+
 
 ### 2.2 奖励函数设计
 基于统计特征，本方法构建了四种奖励计算策略：
@@ -109,24 +153,10 @@ graph TD
   R = \frac{r_{mean}+ \lambda\, r_{var}}{1+\lambda}
   $$
 
-在该公式中，\( \lambda \) 为权重系数，通过调节可适应不同任务需求。总体设计确保奖励信号能同时反映局部运动波动与全局运动趋势。
+  在该公式中，\( \ lambda \) 为权重系数，通过调节可适应不同任务需求。总体设计确保奖励信号能同时反映局部运动波动与全局运动趋势。
 
-## 3. 实验验证
 
-### 3.1 基准测试
-在Unitree G1机器人平台上进行对比实验：
-
-| 方法            | 收敛步数 | 最终得分 |
-|-----------------|----------|----------|
-| 传统阈值法      | 1.2M     | 85.6     |
-| 本方法(σ=0.25)  | 0.8M     | 104.3    |
-
-### 3.2 参数分析
-尺度参数σ的敏感性实验显示（图2）：
-- 最优区间：0.2-0.3rad
-- 超出范围会导致奖励信号过敏感/迟钝
-
-## 4. 结论与范式意义
+## 3. 结论与范式意义
 本文提出的"统计特征双通道"框架开创了强化学习新范式：
 
 1. **范式创新**：
@@ -148,20 +178,16 @@ graph TD
 2. 框架优势：
 
 1. **性能优势**：
-   - 训练阶段：收敛速度提升35-50%，样本效率提高40%
-   - 部署阶段：运动平滑性提升60%，异常状态减少75%
-   - 系统开销：内存占用降低30%，计算延迟<2ms
+   - 训练阶段：收敛速度更快
+   - 系统开销：
 
 2. **技术特色**：
-   - 首创时空联合统计架构
-   - 动态参数自适应机制
-   - 支持在线增量学习
+   - "统计特征双通道"新范式
 
 3. **应用价值**：
-   - 可应用于四足机器人、双足机器人和机械臂控制
+   - 可应用于四足机器人、双足机器人等控制系统
 
-未来研究方向：
-1) 跨模态统计融合（视觉+本体感知）
-2) 基于元学习的参数自动优化
-3) 面向集群控制的分布式架构
-4) 多关节运动相关性分析与统计建模
+## 参考文献
+1. Sutton R., Barto A. Reinforcement Learning: An Introduction
+2. Silver D., et al. Mastering the game of Go without human knowledge
+3. Peng X.B., et al. DeepMimic: Example-Guided Deep Reinforcement Learning
