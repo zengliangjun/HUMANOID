@@ -4,6 +4,7 @@ from isaaclabex.envs.managers import term_cfg
 from isaaclabmotion.envs.mdp.statistics import robotbody
 from isaaclabmotion.envs.mdp.rewards import statistics
 
+from isaaclabmotion.assets.motions import hover_h1
 from .mdps  import rewards
 from . import env_cfg
 
@@ -32,7 +33,7 @@ class RewardsCfg(rewards.RewardsCfg):
         weight=8,
 
         params={"motions_name": "hoverh1",
-                "statistics_name": "rbpos_head_diff",
+                "statistics_name": "rbpos_diff",
                 # "body_names": None,
                 "std":  0.05},
     )
@@ -41,7 +42,7 @@ class RewardsCfg(rewards.RewardsCfg):
         weight=8,
 
         params={"motions_name": "hoverh1",
-                "statistics_name": "rbpos_head_diff",
+                "statistics_name": "rbpos_diff",
                 # "body_names": None,
                 "std":  0.05},
     )
@@ -50,8 +51,8 @@ class RewardsCfg(rewards.RewardsCfg):
         weight=16,
 
         params={"motions_name": "hoverh1",
-                "statistics_name": "rbpos_head_diff",
-                "body_names": statistics.bnames[:11] + statistics.extend_body_names,
+                "statistics_name": "rbpos_diff",
+                "body_names": rewards.bnames[:11] + rewards.extend_body_names,
                 "std":  0.05},
     )
     rewvar_upper_diff = RewardTermCfg(
@@ -59,8 +60,8 @@ class RewardsCfg(rewards.RewardsCfg):
         weight=16,
 
         params={"motions_name": "hoverh1",
-                "statistics_name": "rbpos_head_diff",
-                "body_names": statistics.bnames[:11] + statistics.extend_body_names,
+                "statistics_name": "rbpos_diff",
+                "body_names": rewards.bnames[:11] + rewards.extend_body_names,
                 "std":  0.05},
     )
     rewmean_extend_diff = RewardTermCfg(
@@ -68,8 +69,8 @@ class RewardsCfg(rewards.RewardsCfg):
         weight=24,
 
         params={"motions_name": "hoverh1",
-                "statistics_name": "rbpos_head_diff",
-                "body_names": statistics.extend_body_names,
+                "statistics_name": "rbpos_diff",
+                "body_names": rewards.extend_body_names,
                 "std":  0.05},
     )
     rewvar_extend_diff = RewardTermCfg(
@@ -77,8 +78,8 @@ class RewardsCfg(rewards.RewardsCfg):
         weight=24,
 
         params={"motions_name": "hoverh1",
-                "statistics_name": "rbpos_head_diff",
-                "body_names": statistics.extend_body_names,
+                "statistics_name": "rbpos_diff",
+                "body_names": rewards.extend_body_names,
                 "std":  0.05},
     )
 
@@ -101,6 +102,7 @@ class OMNIH2OH1CfgV1(env_cfg.OMNIH2OH1Cfg):
 
     def __post_init__(self):
         super().__post_init__()
+        self.motions.hoverh1.motion_file = f"{hover_h1._ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl",
 
 
 @configclass

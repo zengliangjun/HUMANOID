@@ -82,7 +82,7 @@ def rew_mean_root_headdiff(
 
     assert isinstance(env, ManagerBasedRLEnv)
     manager: StatisticsManager = env.statistics_manager
-    statistics: robotbody.RBPosHeadDiff = manager.get_term(statistics_name)
+    statistics: robotbody.RBPosDiff = manager.get_term(statistics_name)
 
     episode_mean = statistics.episode_mean_buf
     episode_mean = torch.abs(episode_mean)
@@ -102,7 +102,7 @@ def rew_variance_root_headdiff(
 
     assert isinstance(env, ManagerBasedRLEnv)
     manager: StatisticsManager = env.statistics_manager
-    statistics: robotbody.RBPosHeadDiff = manager.get_term(statistics_name)
+    statistics: robotbody.RBPosDiff = manager.get_term(statistics_name)
 
     episode_var = statistics.episode_variance_buf
     episode_var = torch.sqrt(episode_var)

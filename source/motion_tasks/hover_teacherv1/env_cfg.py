@@ -15,7 +15,7 @@ class MotionsCfg:
 @configclass
 class OMNIH2OH1Cfg(rl_env_motions_cfg.RLMotionsENVCfg):
     # Scene settings
-    scene = scenes_cfg.BaseSceneCfg(num_envs=4096, env_spacing=2.5)
+    scene = scenes_cfg.BaseSceneCfg(num_envs=4096, env_spacing=4)
     # Basic settings
     observations: obs.ObservationsCfg = obs.ObservationsCfg()
     actions =  mdps.ActionsCfg()
@@ -74,7 +74,7 @@ class OMNIH2OH1Cfg_PLAY(OMNIH2OH1Cfg):
 
         # make a smaller scene for play
         self.scene.num_envs = 32
-        self.scene.env_spacing = 2.5
+        # self.scene.env_spacing = 2.5
 
         # spawn the robot randomly in the grid (instead of their terrain levels)
         self.scene.terrain.max_init_terrain_level = None
