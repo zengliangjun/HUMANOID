@@ -12,7 +12,88 @@
 
 [基于统计的强化学习控制--开篇](https://zhuanlan.zhihu.com/p/1925295102420579064)
 
-代码在work分枝,还在完善中。
+
+# 环境及运行
+
+1） IsaacSim 安装 [here](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/binaries_installation.html#installing-isaac-sim)
+
+2） IsaacLab 安装 [here](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/binaries_installation.html#installing-isaac-lab)
+
+
+完整代码在work分枝,还在完善中。
+
+
+# Citation
+Please use the following bibtex if you find this repo helpful and would like to cite:
+
+```bibtex
+@misc{HUMANOID,
+  author = {liangjun},
+  title = {基于多粒度统计的机器人运动控制学习研究},
+  year = {2025},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/zengliangjun/HUMANOID}},
+}
+
+@misc{CARTPOLE,
+  author = {liangjun},
+  title = {基于统计的强化学习控制},
+  year = {2025},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/zengliangjun/SRL_CARTPOLE}},
+}
+
+@article{he2025asap,
+  title={ASAP: Aligning Simulation and Real-World Physics for Learning Agile Humanoid Whole-Body Skills},
+  author={He, Tairan and Gao, Jiawei and Xiao, Wenli and Zhang, Yuanhang and Wang, Zi and Wang, Jiashun and Luo, Zhengyi and He, Guanqi and Sobanbabu, Nikhil and Pan, Chaoyi and Yi, Zeji and Qu, Guannan and Kitani, Kris and Hodgins, Jessica and Fan, Linxi "Jim" and Zhu, Yuke and Liu, Changliu and Shi, Guanya},
+  journal={arXiv preprint arXiv:2502.01143},
+  year={2025}
+}
+
+@article{gu2024humanoid,
+  title={Humanoid-Gym: Reinforcement Learning for Humanoid Robot with Zero-Shot Sim2Real Transfer},
+  author={Gu, Xinyang and Wang, Yen-Jen and Chen, Jianyu},
+  journal={arXiv preprint arXiv:2404.05695},
+  year={2024}
+}
+
+@inproceedings{gu2024advancing,
+  title={Advancing Humanoid Locomotion: Mastering Challenging Terrains with Denoising World Model Learning},
+  author={Gu, Xinyang and Wang, Yen-Jen and Zhu, Xiang and Shi, Chengming and Guo, Yanjiang and Liu, Yichen and Chen, Jianyu},
+  booktitle={Robotics: Science and Systems},
+  year={2024},
+  url={https://enriquecoronadozu.github.io/rssproceedings2024/rss20/p058.pdf}
+}
+
+@article{mittal2023orbit,
+   author={Mittal, Mayank and Yu, Calvin and Yu, Qinxi and Liu, Jingzhou and Rudin, Nikita and Hoeller, David and Yuan, Jia Lin and Singh, Ritvik and Guo, Yunrong and Mazhar, Hammad and Mandlekar, Ajay and Babich, Buck and State, Gavriel and Hutter, Marco and Garg, Animesh},
+   journal={IEEE Robotics and Automation Letters},
+   title={Orbit: A Unified Simulation Framework for Interactive Robot Learning Environments},
+   year={2023},
+   volume={8},
+   number={6},
+   pages={3740-3747},
+   doi={10.1109/LRA.2023.3270034}
+}
+```
+
+## 🎉 Acknowledgments
+
+This repository is built upon the support and contributions of the following open-source projects. Special thanks to:
+
+- [ASAP](https://github.com/LeCAR-Lab/ASAP): reward implement, motion lib implement
+- [hover](https://github.com/NVlabs/HOVER): reward implement, motion lib implement
+- [Isaac-RL-Two-wheel-Legged-Bot](https://github.com/jaykorea/Isaac-RL-Two-wheel-Legged-Bot): constraint manager
+- [pbrs-humanoid](https://github.com/se-hwan/pbrs-humanoid): pbrs reward implement
+- [humanoid-gym](https://github.com/roboterax/humanoid-gym): reward implement
+- [unitree_rl_gym](https://github.com/unitreerobotics/unitree_rl_gym.git): reward implement
+- [rsl\_rl](https://github.com/leggedrobotics/rsl_rl.git): Reinforcement learning algorithm implementation.
+- [mujoco](https://github.com/google-deepmind/mujoco.git): Providing powerful simulation functionalities.
+
+---
+
 
 # 基于多粒度统计的机器人运动控制学习研究
 **作者**：  曾良军<sub>1</sub>，陈小波，费越<sub>1</sub>，陈宏力<sub>2</sub>
@@ -155,75 +236,3 @@ graph TB
 3. **应用价值**：
    - 可应用于四足机器人、双足机器人等控制系统
 
-
-# Citation
-Please use the following bibtex if you find this repo helpful and would like to cite:
-
-```bibtex
-@misc{HUMANOID,
-  author = {liangjun},
-  title = {基于多粒度统计的机器人运动控制学习研究},
-  year = {2025},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/zengliangjun/HUMANOID}},
-}
-
-@misc{CARTPOLE,
-  author = {liangjun},
-  title = {基于统计的强化学习控制},
-  year = {2025},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/zengliangjun/SRL_CARTPOLE}},
-}
-
-@article{he2025asap,
-  title={ASAP: Aligning Simulation and Real-World Physics for Learning Agile Humanoid Whole-Body Skills},
-  author={He, Tairan and Gao, Jiawei and Xiao, Wenli and Zhang, Yuanhang and Wang, Zi and Wang, Jiashun and Luo, Zhengyi and He, Guanqi and Sobanbabu, Nikhil and Pan, Chaoyi and Yi, Zeji and Qu, Guannan and Kitani, Kris and Hodgins, Jessica and Fan, Linxi "Jim" and Zhu, Yuke and Liu, Changliu and Shi, Guanya},
-  journal={arXiv preprint arXiv:2502.01143},
-  year={2025}
-}
-
-@article{gu2024humanoid,
-  title={Humanoid-Gym: Reinforcement Learning for Humanoid Robot with Zero-Shot Sim2Real Transfer},
-  author={Gu, Xinyang and Wang, Yen-Jen and Chen, Jianyu},
-  journal={arXiv preprint arXiv:2404.05695},
-  year={2024}
-}
-
-@inproceedings{gu2024advancing,
-  title={Advancing Humanoid Locomotion: Mastering Challenging Terrains with Denoising World Model Learning},
-  author={Gu, Xinyang and Wang, Yen-Jen and Zhu, Xiang and Shi, Chengming and Guo, Yanjiang and Liu, Yichen and Chen, Jianyu},
-  booktitle={Robotics: Science and Systems},
-  year={2024},
-  url={https://enriquecoronadozu.github.io/rssproceedings2024/rss20/p058.pdf}
-}
-
-@article{mittal2023orbit,
-   author={Mittal, Mayank and Yu, Calvin and Yu, Qinxi and Liu, Jingzhou and Rudin, Nikita and Hoeller, David and Yuan, Jia Lin and Singh, Ritvik and Guo, Yunrong and Mazhar, Hammad and Mandlekar, Ajay and Babich, Buck and State, Gavriel and Hutter, Marco and Garg, Animesh},
-   journal={IEEE Robotics and Automation Letters},
-   title={Orbit: A Unified Simulation Framework for Interactive Robot Learning Environments},
-   year={2023},
-   volume={8},
-   number={6},
-   pages={3740-3747},
-   doi={10.1109/LRA.2023.3270034}
-}
-```
-
-
-## 🎉 Acknowledgments
-
-This repository is built upon the support and contributions of the following open-source projects. Special thanks to:
-
-- [ASAP](https://github.com/LeCAR-Lab/ASAP): reward implement, motion lib implement
-- [hover](https://github.com/NVlabs/HOVER): reward implement, motion lib implement
-- [Isaac-RL-Two-wheel-Legged-Bot](https://github.com/jaykorea/Isaac-RL-Two-wheel-Legged-Bot): constraint manager
-- [pbrs-humanoid](https://github.com/se-hwan/pbrs-humanoid): pbrs reward implement
-- [humanoid-gym](https://github.com/roboterax/humanoid-gym): reward implement
-- [unitree_rl_gym](https://github.com/unitreerobotics/unitree_rl_gym.git): reward implement
-- [rsl\_rl](https://github.com/leggedrobotics/rsl_rl.git): Reinforcement learning algorithm implementation.
-- [mujoco](https://github.com/google-deepmind/mujoco.git): Providing powerful simulation functionalities.
-
----
