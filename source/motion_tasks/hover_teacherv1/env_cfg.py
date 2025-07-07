@@ -73,7 +73,7 @@ class OMNIH2OH1Cfg_PLAY(OMNIH2OH1Cfg):
         super().__post_init__()
 
         # make a smaller scene for play
-        self.scene.num_envs = 32
+        self.scene.num_envs = 16
         # self.scene.env_spacing = 2.5
 
         # spawn the robot randomly in the grid (instead of their terrain levels)
@@ -96,8 +96,6 @@ class OMNIH2OH1Cfg_PLAY(OMNIH2OH1Cfg):
 
         # self.motions.hoverh1.random_sample = False
         self.motions.hoverh1.debug_vis = True
+        self.motions.hoverh1.random_sample = False
+        self.motions.hoverh1.resample_interval_s = 15
 
-@configclass
-class OMNIH2OH1Cfg(OMNIH2OH1Cfg):
-    def __post_init__(self):
-        super().__post_init__()

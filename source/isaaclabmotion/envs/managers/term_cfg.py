@@ -28,6 +28,7 @@ class MotionsTermCfg(ManagerTermBaseCfg):
 
     motion_file: str = MISSING  # 运动文件路径
 
+    random_motions: bool = True
     random_sample: bool = True  # 是否随机采样
 
     resample_interval_s: float = -1  # 重新采样间隔， -1 表示不调整

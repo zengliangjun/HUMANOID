@@ -102,7 +102,7 @@ class OMNIH2OH1CfgV1(env_cfg.OMNIH2OH1Cfg):
 
     def __post_init__(self):
         super().__post_init__()
-        self.motions.hoverh1.motion_file = f"{hover_h1._ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl",
+        self.motions.hoverh1.motion_file = f"{hover_h1._ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl"
 
 
 @configclass
@@ -113,3 +113,4 @@ class OMNIH2OH1CfgV1_PLAY(env_cfg.OMNIH2OH1Cfg_PLAY):
 
     def __post_init__(self):
         super().__post_init__()
+        self.motions.hoverh1.motion_file = f"{hover_h1._ASSETS_ROOT}/motions/asap/omnih2o/amass_phc_filtered.pkl"

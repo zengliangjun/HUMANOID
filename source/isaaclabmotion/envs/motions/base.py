@@ -40,7 +40,7 @@ class MotionsBase(MotionsTerm):
         self._init_motion_lib()
 
         # 加载运动数据
-        self.motion_lib.load_motions(random_sample=self.cfg.random_sample)
+        self.motion_lib.load_motions(random_sample=self.cfg.random_motions)
         self.motion_len[:] = self.motion_lib.get_motion_length(self.motion_ids)
 
         # 初始化起始时间
@@ -137,7 +137,7 @@ class MotionsBase(MotionsTerm):
         # 定期重采样运动
         if -1 != self.cfg.resample_interval_s and self._env.common_step_counter % self.resample_time_interval == 0:
             ## update reset flag with True
-            self.motion_lib.load_motions(random_sample=self.cfg.random_sample)
+            self.motion_lib.load_motions(random_sample=self.cfg.random_motions)
             self.motion_len[:] = self.motion_lib.get_motion_length(self.motion_ids)
 
             if self.cfg.random_sample:
