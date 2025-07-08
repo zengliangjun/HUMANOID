@@ -13,6 +13,7 @@ from rsl_rl.env import VecEnv
 
 from rsl_rlex.multiinput.algorithms.mi_ppo import MIPPO
 from rsl_rlex.multiinput.modules.mi_modules import MIEActorCritic, MIERecurrentActorCritic
+from rsl_rlex.bot.modules.bot_modules import BOTActorCritic
 from rsl_rl.utils import store_code_state
 
 class MIPolicyRunner(OnPolicyRunner):

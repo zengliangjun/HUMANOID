@@ -41,6 +41,11 @@ def generate_sp_matrices(joint_hierarchy):
 
     return torch.Tensor(sp_matrix)
 
+
+def h1_sp_matrices():
+    from isaaclabex.assets.robots import unitree_hoverh1
+    return generate_sp_matrices(unitree_hoverh1.H1_hierarchy)
+
 if __name__ == "__main__":
     joint_hierarchy = {
         'root': None,    # 躯干作为根节点

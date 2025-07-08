@@ -77,54 +77,54 @@ import torch
 
 H1_SHORTPATH_MATRICES = torch.Tensor(
         [[0, 1, 1, 1,     2, 2, 2, 2,      3, 3, 3, 3,     4, 4, 4, 4,      5, 5, 5, 5],    # 0  ROOT
-        [1, 0, 2,  2,     1, 3, 3, 3,      2, 4, 4, 4,     3, 5, 5, 5,      4, 6, 6, 6],     # 1  left_hip_yaw_joint
-        [1, 2, 0,  2,     3, 1, 3, 3,      4, 2, 4, 4,     5, 3, 5, 5,      6, 4, 6, 6],     # 2  right_hip_yaw_joint
-        [1, 2, 2,  0,     3, 3, 1, 1,      4, 4, 2, 2,     5, 5, 3, 3,      6, 6, 4, 4],     # 3  torso_joint
+        [1, 0, 2,  2,     1, 3, 3, 3,      2, 4, 4, 4,     3, 5, 5, 5,      4, 6, 6, 6],     # 1  left_hip_yaw
+        [1, 2, 0,  2,     3, 1, 3, 3,      4, 2, 4, 4,     5, 3, 5, 5,      6, 4, 6, 6],     # 2  right_hip_yaw_
+        [1, 2, 2,  0,     3, 3, 1, 1,      4, 4, 2, 2,     5, 5, 3, 3,      6, 6, 4, 4],     # 3  torso
 
-        [2, 1, 3,  3,     0, 4, 4, 4,      1, 5, 5, 5,     2, 6, 6, 6,      3, 7, 7, 7],     # 4  left_hip_roll_joint
-        [2, 3, 1,  3,     4, 0, 4, 4,      5, 1, 5, 5,     6, 2, 6, 6,      7, 3, 7, 7],     # 5  right_hip_roll_joint
-        [2, 3, 3,  1,     4, 4, 0, 2,      5, 5, 1, 3,     6, 6, 2, 4,      7, 7, 3, 5],     # 6  left_shoulder_pitch_joint
-        [2, 3, 3,  1,     4, 4, 2, 0,      5, 5, 3, 1,     6, 6, 4, 2,      7, 7, 5, 3],     # 7  right_shoulder_pitch_joint
+        [2, 1, 3,  3,     0, 4, 4, 4,      1, 5, 5, 5,     2, 6, 6, 6,      3, 7, 7, 7],     # 4  left_hip_roll
+        [2, 3, 1,  3,     4, 0, 4, 4,      5, 1, 5, 5,     6, 2, 6, 6,      7, 3, 7, 7],     # 5  right_hip_roll
+        [2, 3, 3,  1,     4, 4, 0, 2,      5, 5, 1, 3,     6, 6, 2, 4,      7, 7, 3, 5],     # 6  left_shoulder_pitch
+        [2, 3, 3,  1,     4, 4, 2, 0,      5, 5, 3, 1,     6, 6, 4, 2,      7, 7, 5, 3],     # 7  right_shoulder_pitch
 
-        [3, 2, 4,  4,     1, 5, 5, 5,      0, 6, 6, 6,     1, 7, 7, 7,      2, 8, 8, 8],     # 8  left_hip_pitch_joint
-        [3, 4, 2,  4,     5, 1, 5, 5,      6, 0, 6, 6,     7, 1, 7, 7,      8, 2, 8, 8],     # 9  right_hip_pitch_joint
-        [3, 4, 4,  2,     5, 5, 1, 3,      6, 6, 0, 4,     7, 7, 1, 5,      8, 8, 2, 6],     # 10  left_shoulder_roll_joint
-        [3, 4, 4,  2,     5, 5, 3, 1,      6, 6, 4, 0,     7, 7, 5, 1,      8, 8, 6, 2],     # 11  right_shoulder_roll_joint
+        [3, 2, 4,  4,     1, 5, 5, 5,      0, 6, 6, 6,     1, 7, 7, 7,      2, 8, 8, 8],     # 8  left_hip_pitch
+        [3, 4, 2,  4,     5, 1, 5, 5,      6, 0, 6, 6,     7, 1, 7, 7,      8, 2, 8, 8],     # 9  right_hip_pitch
+        [3, 4, 4,  2,     5, 5, 1, 3,      6, 6, 0, 4,     7, 7, 1, 5,      8, 8, 2, 6],     # 10  left_shoulder_roll
+        [3, 4, 4,  2,     5, 5, 3, 1,      6, 6, 4, 0,     7, 7, 5, 1,      8, 8, 6, 2],     # 11  right_shoulder_roll
 
-        [4, 3, 5,  5,     2, 6, 6, 6,      1, 7, 7, 7,     0, 8, 8, 8,      1, 9, 9, 9],     # 12  left_knee_joint
-        [4, 5, 3,  5,     6, 2, 6, 6,      7, 1, 7, 7,     8, 0, 8, 8,      9, 1, 9, 9],     # 13  right_knee_joint
-        [4, 5, 5,  3,     6, 6, 2, 4,      7, 7, 1, 5,     8, 8, 0, 6,      9, 9, 1, 7],     # 14  left_shoulder_yaw_joint
-        [4, 5, 5,  3,     6, 6, 4, 2,      7, 7, 5, 1,     8, 8, 6, 0,      9, 9, 7, 1],     # 15  right_shoulder_yaw_joint
+        [4, 3, 5,  5,     2, 6, 6, 6,      1, 7, 7, 7,     0, 8, 8, 8,      1, 9, 9, 9],     # 12  left_knee
+        [4, 5, 3,  5,     6, 2, 6, 6,      7, 1, 7, 7,     8, 0, 8, 8,      9, 1, 9, 9],     # 13  right_knee
+        [4, 5, 5,  3,     6, 6, 2, 4,      7, 7, 1, 5,     8, 8, 0, 6,      9, 9, 1, 7],     # 14  left_shoulder_yaw
+        [4, 5, 5,  3,     6, 6, 4, 2,      7, 7, 5, 1,     8, 8, 6, 0,      9, 9, 7, 1],     # 15  right_shoulder_yaw
 
-        [5, 4, 6,  6,     3, 7, 7, 7,      2, 8, 8, 8,     1, 9, 9, 9,      0,10,10,10],     # 16  left_ankle_joint
-        [5, 6, 4,  6,     7, 3, 7, 7,      8, 2, 8, 8,     9, 1, 9, 9,     10, 0,10,10],     # 17  right_ankle_joint
-        [5, 6, 6,  4,     7, 7, 3, 5,      8, 8, 2, 6,     9, 9, 1, 7,     10,10, 0, 8],     # 18  left_elbow_joint
-        [5, 6, 6,  4,     7, 7, 5, 3,      8, 8, 6, 2,     9, 9, 7, 1,     10,10, 8, 0]]     # 19  right_elbow_joint
+        [5, 4, 6,  6,     3, 7, 7, 7,      2, 8, 8, 8,     1, 9, 9, 9,      0,10,10,10],     # 16  left_ankle
+        [5, 6, 4,  6,     7, 3, 7, 7,      8, 2, 8, 8,     9, 1, 9, 9,     10, 0,10,10],     # 17  right_ankle
+        [5, 6, 6,  4,     7, 7, 3, 5,      8, 8, 2, 6,     9, 9, 1, 7,     10,10, 0, 8],     # 18  left_elbow
+        [5, 6, 6,  4,     7, 7, 5, 3,      8, 8, 6, 2,     9, 9, 7, 1,     10,10, 8, 0]]     # 19  right_elbow
 )
 
 H1_hierarchy = {
         'root': None,
-        'left_hip_yaw_joint': 'root',
-        'right_hip_yaw_joint': 'root',
-        'torso_joint': 'root',
+        'left_hip_yaw': 'root',
+        'right_hip_yaw': 'root',
+        'torso': 'root',
 
-        'left_hip_roll_joint': 'left_hip_yaw_joint',
-        'right_hip_roll_joint': 'right_hip_yaw_joint',
-        'left_shoulder_pitch_joint': 'torso_joint',
-        'right_shoulder_pitch_joint': 'torso_joint',
+        'left_hip_roll': 'left_hip_yaw',
+        'right_hip_roll': 'right_hip_yaw',
+        'left_shoulder_pitch': 'torso',
+        'right_shoulder_pitch': 'torso',
 
-        'left_hip_pitch_joint': 'left_hip_roll_joint',
-        'right_hip_pitch_joint': 'right_hip_roll_joint',
-        'left_shoulder_roll_joint': 'left_shoulder_pitch_joint',
-        'right_shoulder_roll_joint': 'right_shoulder_pitch_joint',
+        'left_hip_pitch': 'left_hip_roll',
+        'right_hip_pitch': 'right_hip_roll',
+        'left_shoulder_roll': 'left_shoulder_pitch',
+        'right_shoulder_roll': 'right_shoulder_pitch',
 
-        'left_knee_joint': 'left_hip_pitch_joint',
-        'right_knee_joint': 'right_hip_pitch_joint',
-        'left_shoulder_yaw_joint': 'left_shoulder_roll_joint',
-        'right_shoulder_yaw_joint': 'right_shoulder_roll_joint',
+        'left_knee': 'left_hip_pitch',
+        'right_knee': 'right_hip_pitch',
+        'left_shoulder_yaw': 'left_shoulder_roll',
+        'right_shoulder_yaw': 'right_shoulder_roll',
 
-        'left_ankle_joint': 'left_knee_joint',
-        'right_ankle_joint': 'right_knee_joint',
-        'left_elbow_joint': 'left_shoulder_yaw_joint',
-        'right_elbow_joint': 'right_shoulder_yaw_joint',
+        'left_ankle': 'left_knee',
+        'right_ankle': 'right_knee',
+        'left_elbow': 'left_shoulder_yaw',
+        'right_elbow': 'right_shoulder_yaw',
     }
