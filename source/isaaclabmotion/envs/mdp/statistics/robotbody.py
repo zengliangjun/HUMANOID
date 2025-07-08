@@ -82,6 +82,41 @@ class StatusBase(ManagerTermBase):
         # self.episode_mean_buf[new_episode_mask] = 0
         self.episode_variance_buf[new_episode_mask] = 0
 
+    def _calculate_step(self, diff: torch.Tensor) -> None:
+        """更新step级别的分组统计量"""
+        diff = torch.reshape(diff, (self.num_envs, -1))
+        # 计算每组均值和方差
+        self.step_var, self.step_mean = torch.var_mean(diff, dim=-1)
+
+    def _update_step_stats(self, mean: torch.Tensor, var: torch.Tensor) -> None:
+        """更新step级别统计缓冲区"""
+        episode_length_buf = self._episode_length()
+        # 更新均值统计
+        delta_mean0 = mean - self.step_mean_mean_buf
+        self.step_mean_mean_buf += delta_mean0 / episode_length_buf[:, None]
+        # 计算均值方差
+        delta_mean1 = mean - self.step_mean_mean_buf
+        self.step_mean_variance_buf = (
+            self.step_mean_variance_buf * (episode_length_buf[:, None] - 2)
+            + delta_mean0 * delta_mean1
+        ) / (episode_length_buf[:, None] - 1)
+
+        # 更新方差统计
+        delta_var0 = var - self.step_variance_mean_buf
+        self.step_variance_mean_buf += delta_var0 / episode_length_buf[:, None]
+        # 计算方差方差
+        delta_var1 = var - self.step_variance_mean_buf
+        self.step_variance_variance_buf = (
+            self.step_variance_variance_buf * (episode_length_buf[:, None] - 2)
+            + delta_var0 * delta_var1
+        ) / (episode_length_buf[:, None] - 1)
+
+        reset_mask = episode_length_buf <= 1
+        self.step_mean_variance_buf[reset_mask] = 0
+        self.step_variance_variance_buf[reset_mask] = 0
+
+
+
     def _update_flag(self):
         self.zero_flag[...] = self._env.episode_length_buf <= 1
 
@@ -104,6 +139,19 @@ class StatusBase(ManagerTermBase):
             self.episode_variance_buf,
             self.episode_mean_buf,
         ]
+
+        if hasattr(self, "step_mean"):
+            buffers.extend([
+                self.step_var,
+                self.step_mean
+            ])
+        if hasattr(self, "step_mean_mean_buf"):
+            buffers.extend([
+                self.step_mean_mean_buf,
+                self.step_mean_variance_buf,
+                self.step_variance_mean_buf,
+                self.step_variance_variance_buf
+            ])
 
         for buf in buffers:
             buf[env_ids] = 0
@@ -228,3 +276,4 @@ class RBPosDiff(StatusBase):
         diff = (ref_pos - assetpos)
         self._update_flag()
         self._calculate_episode(diff)
+

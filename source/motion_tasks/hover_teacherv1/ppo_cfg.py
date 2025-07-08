@@ -60,3 +60,11 @@ class OMNIH2OH1CfgV1(OMNIH2OH1CfgV0):
         super(OMNIH2OH1CfgV1, self).__post_init__()
         self.experiment_name = "hover_hoverh1_v1"
 
+
+@configclass
+class OMNIH2OH1CfgV2(OMNIH2OH1CfgV0):
+
+    def __post_init__(self):
+        super(OMNIH2OH1CfgV2, self).__post_init__()
+        self.experiment_name = "hover_hoverh1_v2"
+

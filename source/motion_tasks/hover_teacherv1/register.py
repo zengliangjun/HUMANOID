@@ -45,3 +45,25 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:OMNIH2OH1CfgV1",
     },
 )
+
+from . import env_cfgv2
+
+gym.register(
+    id="HOVERH1-v2",
+    entry_point="isaaclabmotion.envs.rl_env_motions:RLMotionsENV",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_cfgv2.__name__}:OMNIH2OH1CfgV2",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:OMNIH2OH1CfgV2",
+    },
+)
+
+gym.register(
+    id="HOVERH1-Play-v2",
+    entry_point="isaaclabmotion.envs.rl_env_motions:RLMotionsENV",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_cfgv2.__name__}:OMNIH2OH1CfgV2_PLAY",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:OMNIH2OH1CfgV2",
+    },
+)
