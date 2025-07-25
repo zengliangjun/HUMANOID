@@ -12,6 +12,7 @@
 
 [基于统计的强化学习控制--开篇](https://zhuanlan.zhihu.com/p/1925295102420579064)
 
+[Preview Version Paper](paper_zh.pdf)
 
 # 环境及运行
 
