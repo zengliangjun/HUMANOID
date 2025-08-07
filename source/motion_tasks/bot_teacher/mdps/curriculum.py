@@ -10,7 +10,7 @@ class CurriculumCfg:
         func=events.range_with_degree,
         params={
             "degree": 0.00001,
-            "down_up_lengths":[35, 45],
+            "down_up_lengths":[70, 90],
             "scale": 0.0,
             "scale_range": [0.0, 1],
             "manager_name": "event",
@@ -57,14 +57,14 @@ class CurriculumCfg:
         func=adaptive.scale_with_degree,
         params={
             "degree": 0.000001,
-            "down_up_lengths":[35, 40],
+            "down_up_lengths":[80, 100],
             "scale": 0.5,
             "scale_range": [0.18, 1],
             "manager_name": "termination",
             "curriculums": {
                 'distance': {    # reward name
                     "param_name": "max_ref_motion_dist",
-                    "start_max_ref_motion_dist": 0.8,
+                    "start_max_ref_motion_dist": 0.6,
                     "end_max_ref_motion_dist": 0.2
                 }
             }
@@ -75,7 +75,7 @@ class CurriculumCfg:
         func=adaptive.scale_with_degree,
         params={
             "degree": 0.00001,
-            "down_up_lengths":[30, 40],
+            "down_up_lengths":[40, 60],
             "scale": 0.5,
             "scale_range": [0.18, 1],
             "manager_name": "reward",
