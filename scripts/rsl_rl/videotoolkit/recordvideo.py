@@ -1,7 +1,12 @@
 import os
 from typing import Optional
-from gymnasium.wrappers.monitoring import video_recorder
-from gymnasium import logger
+try:
+    from gymnasium.wrappers import video_recorder
+    from gymnasium import logger
+except:
+    from gym.wrappers.monitoring import video_recorder
+    from gym import logger
+
 from datetime import datetime
 
 class RecordVideo():
