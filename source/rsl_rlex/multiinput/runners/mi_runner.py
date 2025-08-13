@@ -142,13 +142,15 @@ class MIPolicyRunner(OnPolicyRunner):
         for it in range(start_iter, tot_iter):
             start = time.time()
             # Rollout
-            with torch.inference_mode():
-                for _ in range(self.num_steps_per_env):
-                    # Sample actions from policy
-                    actions = self.alg.act(obs)
-                    # Step environment
-                    obs, rewards, dones, infos = self.env.step(actions.to(self.env.device))
+            for _ in range(self.num_steps_per_env):
+                # Sample actions from policy
 
+                with torch.inference_mode():
+                    actions = self.alg.act(obs)
+                # Step environment
+                obs, rewards, dones, infos = self.env.step(actions.to(self.env.device))
+
+                with torch.inference_mode():
                     # Move to the agent device
                     obs, rewards, dones = obs.to(self.device), rewards.to(self.device), dones.to(self.device)
 
@@ -191,12 +193,12 @@ class MIPolicyRunner(OnPolicyRunner):
                             cur_ereward_sum[new_ids] = 0
                             cur_ireward_sum[new_ids] = 0
 
-                stop = time.time()
-                collection_time = stop - start
+                    stop = time.time()
+                    collection_time = stop - start
 
-                # Learning step
-                start = stop
-                self.alg.compute_returns(obs)
+                    # Learning step
+                    start = stop
+                    self.alg.compute_returns(obs)
 
             # Update policy
             # Note: we keep arguments here since locals() loads them

@@ -240,7 +240,7 @@ class FLD(nn.Module):
         self.encoder = FLDEncoder(cfg)
         self.decoder = FLDDecoder(cfg)
 
-    def forward(self, inputs, forecast_horizon=1):
+    def forward(self, inputs, forecast_horizon = 1):
         """
         Forward pass of FLD model.
 
@@ -268,6 +268,10 @@ class FLD(nn.Module):
 
         return pred_dynamics, latent, signal, params
 
+    def forward_encod(self, inputs):
+        inputs = inputs.swapaxes(-2, -1)
+        return self.encoder(inputs)
+
 
 if __name__ == "__main__":
 
@@ -290,4 +294,7 @@ if __name__ == "__main__":
     inputs = torch.randn((12, cfg.observation_history_horizon, cfg.observation_dim), \
                          dtype = torch.float32, device = device)
 
-    outs = module(inputs, 40)
+    outs = module(inputs, forecast_horizon = 2)
+
+    print(outs)
+
