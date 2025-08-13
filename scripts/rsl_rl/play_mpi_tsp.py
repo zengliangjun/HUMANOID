@@ -85,8 +85,9 @@ def main():
     log_dir = os.path.dirname(resume_path)
 
     # create isaac environment
+    env_cfg.log_dir = log_dir
+    env_cfg.agent_cfg = agent_cfg
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
-    env.unwrapped.log_dir = log_dir
     # wrap for video recording
     if args_cli.video:
         video_kwargs = {

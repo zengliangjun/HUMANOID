@@ -96,4 +96,5 @@ class G1ObsStatisticsCfg_PLAY(G1ObsStatisticsCfg):
         self.events.interval_mass = None
         self.events.interval_coms = None
 
-
+        ## fld_status
+        self.statistics.fld_status.params["training"] = False

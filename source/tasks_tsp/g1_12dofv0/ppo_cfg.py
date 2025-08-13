@@ -15,10 +15,11 @@ class G1ObsStatisticCfgV1(RslRlOnPolicyRunnerCfg):
         actor_hidden_dims=[256, 256],
         critic_hidden_dims=[256, 256],
         activation="elu",
-        policy_groups= ["policy", "action_statistics"],
-        critic_groups= ["action_statistics",
-                        "critic", "pos_statistics"],
+        policy_groups= ["params", "policy", "action_statistics"],
+        critic_groups= ["params", "critic", "action_statistics",
+                        "pos_statistics"],
         encode_groups= [
+            "params",
             "policy", "action_statistics",
             "critic", "pos_statistics"
         ],
@@ -44,10 +45,11 @@ class G1ObsStatisticCfgV1(RslRlOnPolicyRunnerCfg):
         #self.policy.rnn_hidden_size=256
         #self.policy.rnn_num_layers=1
 
-        self.policy.encode_policy_hidden_dims = [96]
+        self.policy.encode_params_hidden_dims = [64]
+        self.policy.encode_policy_hidden_dims = [128]
         self.policy.encode_action_statistics_hidden_dims = [72]
 
-        self.policy.encode_critic_hidden_dims = [96]
+        self.policy.encode_critic_hidden_dims = [128]
         self.policy.encode_pos_statistics_hidden_dims = [72]
 
         self.algorithm.entropy_ranges = (1.5, 30)  # 目标熵值范围(最小,最大)

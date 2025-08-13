@@ -16,10 +16,14 @@ class ObservationsCfg:
     """Observation specifications for the MDP."""
 
     @configclass
-    class PolicyCfg(ObservationGroupCfg):
+    class ParamsCfg(ObservationGroupCfg):
         """Observations for policy group."""
         ## proprioceptive
-        fld_params = ObservationTermCfg(func=fld_observations.obs_fld_params, noise=Unoise(n_min=-0.1, n_max=0.1))
+        fld_params = ObservationTermCfg(func=fld_observations.obs_fld_params, noise=Unoise(n_min=-0.051, n_max=0.051))
+
+    @configclass
+    class PolicyCfg(ObservationGroupCfg):
+        """Observations for policy group."""
         ang_vel = ObservationTermCfg(func=mdp.base_ang_vel, scale = 0.25, noise=Unoise(n_min=-0.2, n_max=0.2))
         gravity = ObservationTermCfg(func=mdp.projected_gravity, noise=Unoise(n_min=-0.05, n_max=0.05))
         commands = ObservationTermCfg(func=mdp.generated_commands, scale = 0.25, params={"command_name": "base_velocity"})
@@ -30,6 +34,7 @@ class ObservationsCfg:
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
+            self.history_length = 10
 
     @configclass
     class CriticCfg(PolicyCfg):
@@ -84,7 +89,7 @@ class ObservationsCfg:
             self.enable_corruption = True
             self.concatenate_terms = True
 
-
+    params: ParamsCfg = ParamsCfg()
     # observation groups
     policy: PolicyCfg = PolicyCfg()
     critic: CriticCfg = CriticCfg()

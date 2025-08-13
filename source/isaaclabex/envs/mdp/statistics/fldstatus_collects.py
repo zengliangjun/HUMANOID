@@ -1,7 +1,14 @@
 from __future__ import annotations
 from collections.abc import Sequence
-import torch
+
+import re
+import os
+import os.path as osp
+import copy
 from typing import TYPE_CHECKING
+
+
+import torch
 
 import torch.optim as optim
 
@@ -105,13 +112,15 @@ class FLDCollect(ManagerTermBase):
         self.fld_module = fld_models.FLD(fld_cfg).to(env.device)
         self.status_normalizer = FldNormalization(shape = [observation_dim], until = 1.0e8).to(env.device)
 
+        self.fld_module.eval()
+        self.status_normalizer.eval()
 
         self.training = params["training"]
         if self.training:
-            self.fld_module.train()
-            self.status_normalizer.train()
+            self.fld_training_module = copy.deepcopy(self.fld_module)
+            self.fld_training_module.train()
 
-            self.fld_optimizer = optim.Adam(self.fld_module.parameters(), \
+            self.fld_optimizer = optim.Adam(self.fld_training_module.parameters(), \
                                             lr = params["fld_learning_rate"], \
                                             weight_decay = params["fld_weight_decay"])
 
@@ -121,11 +130,14 @@ class FLDCollect(ManagerTermBase):
             self.training_noise_level = params["training_noise_level"]
             self.fld_loss_scales = torch.tensor(params["fld_loss_scales"], dtype = torch.float32, device = env.device)[None, :]
 
-        else:
-            self.fld_module.eval()
-            self.status_normalizer.eval()
+            assert hasattr(env.cfg, "agent_cfg")
+            self.agent_cfg = env.cfg.agent_cfg
 
+            self.total_steps = 0
+            self.total_iterations = 0
+            self.total_loss = 0
 
+        self._load(env.cfg.log_dir)
 
     def reset(self, env_ids: Sequence[int] | None = None) -> dict:
         """重置指定环境的统计缓冲区
@@ -153,6 +165,40 @@ class FLDCollect(ManagerTermBase):
     def _get_joint_vel(self):
         return self.asset.data.joint_vel - self.asset.data.default_joint_vel
 
+    # LOAD SAVE
+    def _save(self, path):
+        file = osp.join(path, f"tspmodel_{self.total_iterations}.pt")
+        status = {
+                "module_state_dict": self.fld_training_module.state_dict(),
+                "normalizer_state_dict": self.status_normalizer.state_dict(),
+                "optimizer_state_dict": self.fld_optimizer.state_dict(),
+                "iterations": self.total_iterations,
+            }
+
+        torch.save(status, file)
+
+        self.fld_module.load_state_dict(self.fld_training_module.state_dict())
+
+
+    def _load(self, path):
+        if not osp.exists(path):
+            return
+
+        models = [file for file in os.listdir(path) if re.match("tspmodel_.*.pt", file)]
+        if 0 == len(models):
+            return
+
+        models.sort(key=lambda m: "{0:0>20}".format(m))
+        model = models[-1]
+        loaded_dict = torch.load(osp.join(path, model))
+
+        self.fld_module.load_state_dict(loaded_dict["module_state_dict"])
+        self.status_normalizer.load_state_dict(loaded_dict["normalizer_state_dict"])
+        if self.training:
+            self.fld_training_module.load_state_dict(loaded_dict["module_state_dict"])
+            self.fld_optimizer.load_state_dict(loaded_dict["optimizer_state_dict"])
+            self.total_iterations = loaded_dict["iterations"]
+
     # TRAIN
     def _compute_loss(self, input, target):
         diff = torch.square((input - target) * self.fld_loss_scales)
@@ -162,7 +208,7 @@ class FLDCollect(ManagerTermBase):
         inputs = self.status_normalizer(pre_status)
 
         inputs_noised = inputs + torch.randn_like(inputs, device = self.device) * self.training_noise_level
-        forecast_dynamics, latent, signal, params = self.fld_module.forward(inputs_noised, forecast_horizon = 2)
+        forecast_dynamics, latent, signal, params = self.fld_training_module.forward(inputs_noised, forecast_horizon = 2)
         forecast_status = self.status_normalizer.inverse(forecast_dynamics)
 
         loss = self._compute_loss(forecast_status[0, ...], pre_status)
@@ -171,6 +217,25 @@ class FLDCollect(ManagerTermBase):
         self.fld_optimizer.zero_grad()
         loss.backward()
         self.fld_optimizer.step()
+
+        self.total_steps += 1
+        self.total_loss += loss.item()
+
+        if self.total_steps < self.agent_cfg.num_steps_per_env:
+            return
+
+
+        self.total_iterations += 1
+        mean_fld_loss = self.total_loss / self.total_steps
+
+        self.writer.add_scalar(f"fld_loss", mean_fld_loss, self.total_iterations)
+        self.total_loss = 0
+        self.total_steps = 0
+
+        if self.total_iterations % self.agent_cfg.save_interval:
+            return
+
+        self._save(self._env.cfg.log_dir)
 
 
     def __call__(self):
