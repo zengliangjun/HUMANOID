@@ -101,6 +101,7 @@ class CurriculumCfg:
             "degree": 0.0000001,
             "down_up_lengths":[600, 840],
             "scale_range": [0, 1],
+            "scale": 0,
             "manager_name": "reward",
             "curriculums": {
                 'rew_lin_xy_exp': {    # reward name  -0.01
