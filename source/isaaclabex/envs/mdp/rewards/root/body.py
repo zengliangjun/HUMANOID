@@ -69,7 +69,7 @@ def reward_width(
     quat_w = torch.repeat_interleave(asset.data.root_link_quat_w[:, None, :], pos.shape[1], dim=1)
 
     # 对提取的位置进行逆旋转转换，将世界坐标系位置转换到机器人基座坐标系
-    pos_b = math_utils.quat_rotate_inverse(quat_w, pos)
+    pos_b = math_utils.quat_apply_inverse(quat_w, pos)
 
     # width 计算：
     # 1. 从基座坐标系 pos_b 中提取 y 轴坐标（索引 1 表示 y 分量）
@@ -104,7 +104,7 @@ def penalize_width(
 
     # 转换到基座坐标系
     quat_w = torch.repeat_interleave(asset.data.root_link_quat_w[:, None, :], pos.shape[1], dim=1)
-    pos_b = math_utils.quat_rotate_inverse(quat_w, pos)
+    pos_b = math_utils.quat_apply_inverse(quat_w, pos)
 
     # 计算当前脚部宽度(成对计算)
     current_width = pos_b[:, 0::2, 1] - pos_b[:, 1::2, 1]

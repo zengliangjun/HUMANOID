@@ -88,6 +88,6 @@ def penalize_feet_orientation(
     quat = asset.data.body_quat_w[:, asset_cfg.body_ids]
 
     vec = asset.data.GRAVITY_VEC_W[:, None, :].repeat((1, quat.shape[1], 1))
-    gravity = math_utils.quat_rotate_inverse(quat, vec)
+    gravity = math_utils.quat_apply_inverse(quat, vec)
 
     return torch.sum(torch.sum(torch.square(gravity[..., :2]), dim=-1) ** 0.5, dim=-1)
