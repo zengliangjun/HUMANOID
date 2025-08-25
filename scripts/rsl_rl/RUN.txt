@@ -1,0 +1,9 @@
+
+python scripts/rsl_rl/train_mpi.py --task G1ObsStatistic-v1 --headless
+python scripts/rsl_rl/play_mpi.py --task G1ObsStatistic-Play-v1
+
+
+python scripts/rsl_rl/train_mpi_tsp.py --task G1ObsStatistic-v1 --headless
+
+python scripts/rsl_rl/play_mpi_tsp.py --task G1ObsStatistic-Play-v1
+

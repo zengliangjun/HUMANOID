@@ -137,7 +137,10 @@ class FLDCollect(ManagerTermBase):
             self.total_iterations = 0
             self.total_loss = 0
 
-        self._load(env.cfg.log_dir)
+        if hasattr(env.cfg, "tsp_checkpoint_path"):
+            self._load_checkpoint(env.cfg.tsp_checkpoint_path)
+        else:
+            self._load(env.cfg.log_dir)
 
     def reset(self, env_ids: Sequence[int] | None = None) -> dict:
         """重置指定环境的统计缓冲区
@@ -190,7 +193,11 @@ class FLDCollect(ManagerTermBase):
 
         models.sort(key=lambda m: "{0:0>20}".format(m))
         model = models[-1]
-        loaded_dict = torch.load(osp.join(path, model))
+        model_path = osp.join(path, model)
+        self._load_checkpoint(model_path)
+
+    def _load_checkpoint(self, checkpoint_path):
+        loaded_dict = torch.load(checkpoint_path)
 
         self.fld_module.load_state_dict(loaded_dict["module_state_dict"])
         self.status_normalizer.load_state_dict(loaded_dict["normalizer_state_dict"])
