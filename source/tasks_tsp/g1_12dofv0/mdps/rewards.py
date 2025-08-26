@@ -9,14 +9,14 @@ class RewardsCfg:
     # -- task
     rew_lin_xy_exp = RewardTermCfg(
         func=reward_collect.reward_lin_xy_exp,
-        weight=5,
+        weight=10,
         params={"std": 0.35,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
     )
     rew_ang_z_exp = RewardTermCfg(
         func=reward_collect.reward_ang_z_exp,
-        weight=4,
+        weight=6,
         params={"std": 0.25,
                 "command_name": "base_velocity",
                 "asset_cfg": SceneEntityCfg("robot")},
@@ -205,7 +205,7 @@ class RewardsCfg:
 
     # action -0.01
     p_action_rate = RewardTermCfg(
-        func=reward_collect.penalize_action_rate_l2, weight=-0.1)
+        func=reward_collect.penalize_action_rate_l2, weight=-0.01)
     # action -0.002
     p_action_smoothness = RewardTermCfg(
         func=reward_collect.penalize_action_smoothness,

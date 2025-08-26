@@ -23,7 +23,6 @@ parser.add_argument("--num_envs", type=int, default=None, help="Number of enviro
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--track_robot", action="store_true", default=False, help="Name of the task.")
 parser.add_argument("--plot_logger", action="store_true", default=False, help="Name of the task.")
-parser.add_argument("--tsp_checkpoint_path", type=str, default=None, help="RL Policy training iterations.")
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -85,10 +84,7 @@ def main():
     resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
     log_dir = os.path.dirname(resume_path)
 
-    # set tsp cfg
-    if args_cli.tsp_checkpoint_path is not None:
-        env_cfg.tsp_checkpoint_path = args_cli.tsp_checkpoint_path
-
+    # create isaac environment
     env_cfg.log_dir = log_dir
     env_cfg.agent_cfg = agent_cfg
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
@@ -153,19 +149,22 @@ def main():
     logger = Logger(env.unwrapped)
 
     # simulate environment
-    while simulation_app.is_running():
+    # while simulation_app.is_running():
+
+    for it in range(0, agent_cfg.max_iterations * agent_cfg.save_interval):
         # run everything in inference mode
         with torch.inference_mode():
             # agent stepping
             actions = policy(obs)
             # env stepping
-            _, _, _, extra = env.step(actions)
-            if args_cli.track_robot:
-                    track_robot(env)
 
-            obs = extra["observations"]
-            for name, value in obs.items():
-                obs[name] = value.to(ppo_runner.device)
+        _, _, _, extra = env.step(actions)
+        if args_cli.track_robot:
+                track_robot(env)
+
+        obs = extra["observations"]
+        for name, value in obs.items():
+            obs[name] = value.to(ppo_runner.device)
 
         if args_cli.plot_logger:
             logger.log_step(actions, extra)

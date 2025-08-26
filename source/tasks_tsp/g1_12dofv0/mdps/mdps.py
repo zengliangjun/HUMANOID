@@ -5,7 +5,7 @@ import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 
 from isaaclabex.envs.mdp.commands import commands_cfg
 
-from isaaclabex.envs.mdp.statistics import joints, fldstatus_collects
+from isaaclabex.envs.mdp.statistics import fldstatus, joints
 from isaaclabex.envs.managers import term_cfg
 
 from rsl_rlex.fld.modules import modules_cfg
@@ -33,29 +33,34 @@ class StatisticsCfg:
     )
 
     fld_status = term_cfg.StatisticsTermCfg(
-        func= fldstatus_collects.FLDCollect,
+        func= fldstatus.FLDCollect,
         params={
             "training": True,
             "training_noise_level": 0.1,
             "asset_cfg": SceneEntityCfg("robot"),
             "status_names": [
                 "ang_vel",
-                "gravity",
+                #"gravity",
+                #"commands",
                 "joint_pos",
-                "joint_vel",
+                #"joint_vel",
+                #"action"
             ],
             "fld_module_cfg": modules_cfg.FLDCfg(
+                                fldmodel_prefix = "tspmodel",
                                 step_dt = 0.02,
-                                observation_dim = 30,
+                                observation_dim = 15,
                                 observation_history_horizon = 51,
-                                encoder_hidden_dims = [64, 64, 8],
-                                decoder_hidden_dims = [8, 64, 64]
+                                encoder_hidden_dims = [64, 64, 32],
+                                decoder_hidden_dims = [32, 64, 64]
                             ),
             "fld_loss_scales": [
                 0.5, 0.5, 0.5,
-                1.0, 1.0, 1.0,
+                # 1.0, 1.0, 1.0,
+                # 1.0, 1.0, 1.0,
                 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                # 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                # 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
             ],
             "fld_learning_rate": 0.0001,
             "fld_weight_decay": 0.0005,

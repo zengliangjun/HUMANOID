@@ -20,3 +20,13 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1ObsStatisticCfgV1",
     },
 )
+
+gym.register(
+    id="G1ObsStatistic-Plan-Play-v1",
+    entry_point="isaaclabex.envs.rl_env_exts:ManagerBasedRLEnv_Extends",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{env_cfg.__name__}:G1ObsStatisticsCfg_PLAN_PLAY",
+        "rsl_rl_cfg_entry_point": f"{ppo_cfg.__name__}:G1ObsStatisticCfgV1",
+    },
+)

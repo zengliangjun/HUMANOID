@@ -65,6 +65,20 @@ class G1ObsStatisticsCfg(rl_env_exts_cfg.ManagerBasedRLExtendsCfg):
         self.rewards.p_pos_limits.weight=-2.0
         self.rewards.p_foot_slide.weight=-0.5
         """
+        ## fld_status
+        self.statistics.fld_status.params["training"] = False
+        # self.curriculum.p_reward_steps = None
+
+
+@configclass
+class G1ObsStatistics_PLANE(G1ObsStatisticsCfg):
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.curriculum = None
+        self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = None
+
 
 @configclass
 class G1ObsStatisticsCfg_PLAY(G1ObsStatisticsCfg):
@@ -98,3 +112,42 @@ class G1ObsStatisticsCfg_PLAY(G1ObsStatisticsCfg):
 
         ## fld_status
         self.statistics.fld_status.params["training"] = False
+
+
+@configclass
+class G1ObsStatisticsCfg_PLANE_PLAY(G1ObsStatisticsCfg_PLAY):
+    def __post_init__(self):
+        super().__post_init__()
+        self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = None
+
+
+from tasks.g1_12dofv0 import env_cfg
+from isaaclabex.envs.mdp.statistics import fldstatus_collects
+from rsl_rlex.fld.modules import modules_cfg
+
+@configclass
+class G1ObsStatistics_TSPTrainCfg(env_cfg.G1ObsStatisticsCfg):
+    statistics = mdps.StatisticsCfg()
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.curriculum = None
+        self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = None
+
+        self.statistics.fld_status.func = fldstatus_collects.FLDCollect
+        self.statistics.fld_status.params["fld_module_cfg"] = modules_cfg.FLDExtendCfg(
+                                fldmodel_prefix = "tspmodel",
+                                step_dt = 0.02,
+                                observation_dim = 15,
+                                observation_history_horizon = 51,
+                                encoder_hidden_dims = [64, 64, 32],
+                                decoder_hidden_dims = [32, 64, 64],
+
+                                forecast_horizon = 50,
+                                num_mini_batches = 1000, #80,
+                                num_epochs = 4,
+                                mini_batch_size = 4000
+                            )

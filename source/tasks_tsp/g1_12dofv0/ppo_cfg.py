@@ -12,16 +12,16 @@ class G1ObsStatisticCfgV1(RslRlOnPolicyRunnerCfg):
     policy = mi_modules_cfg.MIEncodeActorCriticCfg(
         class_name = "MIEActorCritic",
         init_noise_std=1,
-        actor_hidden_dims=[256, 256],
-        critic_hidden_dims=[256, 256],
+        actor_hidden_dims=[512, 256, 128],
+        critic_hidden_dims=[512, 256, 128],
         activation="elu",
-        policy_groups= ["params", "policy", "action_statistics"],
-        critic_groups= ["params", "critic", "action_statistics",
-                        "pos_statistics"],
+        policy_groups= ["params", "policy"], #"action_statistics"],
+        critic_groups= ["params", "critic"], #"action_statistics",
+        #                "pos_statistics"],
         encode_groups= [
             "params",
-            "policy", "action_statistics",
-            "critic", "pos_statistics"
+            "policy", #"action_statistics",
+            "critic"#, "pos_statistics"
         ],
     )
     algorithm = RslRlPpoAlgorithmCfg(

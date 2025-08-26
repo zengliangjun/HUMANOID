@@ -1,9 +1,31 @@
 
 python scripts/rsl_rl/train_mpi.py --task G1ObsStatistic-v1 --headless
 python scripts/rsl_rl/play_mpi.py --task G1ObsStatistic-Play-v1
+python scripts/rsl_rl/play_mpi.py --task G1ObsStatistic-Plan-Play-v1
 
 
-python scripts/rsl_rl/train_mpi_tsp.py --task G1ObsStatistic-v1 --headless
+###
+python scripts/rsl_rl/play_mpi_train_tsp.py --task G1ObsStatistic-TSPTrain-v1 --headless
 
-python scripts/rsl_rl/play_mpi_tsp.py --task G1ObsStatistic-Play-v1
+python scripts/rsl_rl/train_mpi_tsp.py --task G1ObsStatistic-v1 \
+       --tsp_checkpoint_path \
+       "/workspace/data2/VSCODE/RL/ISAACSIM45LAB2/HUMANOID/logs/rsl_rl/g1obsStatisticv1/2025-06-18_08-29-54/tspmodel_1000.pt" \
+       --headless \
+       --resume True \
+       --load_run 2025-08-30_12-18-47 \
+       --checkpoint model_11000.pt
 
+
+python scripts/rsl_rl/train_mpi_tsp.py --task G1ObsStatistic-PLANE-v1 \
+       --tsp_checkpoint_path \
+       "/workspace/data2/VSCODE/RL/ISAACSIM45LAB2/HUMANOID/logs/rsl_rl/g1obsStatisticv1/2025-06-18_08-29-54/tspmodel_1000.pt" \
+       --headless \
+       --resume True \
+       --load_run 2025-08-30_11-12-00 \
+       --checkpoint model_2000.pt
+
+
+python scripts/rsl_rl/play_mpi_tsp.py --task G1ObsStatistic-Play-v1 --num_envs=24 --tsp_checkpoint_path "/workspace/data2/VSCODE/RL/ISAACSIM45LAB2/HUMANOID/logs/rsl_rl/g1obsStatisticv1/2025-06-18_08-29-54/tspmodel_1000.pt"
+
+
+python scripts/rsl_rl/play_mpi_tsp.py --task G1ObsStatistic-PLANE-Play-v1 --num_envs=24 --tsp_checkpoint_path "/workspace/data2/VSCODE/RL/ISAACSIM45LAB2/HUMANOID/logs/rsl_rl/g1obsStatisticv1/2025-06-18_08-29-54/tspmodel_1000.pt"

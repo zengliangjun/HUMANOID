@@ -34,11 +34,16 @@ class ObservationsCfg:
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
-            self.history_length = 10
 
     @configclass
-    class CriticCfg(PolicyCfg):
-        lin_vel = ObservationTermCfg(func=mdp.base_lin_vel, scale = 2.0, noise=Unoise(n_min=-0.1, n_max=0.1))
+    class CriticCfg(ObservationGroupCfg):
+        ang_vel = ObservationTermCfg(func=mdp.base_ang_vel, scale = 0.25)
+        gravity = ObservationTermCfg(func=mdp.projected_gravity)
+        commands = ObservationTermCfg(func=mdp.generated_commands, scale = 0.25, params={"command_name": "base_velocity"})
+        joint_pos = ObservationTermCfg(func=mdp.joint_pos_rel)
+        joint_vel = ObservationTermCfg(func=mdp.joint_vel_rel, scale = 0.05)
+        actions = ObservationTermCfg(func=mdp.last_action)
+        lin_vel = ObservationTermCfg(func=mdp.base_lin_vel, scale = 2.0)
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -95,5 +100,5 @@ class ObservationsCfg:
     critic: CriticCfg = CriticCfg()
 
     # observation groups
-    action_statistics: ActionStatisticsCfg = ActionStatisticsCfg()
-    pos_statistics: PosStatisticsCfg = PosStatisticsCfg()
+    # action_statistics: ActionStatisticsCfg = ActionStatisticsCfg()
+    # pos_statistics: PosStatisticsCfg = PosStatisticsCfg()

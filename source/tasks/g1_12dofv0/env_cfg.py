@@ -97,3 +97,35 @@ class G1ObsStatisticsCfg_PLAY(G1ObsStatisticsCfg):
         self.events.interval_coms = None
 
 
+
+@configclass
+class G1ObsStatisticsCfg_PLAN_PLAY(G1ObsStatisticsCfg):
+    def __post_init__(self):
+        super().__post_init__()
+        self.curriculum = None
+        self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = None
+
+        # make a smaller scene for play
+        self.scene.num_envs = 50
+        self.scene.env_spacing = 2.5
+
+        # spawn the robot randomly in the grid (instead of their terrain levels)
+        self.scene.terrain.max_init_terrain_level = None
+        # reduce the number of terrains to save memory
+        if self.scene.terrain.terrain_generator is not None:
+            self.scene.terrain.terrain_generator.size=(6.0, 6.0)
+            self.scene.terrain.terrain_generator.num_rows = 6
+            self.scene.terrain.terrain_generator.num_cols = 6
+            self.scene.terrain.terrain_generator.curriculum = False
+
+        # disable randomization for play
+        self.observations.policy.enable_corruption = False
+        # remove random pushing
+
+        self.commands.base_velocity.ranges.lin_vel_x=(0, 2)
+        self.events.interval_push = None
+        self.events.interval_gravity = None
+        self.events.interval_actuator = None
+        self.events.interval_mass = None
+        self.events.interval_coms = None

@@ -154,7 +154,7 @@ class FLDDecoder(nn.Module):
         curr_in_channel = cfg.decoder_hidden_dims[0]
         hidden_dims = copy.deepcopy(cfg.decoder_hidden_dims[1: ])
         hidden_dims.append(cfg.observation_dim)
-        for hidden_channel in hidden_dims:
+        for id, hidden_channel in enumerate(hidden_dims):
             decoder_layers.append(
                 nn.Conv1d(
                     curr_in_channel,
@@ -167,8 +167,10 @@ class FLDDecoder(nn.Module):
                     bias=True,
                     padding_mode='zeros')
                 )
-            decoder_layers.append(nn.BatchNorm1d(num_features=hidden_channel))
-            decoder_layers.append(nn.ELU())
+
+            if id < len(hidden_dims) - 1:
+                decoder_layers.append(nn.BatchNorm1d(num_features=hidden_channel))
+                decoder_layers.append(nn.ELU())
             curr_in_channel = hidden_channel
 
         self.decoder = nn.Sequential(*decoder_layers)
@@ -294,7 +296,7 @@ if __name__ == "__main__":
     inputs = torch.randn((12, cfg.observation_history_horizon, cfg.observation_dim), \
                          dtype = torch.float32, device = device)
 
-    outs = module(inputs, forecast_horizon = 2)
+    outs = module(inputs, forecast_horizon = 50)
 
     print(outs)
 
