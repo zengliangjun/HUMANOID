@@ -96,4 +96,5 @@ class G1ObsStatisticsCfg_PLAY(G1ObsStatisticsCfg):
         self.events.interval_mass = None
         self.events.interval_coms = None
 
-
+        self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = None

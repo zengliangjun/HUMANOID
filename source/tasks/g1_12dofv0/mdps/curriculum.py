@@ -14,6 +14,7 @@ class CurriculumCfg:
             "degree": 0.0000001,
             "down_up_lengths":[450, 550],
             "scale_range": [0, 1],
+            "scale": 0,
             "manager_name": "event",
             "curriculums": {
                 'startup_material': {    # event name

@@ -11,9 +11,10 @@ class CurriculumCfg:
     events_with_steps = CurriculumTermCfg(
         func=events.range_with_degree,
         params={
-            "degree": 0.000015,
-            "down_up_lengths":[300, 450],
+            "degree": 0.0000001,
+            "down_up_lengths":[450, 550],
             "scale_range": [0, 1],
+            "scale": 0,
             "manager_name": "event",
             "curriculums": {
                 'startup_material': {    # event name
@@ -97,30 +98,57 @@ class CurriculumCfg:
     p_reward_steps = CurriculumTermCfg(
         func=adaptive.scale_with_degree,
         params={
-            "degree": 0.000015,
+            "degree": 0.0000001,
             "down_up_lengths":[750, 840],
             "scale_range": [0, 1],
+            "scale": 0,
             "manager_name": "reward",
             "curriculums": {
+                'rew_lin_xy_exp': {    # reward name  -0.01
+                    "param_name": "weight",
+                    "start_weight": 5,
+                    "end_weight": 7
+                },
+                'rew_motion_hard': {    # reward name  -0.01
+                    "param_name": "weight",
+                    "start_weight": 3,
+                    "end_weight": 4.5
+                },
+                'rew_mean_hipp': {    # reward name  -0.01
+                    "param_name": "weight",
+                    "start_weight": 0.25,
+                    "end_weight": 0.3
+                },
+                'rew_mean_knee': {    # reward name  -0.01
+                    "param_name": "weight",
+                    "start_weight": 0.25,
+                    "end_weight": 0.3
+                },
+
                 'p_action_rate': {    # reward name
                     "param_name": "weight",
-                    "start_weight": -0.003,
-                    "end_weight": -0.1
+                    "start_weight": -0.01,
+                    "end_weight": -0.04
                 },
                 'p_action_smoothness': {    # reward name
                     "param_name": "weight",
-                    "start_weight": -0.0003,
-                    "end_weight": -0.02
+                    "start_weight": -0.001,
+                    "end_weight": -0.007
                 },
                 'p_torques_leg': {    # reward name
                     "param_name": "weight",
                     "start_weight": -0.0001,
                     "end_weight": -0.001
                 },
-                'p_torques_waist': {    # reward name
+                'p_torques_waistrp': {    # reward name
                     "param_name": "weight",
-                    "start_weight": -0.00005,
-                    "end_weight": -0.0005
+                    "start_weight": -0.0005,
+                    "end_weight": -0.005
+                },
+                'p_torques_waisty': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -0.00015,
+                    "end_weight": -0.0015
                 },
                 'p_width': {    # reward name
                     "param_name": "weight",
@@ -134,7 +162,7 @@ class CurriculumCfg:
                 },
                 'p_height': {    # reward name
                     "param_name": "weight",
-                    "start_weight": -3.0,
+                    "start_weight": -10.0,
                     "end_weight": -40.0
                 },
                 'rp_height_upper': {    # reward name
@@ -145,7 +173,7 @@ class CurriculumCfg:
                 'p_foot_clearance': {    # reward name
                     "param_name": "weight",
                     "start_weight": -20.0,
-                    "end_weight": -80.0
+                    "end_weight": -30.0
                 }
             }
         }
@@ -184,14 +212,14 @@ class CurriculumCfg:
             "param_name": "std"
         }
     )
-    rewm_waistrpy_z = CurriculumTermCfg(
+    rewm_waistrp_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
             "down_up_lengths": [300, 600],
             "value_range": [0.03, 0.06 * 2],
             "manager_name": "reward",
-            "term_name": "rew_mean_waistrpy_zero",
+            "term_name": "rew_mean_waistrp_zero",
             "param_name": "std"
         }
     )
@@ -252,14 +280,14 @@ class CurriculumCfg:
             "param_name": "std"
         }
     )
-    r_waistrpy_z = CurriculumTermCfg(
+    r_waistrp_z = CurriculumTermCfg(
         func=adaptive.curriculum_with_degree,
         params={
             "degree": - 0.00003,
             "down_up_lengths": [300, 600],
             "value_range": [0.003, 0.008 * 3],
             "manager_name": "reward",
-            "term_name": "rew_waistrpy_zero",
+            "term_name": "rew_waistrp_zero",
             "param_name": "std"
         }
     )
