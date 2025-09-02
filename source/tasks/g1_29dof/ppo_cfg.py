@@ -17,9 +17,9 @@ class G129dofObsStatisticCfgV0(RslRlOnPolicyRunnerCfg):
         critic_hidden_dims=[512, 256, 128],
         activation="elu",
         policy_groups= ["policy", "action_statistics", "pos_statistics"],
-        critic_groups= ["policy", "action_statistics", "pos_statistics"],
+        critic_groups= ["critic", "action_statistics", "pos_statistics"],
         encode_groups= [
-            "policy", "action_statistics", "pos_statistics"
+            "policy", "critic", "action_statistics", "pos_statistics"
         ],
     )
 
@@ -40,9 +40,10 @@ class G129dofObsStatisticCfgV0(RslRlOnPolicyRunnerCfg):
     )
 
     def __post_init__(self):
-        self.policy.encode_policy_hidden_dims = [192]
-        self.policy.encode_action_statistics_hidden_dims = [64]
-        self.policy.encode_pos_statistics_hidden_dims = [64]
+        self.policy.encode_policy_hidden_dims = [128]
+        self.policy.encode_critic_hidden_dims = [256]
+        self.policy.encode_action_statistics_hidden_dims = [96]
+        self.policy.encode_pos_statistics_hidden_dims = [96]
 
         self.policy.rnn_type='lstm'
         self.policy.rnn_hidden_size=448

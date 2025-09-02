@@ -72,7 +72,9 @@ class StatisticsCfg:
                 "left_knee_joint",
                 "right_knee_joint",
                 "left_shoulder_pitch_joint",
-                "right_shoulder_pitch_joint"
+                "right_shoulder_pitch_joint",
+                "left_elbow_joint",
+                "right_elbow_joint",
             ]},
 
         # episode_truncation = 80,
@@ -90,7 +92,9 @@ class StatisticsCfg:
                 "left_knee_joint",
                 "right_knee_joint",
                 "left_shoulder_pitch_joint",
-                "right_shoulder_pitch_joint"
+                "right_shoulder_pitch_joint",
+                "left_elbow_joint",
+                "right_elbow_joint",
             ]},
 
         # episode_truncation = 80,
