@@ -120,6 +120,32 @@ def rew_mean_zero_nostep(
     reward[flag] = diff_reward[flag]
     return reward
 
+def rew_mean_default(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+    pos_statistics_name: str = "pos",
+    std: float = 0.25
+) -> torch.Tensor:
+    asset: Articulation = env.scene[asset_cfg.name]
+    assert isinstance(env, ManagerBasedRLEnv)
+    manager: StatisticsManager = env.statistics_manager
+    term: joints.StatusJPos = manager.get_term(pos_statistics_name)
+
+
+    episode_mean = term.episode_mean_buf[:, asset_cfg.joint_ids] - asset.data.default_joint_pos[:, asset_cfg.joint_ids]
+
+    episode_mean0 = episode_mean[:, ::2]
+    episode_mean1 = episode_mean[:, 1::2]
+    reward = _exp_zero(std, [episode_mean0, episode_mean1])
+    reward = torch.mean(reward, dim=-1)
+
+    flag = torch.logical_or(term.stand_flag, term.zero_flag)
+    diff_reward = torch.exp(-torch.norm(term.diff, dim = -1))
+    reward[flag] = diff_reward[flag]
+    return reward
+
+
+
 def rew_mean_zero_nosymmetry(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,

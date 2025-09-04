@@ -12,7 +12,7 @@ class CurriculumCfg:
         func=events.range_with_degree,
         params={
             "degree": 0.0000001,
-            "down_up_lengths":[450, 550],
+            "down_up_lengths":[400, 650],
             "scale_range": [0, 1],
             "scale": 0,
             "manager_name": "event",
@@ -93,4 +93,72 @@ class CurriculumCfg:
                 },
             }
         },
+    )
+
+    penalize_steps = CurriculumTermCfg(
+        func=adaptive.scale_with_degree,
+        params={
+            'degree': 0.0000001,
+            'down_up_lengths': [550, 700],
+            "scale_range": [0, 1],
+            "scale": 0,
+            "manager_name": "reward",
+            "curriculums": {
+                'p_action_rate': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -0.004,
+                    "end_weight": -0.04
+                },
+                'p_action_smoothness': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -0.004,
+                    "end_weight": -0.01
+                },
+                'p_torques_pitch': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -5e-5,
+                    "end_weight": -5e-4
+                },
+                'p_torques_other': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -3e-4,
+                    "end_weight": -9e-4
+                },
+                'p_torque_limits': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -1e-3,
+                    "end_weight": -1e-1
+                },
+                'p_pos_limits': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -1,
+                    "end_weight": -20.0
+                },
+                'p_width': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -1.0,
+                    "end_weight": -10
+                },
+                'p_orientation': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -3,
+                    "end_weight": -10
+                },
+                'p_height': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -3.0,
+                    "end_weight": -40.0
+                },
+                'p_foot_clearance': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -5.0,
+                    "end_weight": -20.0
+                },
+                'rew_stability': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": 0.5,
+                    "end_weight": 1
+                }
+            }
+        }
     )
