@@ -39,8 +39,12 @@ class RewardsCfg:
                 "pos_statistics_name": "pos"},
     )
 
-from .rewards_uper import RewardsUperCfg
-from .rewards_leg import RewardsLegCfg
+if False:
+    from .rewards_uper import RewardsUperCfg
+    from .rewards_leg import RewardsLegCfg
+else:
+    from .rewards_uperv4 import RewardsUperCfg
+    from .rewards_legv4 import RewardsLegCfg
 
 @configclass
 class RewardsG21Cfg(RewardsUperCfg, RewardsLegCfg, RewardsCfg):
