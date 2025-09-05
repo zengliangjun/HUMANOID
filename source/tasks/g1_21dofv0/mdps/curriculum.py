@@ -111,18 +111,23 @@ class CurriculumCfg:
                 },
                 'p_action_smoothness': {    # reward name
                     "param_name": "weight",
-                    "start_weight": -0.004,
+                    "start_weight": -0.0004,
                     "end_weight": -0.01
                 },
                 'p_torques_pitch': {    # reward name
                     "param_name": "weight",
-                    "start_weight": -5e-5,
-                    "end_weight": -5e-4
+                    "start_weight": -1e-7,
+                    "end_weight": -1e-6
                 },
-                'p_torques_other': {    # reward name
+                'p_torques_lite': {    # reward name
                     "param_name": "weight",
-                    "start_weight": -3e-4,
-                    "end_weight": -9e-4
+                    "start_weight": -1e-6,
+                    "end_weight": -1e-5
+                },
+                'p_torques_static': {    # reward name
+                    "param_name": "weight",
+                    "start_weight": -3e-5,
+                    "end_weight": -1e-4
                 },
                 'p_torque_limits': {    # reward name
                     "param_name": "weight",

@@ -85,17 +85,26 @@ class RewardsG21Cfg(RewardsUperCfg, RewardsLegCfg, RewardsCfg):
                                joint_names=[ ".*_hip_pitch_joint",
                                              ".*_knee_joint",
                                              ".*_ankle_pitch_joint",
-                                             ".*_ankle_roll_joint",
-                                             ".*_shoulder_pitch_joint",
-                                             ".*_elbow_joint"]
+                                             ".*_ankle_roll_joint"
+                                             ]
                                               )}
     )
-    p_torques_other = RewardTermCfg(
+    p_torques_lite = RewardTermCfg(
         func=reward_collect.penalize_torques_l2,
         weight=-1e-3, params={"asset_cfg": SceneEntityCfg("robot",
-                               joint_names=[ "waist_yaw_joint",
+                               joint_names=[
+                                             ".*_shoulder_pitch_joint",
+                                             ".*_elbow_joint",
                                              ".*_hip_roll_joint",
                                              ".*_hip_yaw_joint",
+                                             "waist_yaw_joint",
+                                             ]
+                                             )}
+    )
+    p_torques_static = RewardTermCfg(
+        func=reward_collect.penalize_torques_l2,
+        weight=-1e-3, params={"asset_cfg": SceneEntityCfg("robot",
+                               joint_names=[
                                              ".*_shoulder_roll_joint",
                                              ".*_shoulder_yaw_joint"
                                              ]
