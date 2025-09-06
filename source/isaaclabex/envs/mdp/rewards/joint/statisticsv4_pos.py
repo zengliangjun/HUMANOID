@@ -16,23 +16,30 @@ if TYPE_CHECKING:
     from isaaclabex.envs.mdp.statistics import joints
 
 
-def _exp_decay(std, values: list[float]):
+def _exp_decay(values: list[float]):
     count = 0
     total = None
+    std =  None
     for id0 in range(len(values)):
         for id1 in range(id0 + 1, len(values)):
             if id0 == id1:
                 continue
-            diff = torch.abs(values[id0] - values[id1]) / std
+            diff = torch.square(values[id0] - values[id1])
             if None == total:
-                total = torch.exp(-diff)
+                total = diff
             else:
-                total += torch.exp(-diff)
+                total += diff
 
             count += 1
 
-    return total / count
+        if None == std:
+            std =  torch.square(values[id0])
+        else:
+            std += torch.square(values[id0])
 
+    total /= count
+    std /= len(values)
+    return torch.exp(-total / (std + 1e-6))
 
 def _exp_zero(std, values: list[float]):
 
@@ -70,7 +77,7 @@ def rew_mean_self2(
         step_mean_mean = term.step_mean_mean_buf[:, step_ids] - asset.data.default_joint_pos[:, asset_cfg.joint_ids[::2]]
         means.append(step_mean_mean)
 
-    reward = _exp_decay(std, means)
+    reward = _exp_decay(means)
 
     if constraint_range is not None:
         diff_std = std * 0.5
@@ -82,7 +89,9 @@ def rew_mean_self2(
 
             constraint_reward = step_reward if constraint_reward is None else constraint_reward + step_reward
 
-        reward += constraint_reward / len(means)
+        constraint_reward /= len(means)
+
+        reward += constraint_reward
 
     reward = torch.mean(reward, dim=-1)
 
@@ -166,7 +175,7 @@ def rew_variance(
 
         else:
             reward = torch.exp(- (step_mean_variance / std)) / 4 + \
-                _exp_decay(std, means) * 3 / 4
+                _exp_decay(means) * 3 / 4
 
             if constraint_range is not None:
                 diff_std = std * 0.5

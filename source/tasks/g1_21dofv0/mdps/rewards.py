@@ -39,6 +39,16 @@ class RewardsCfg:
                 "pos_statistics_name": "pos"},
     )
 
+    feet_air_time = RewardTermCfg(
+        func=reward_collect.reward_air_time_biped,
+        weight=1,
+        params={
+            "command_name": "base_velocity",
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
+            "threshold": 0.4,
+        },
+    )
+
 if False:
     from .rewards_uper import RewardsUperCfg
     from .rewards_leg import RewardsLegCfg
@@ -93,8 +103,6 @@ class RewardsG21Cfg(RewardsUperCfg, RewardsLegCfg, RewardsCfg):
         func=reward_collect.penalize_torques_l2,
         weight=-1e-3, params={"asset_cfg": SceneEntityCfg("robot",
                                joint_names=[
-                                             ".*_shoulder_pitch_joint",
-                                             ".*_elbow_joint",
                                              ".*_hip_roll_joint",
                                              ".*_hip_yaw_joint",
                                              "waist_yaw_joint",
@@ -105,6 +113,8 @@ class RewardsG21Cfg(RewardsUperCfg, RewardsLegCfg, RewardsCfg):
         func=reward_collect.penalize_torques_l2,
         weight=-1e-3, params={"asset_cfg": SceneEntityCfg("robot",
                                joint_names=[
+                                             ".*_shoulder_pitch_joint",
+                                             ".*_elbow_joint",
                                              ".*_shoulder_roll_joint",
                                              ".*_shoulder_yaw_joint"
                                              ]

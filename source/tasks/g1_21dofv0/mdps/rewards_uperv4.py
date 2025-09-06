@@ -15,8 +15,8 @@ class RewardsUperCfg():
                         "right_shoulder_pitch_joint"]),
                 "pos_statistics_name": "pos",
                 "symmetry": True,
-                "constraint_range": 0.1,
-                "std": 0.12,
+                "constraint_range": 0.15,
+                "std": 0.08,
                 }
     )
     rew_shoulderp_var = RewardTermCfg(
@@ -29,8 +29,8 @@ class RewardsUperCfg():
                         ]),
                 "pos_statistics_name": "pos",
                 "symmetry": True,
-                "constraint_range": 0.04,
-                "std": 0.075
+                "constraint_range": 0.02,
+                "std": 0.01
                 }
     )
 
@@ -101,8 +101,8 @@ class RewardsUperCfg():
                         "right_elbow_joint"]),
                 "pos_statistics_name": "pos",
                 "symmetry": True,
-                "constraint_range": 0.04,
-                "std": 0.12,
+                "constraint_range": 0.08,
+                "std": 0.08,
                 }
     )
 
@@ -116,8 +116,8 @@ class RewardsUperCfg():
                         ]),
                 "pos_statistics_name": "pos",
                 "symmetry": True,
-                "iszero": False,
-                "constraint_range": 0.0025,
+                "constraint_range": 0.02,
+                "std": 0.01
                 }
     )
 
